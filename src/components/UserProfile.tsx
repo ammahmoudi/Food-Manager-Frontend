@@ -44,7 +44,7 @@ const UserProfile = () => {
           height={100}
         />
         <Spacer y={0.5} />
-        <div>{user.user_image}</div>
+        <div>{user.name}</div>
         <div>{user.phone_number}</div>
         <div><LogoutButton></LogoutButton></div>
       </CardBody>

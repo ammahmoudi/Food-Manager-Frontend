@@ -1,4 +1,3 @@
-// services/api.ts
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8000/api/';
@@ -81,9 +80,28 @@ export const getFoods = async () => {
   return response.data;
 };
 
-
 export const getMeals = async () => {
   const response = await api.get('meals/');
+  return response.data;
+};
+
+export const getMealByDate = async (date: string) => {
+  const response = await api.get(`meals/date/${date}/`);
+  return response.data;
+};
+
+export const getMealComments = async (mealId: number) => {
+  const response = await api.get(`meals/${mealId}/comments/`);
+  return response.data;
+};
+
+export const getFoodDetails = async (foodId: number) => {
+  const response = await api.get(`foods/${foodId}/`);
+  return response.data;
+};
+
+export const getFoodComments = async (foodId: number) => {
+  const response = await api.get(`foods/${foodId}/comments/`);
   return response.data;
 };
 
@@ -96,8 +114,14 @@ export const saveMeal = async (meal: { date: string; foodId: number }) => {
   const response = await api.post('meals/', meal);
   return response.data;
 };
-export const getFeedbacks = async () => {
-  const response = await api.get('feedbacks/');
+
+export const getMealsWithFood = async (foodId: number) => {
+  const response = await api.get(`foods/${foodId}/meals/`);
+  return response.data;
+};
+
+export const getAdminCheck = async () => {
+  const response = await api.get('admin-check/');
   return response.data;
 };
 
@@ -108,11 +132,6 @@ export const login = async (phone_number: string, password: string) => {
   });
   const { access, refresh } = response.data;
   return { access, refresh };
-};
-export const getAdminCheck = async () => {
-  const response = await api.get('admin-check/');
-  console.log(response.data)
-  return response.data;
 };
 
 export default api;
