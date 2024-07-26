@@ -84,7 +84,10 @@ export const getMeals = async () => {
   const response = await api.get('meals/');
   return response.data;
 };
-
+export const getMealById = async (id: number) => {
+  const response = await api.get(`meals/${id}/`);
+  return response.data;
+};
 export const getMealByDate = async (date: string) => {
   const response = await api.get(`meals/date/${date}/`);
   return response.data;
@@ -109,7 +112,10 @@ export const addFood = async (food: { name: string; description: string; picture
   const response = await api.post('foods/', food);
   return response.data;
 };
-
+export const updateMeal = async (id: number, meal: any) => {
+  const response = await api.put(`meals/${id}/`, meal);
+  return response.data;
+};
 export const saveMeal = async (meal: { date: string; foodId: number }) => {
   const response = await api.post('meals/', meal);
   return response.data;
@@ -117,6 +123,11 @@ export const saveMeal = async (meal: { date: string; foodId: number }) => {
 
 export const getMealsWithFood = async (foodId: number) => {
   const response = await api.get(`foods/${foodId}/meals/`);
+  return response.data;
+};
+
+export const getFilteredMeals = async (filter: string) => {
+  const response = await api.get(`meals/filter/${filter}/`);
   return response.data;
 };
 

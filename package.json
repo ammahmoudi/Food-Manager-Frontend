@@ -17,13 +17,16 @@
     "framer-motion": "^11.3.4",
     "jalaali-js": "^1.2.7",
     "luxon": "^3.4.4",
+    "moment-jalaali": "^0.10.1",
     "next": "14.2.5",
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^5.2.1"
   },
   "devDependencies": {
+    "@types/jalaali-js": "^1.1.3",
     "@types/luxon": "^3.4.2",
+    "@types/moment-jalaali": "^0.7.9",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

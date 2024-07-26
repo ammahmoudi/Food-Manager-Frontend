@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { getMealByDate, getMealComments } from '../../../services/api';
+import {  getMealByDate, getMealComments } from '../../../services/api';
 import MealDetails from '../../../components/MealDetails';
 import { MealDetailsData } from '../../../interfaces/MealDetailsData';
 import { Comment } from '../../../interfaces/Comment';
