@@ -1,7 +1,9 @@
-import Calendar from '../../../components/Calendar';
+import { redirect } from 'next/navigation';
+import { startOfToday, format } from 'date-fns-jalali';
 
-const CalendarPage = () => {
-  return <Calendar />;
-};
-
-export default CalendarPage;
+export default function CalendarRedirect() {
+  const currentDate = startOfToday();
+  const year = format(currentDate, 'yyyy');
+  const month = format(currentDate, 'MM');
+  redirect(`/admin/calendar/${year}/${month}`);
+}

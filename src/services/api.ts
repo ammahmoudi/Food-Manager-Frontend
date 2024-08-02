@@ -130,8 +130,8 @@ export const getFilteredMeals = async (filter: string) => {
   const response = await api.get(`meals/filter/${filter}/`);
   return response.data;
 };
-export const getMealsForCurrentMonth = async (month: string) => {
-  const response = await api.get(`meals/current-month/?month=${month}`);
+export const getMealsForCurrentMonth = async (year: number, month: number) => {
+  const response = await api.get(`meals/current-month/${year}-${month}`);
   return response.data;
 };
 

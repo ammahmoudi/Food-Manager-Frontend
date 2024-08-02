@@ -15,7 +15,21 @@ const config: Config = {
 				"gradient-conic":
 					"conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
 			},
-		},
+			animation: {
+				'scroll': 'scroll 10s linear infinite',
+				'scroll-back-forth': 'scroll-back-forth 10s linear infinite',
+			  },
+			  keyframes: {
+				'scroll': {
+				  '0%': { transform: 'translateX(0)' },
+				  '100%': { transform: 'translateX(-100%)' },
+				},
+				'scroll-back-forth': {
+					'0%, 100%': { transform: 'translateX(0)' },
+					'50%': { transform: 'translateX(calc(-100% + 100vw))' },
+				}
+		}
+	}
 	},
 	darkMode: "class",
 	plugins: [

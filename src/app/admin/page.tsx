@@ -39,7 +39,7 @@ const AdminPage = () => {
       const today = DateTime.now();
       const next7Days = Array.from({ length: 7 }, (_, i) => dateTimeToJalaali(DateTime.fromISO(today.plus({ days: i }).toISODate())));
       const fetchedMeals = await getMeals();
-      console.log('fetched meals',fetchedMeals)
+      // console.log('fetched meals',fetchedMeals)
       const mealsData = next7Days.map(date => ({
         date,
         food: fetchedMeals.find((meal: Meal) => meal.date === date)?.food || null,

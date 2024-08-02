@@ -21,6 +21,7 @@ const StarIcon: FC<{ filled: boolean }> = ({ filled }) => (
 
 const MealDetails: FC<{ data: MealDetailsData }> = ({ data }) => {
   const { imageUrl, title, description, rating, datePosted, comments, foodId } = data;
+  console.log(data);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 md:px-6 lg:py-16">

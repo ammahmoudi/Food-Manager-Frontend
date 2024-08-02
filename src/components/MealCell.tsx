@@ -1,66 +1,100 @@
 'use client';
 
-import { FC, useState } from 'react';
-import { Card, Button, CardBody } from '@nextui-org/react';
+import { FC, useState, useEffect } from 'react';
+import { Card, CardFooter, CardHeader, Image } from '@nextui-org/react';
 import { Meal } from '../interfaces/Meal';
-import { useRouter } from 'next/navigation';
-import FoodSelection from './FoodSelection';
-import { Food } from '../interfaces/Food';
-import { updateMeal, createMeal } from '../services/api';
-import jMoment from 'moment-jalaali';
+import { format, parseISO } from 'date-fns-jalali';
+import MealDetailModal from './MealDetailModal';
+import { getMealByDate } from '@/services/api';
 
 interface MealCellProps {
   date: string;
-  meals: Meal[];
+  initialMeals: Meal[];
+  isAdmin: boolean;
 }
 
-const MealCell: FC<MealCellProps> = ({ date, meals }) => {
-  const [selectedFood, setSelectedFood] = useState<Food | null>(null);
-  const router = useRouter();
+const MealCell: FC<MealCellProps> = ({ date, initialMeals, isAdmin }) => {
+  const [meals, setMeals] = useState<Meal[]>(initialMeals);
+  const [modalVisible, setModalVisible] = useState(false);
 
-  const dayMeals = meals.filter((meal) => jMoment(meal.date).format('YYYY-MM-DD') === jMoment(date).format('YYYY-MM-DD'));
-
-  const handleSave = async () => {
-    if (selectedFood) {
-      try {
-        const existingMeal = dayMeals[0];
-        if (existingMeal) {
-          await updateMeal(existingMeal.id, { ...existingMeal, food: selectedFood.id });
-        } else {
-          await createMeal({ date, food: selectedFood.id, rating: 0 });
+  useEffect(() => {
+    if (initialMeals.length === 0) {
+      const fetchMeals = async () => {
+        try {
+          const response = await getMealByDate(date.split('T')[0]);
+          setMeals(response);
+        } catch (error) {
+          console.error('Failed to fetch meals:', error);
         }
-        router.refresh();
-        setSelectedFood(null);
-      } catch (error) {
-        console.error('Failed to save meal:', error);
-      }
+      };
+
+      fetchMeals();
+    } else {
+      setMeals(initialMeals);
     }
+  }, [date, initialMeals]);
+
+  const handleOpenModal = () => {
+    setModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalVisible(false);
   };
 
   return (
-    <Card>
-      <CardBody>
-        <div>{jMoment(date).jDate()}</div>
-        <div>
-          {dayMeals.length > 0 ? (
-            dayMeals.map((meal) => (
-              <div key={meal.id}>
-                <div>{meal.food?.name}</div>
-                <Button onClick={() => router.push(`/meals/edit/${meal.id}`)}>Edit</Button>
-              </div>
-            ))
-          ) : (
-            <Button onClick={() => setSelectedFood(null)}>Add Meal</Button>
-          )}
-        </div>
-        {selectedFood && (
-          <div>
-            <FoodSelection selectedFood={selectedFood} onFoodSelect={setSelectedFood} />
-            <Button onClick={handleSave}>Save</Button>
+    <div className="meal-cell h-full w-full p-0.5">
+      {meals.length > 0 ? (
+        meals.map((meal) => (
+          <Card
+            isFooterBlurred
+            radius="md"
+            key={meal.id}
+            isPressable
+            onPress={handleOpenModal}
+          >
+            <Image
+              removeWrapper
+              className="z-0 w-full h-full object-cover"
+              src={meal.food?.picture}
+              alt={meal.food?.name}
+              radius="none"
+            />
+            <CardHeader className="absolute z-10  flex-col !items-start">
+              <p className="text-medium text-white/90  uppercase font-bold">
+                {format(parseISO(date), 'd')}
+              </p>
+            </CardHeader>
+            <CardFooter className="absolute before:bg-white/60 bottom-0 border-t-1 border-zinc-100/50 z-10 justify-center py-1 lg:py-2 hidden sm:block">
+              <p className="text-white font-bold text-tiny truncate ">
+                <span>{meal.food?.name}</span>
+              </p>
+            </CardFooter>
+          </Card>
+        ))
+      ) : (
+        <Card
+          isFooterBlurred
+          radius="md"
+          className="h-full w-full justify-center items-center"
+          isPressable
+          onPress={handleOpenModal}
+        >
+          <div className='h-full flex items-center justify-center'>
+            <p className="text-medium text-black/60 uppercase font-bold text-center">
+              {format(parseISO(date), 'd')}
+            </p>
           </div>
-        )}
-      </CardBody>
-    </Card>
+        </Card>
+      )}
+
+      <MealDetailModal
+        visible={modalVisible}
+        onClose={handleCloseModal}
+        date={date}
+        isAdmin={isAdmin}
+      />
+    </div>
   );
 };
 

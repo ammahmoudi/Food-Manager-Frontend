@@ -1,6 +1,7 @@
 import { Food } from './Food';
 
 export interface Meal {
+  comments: never[];
   id: number;
   date: string;
   food: Food | null;

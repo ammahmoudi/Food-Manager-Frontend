@@ -1,90 +1,93 @@
 'use client';
 
 import { FC, useEffect, useState } from 'react';
-import { Table, Button, TableHeader, TableColumn, TableBody, TableRow, TableCell } from '@nextui-org/react';
-import jMoment from 'moment-jalaali';
-import { getMealsForCurrentMonth } from '../services/api';
-import { Meal } from '../interfaces/Meal';
+import { Button } from '@nextui-org/react';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek, addWeeks, isSameMonth, parseISO, isSameDay, newDate } from 'date-fns-jalali';
 import MealCell from './MealCell';
+import { Meal } from '../interfaces/Meal';
+import { getAdminCheck } from '@/services/api';
 
-interface CalendarProps {}
+interface CalendarProps {
+  year: number;
+  month: number;
+  meals: { date: string; meals: Meal[] }[];
+  onMonthChange: (year: number, month: number) => void;
+}
 
-const Calendar: FC<CalendarProps> = () => {
-  const [meals, setMeals] = useState<Meal[]>([]);
-  const [currentMonth, setCurrentMonth] = useState<jMoment.Moment>(jMoment().startOf('jMonth'));
-
-  const fetchMeals = async (month: jMoment.Moment) => {
-    try {
-      const response = await getMealsForCurrentMonth(month.format('jYYYY-jMM'));
-      setMeals(response);
-    } catch (error) {
-      console.error('Failed to fetch meals:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchMeals(currentMonth);
-  }, [currentMonth]);
-
-  const daysInMonth = currentMonth.daysInMonth();
-  const firstDayOfMonth = currentMonth.startOf('jMonth').day();
-  console.log('firstDayOfMonth',firstDayOfMonth)
-  console.log('daysInMonth',daysInMonth)
-  
+const Calendar: FC<CalendarProps> = ({ year, month, meals, onMonthChange }) => {
+  const currentMonth = newDate(year, month - 1, 1);
+  const firstDayOfMonth = startOfMonth(currentMonth);
+  const lastDayOfMonth = endOfMonth(currentMonth);
+  const [isAdmin, setIsAdmin] = useState(false);
   const weeks = [];
-
-  let day = 1;
-
-  for (let i = 0; i < 6; i++) {
-    const week = [];
-    for (let j = 0; j < 7; j++) {
-      if (i === 0 && j < firstDayOfMonth) {
-        week.push(null);
-      } else if (day > daysInMonth) {
-        week.push(null);
-      } else {
-        week.push(day);
-        day++;
+  let currentWeek = startOfWeek(firstDayOfMonth, { weekStartsOn: 6 });
+  useEffect(() => {
+    const fetchAdminStatus = async () => {
+      try {
+        const response = await getAdminCheck();
+        setIsAdmin(response.isAdmin);
+      } catch (error) {
+        console.error('Failed to fetch admin status:', error);
       }
-    }
-    weeks.push(week);
+    };
+
+    fetchAdminStatus();
+  }, []);
+  while (currentWeek <= lastDayOfMonth) {
+    const weekDays = eachDayOfInterval({
+      start: currentWeek,
+      end: endOfWeek(currentWeek, { weekStartsOn: 6 }),
+    });
+    weeks.push(weekDays);
+    currentWeek = addWeeks(currentWeek, 1);
   }
 
   const handlePrevMonth = () => {
-    setCurrentMonth(currentMonth.clone().subtract(1, 'jMonth'));
+    const prevMonth = subMonths(currentMonth, 1);
+    const newYear = parseInt(format(prevMonth, 'yyyy'), 10);
+    const newMonth = parseInt(format(prevMonth, 'MM'), 10);
+    onMonthChange(newYear, newMonth);
   };
 
   const handleNextMonth = () => {
-    setCurrentMonth(currentMonth.clone().add(1, 'jMonth'));
+    const nextMonth = addMonths(currentMonth, 1);
+    const newYear = parseInt(format(nextMonth, 'yyyy'), 10);
+    const newMonth = parseInt(format(nextMonth, 'MM'), 10);
+    onMonthChange(newYear, newMonth);
   };
 
   return (
-    <div className="w-screen mx-auto px-4 py-12 md:px-6 lg:py-16">
-      <h1 className="text-3xl font-bold mb-6">Meals Calendar for {currentMonth.format('jMMMM jYYYY')}</h1>
+    <div className="max-w-full mx-auto px-4 py-12 md:px-6 lg:py-16">
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        Meals Calendar for {format(currentMonth, 'MMMM yyyy')}
+      </h1>
       <div className="flex justify-between mb-4">
         <Button onClick={handlePrevMonth}>Previous Month</Button>
         <Button onClick={handleNextMonth}>Next Month</Button>
       </div>
-      <Table>
-        <TableHeader>
-          {['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day) => (
-            <TableColumn key={day}>{day}</TableColumn>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {weeks.map((week, i) => (
-            <TableRow key={i}>
-              {week.map((day, j) => (
-                <TableCell key={j}>
-                  {day ? (
-                    <MealCell date={currentMonth.clone().date(day).format('YYYY-MM-DD')} meals={meals} />
-                  ) : null}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <div  className="grid grid-cols-7 gap-0 bg-black/50 rounded-xl mb-2 ">
+        {['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day) => (
+          <div key={day} className=" text-center text-white py-2 font-bold">
+            {day}
+          </div>
+        ))}
+        </div>
+      <div className="grid grid-cols-7 gap-0 ">
+        {weeks.map((week, i) => (
+          week.map((day, j) => {
+            const cellMeals = meals.find((cell) => isSameDay(parseISO(cell.date), day))?.meals || [];
+            return (
+              <div key={j} className=" flex flex-col items-center justify-start min-h-[50px] aspect-square">
+                {isSameMonth(day, currentMonth) ? (
+                  <>
+                    <MealCell date={day.toISOString()} initialMeals={cellMeals} isAdmin={isAdmin} />
+                  </>
+                ) : null}
+              </div>
+            );
+          })
+        ))}
+      </div>
     </div>
   );
 };
