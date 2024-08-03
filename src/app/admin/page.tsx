@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Input, Button, Card, CardBody, CardHeader, Modal, useModal, Autocomplete, useDisclosure, ModalContent, ModalHeader, ModalBody, ModalFooter, AutocompleteItem} from '@nextui-org/react';
 import { DateTime } from 'luxon';
-import { jalaaliToDateTime, dateTimeToJalaali } from '../../utils/jalaali';
+import { jalaaliToDateTime, dateTimeToJalaali } from '../../utils/dateUtils';
 import withAdminAuth from '../../components/withAdminAuth';
 import {addFood,getFoods,getMeals,saveMeal} from '@/services/api';
 
