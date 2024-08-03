@@ -49,6 +49,8 @@ api.interceptors.request.use(async (config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
 api.interceptors.response.use(
@@ -66,10 +68,6 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       }
-    } else if (!error.response) {
-      console.error('Error response is undefined:', error);
-    } else {
-      console.error('Unexpected error:', error);
     }
     return Promise.reject(error);
   }
@@ -84,10 +82,12 @@ export const getMeals = async () => {
   const response = await api.get('meals/');
   return response.data;
 };
+
 export const getMealById = async (id: number) => {
   const response = await api.get(`meals/${id}/`);
   return response.data;
 };
+
 export const getMealByDate = async (date: string) => {
   const response = await api.get(`meals/date/${date}/`);
   return response.data;
@@ -112,10 +112,12 @@ export const addFood = async (food: { name: string; description: string; picture
   const response = await api.post('foods/', food);
   return response.data;
 };
+
 export const updateMeal = async (id: number, meal: any) => {
   const response = await api.put(`meals/${id}/`, meal);
   return response.data;
 };
+
 export const saveMeal = async (meal: { date: string; foodId: number }) => {
   const response = await api.post('meals/', meal);
   return response.data;
@@ -130,6 +132,7 @@ export const getFilteredMeals = async (filter: string) => {
   const response = await api.get(`meals/filter/${filter}/`);
   return response.data;
 };
+
 export const getMealsForCurrentMonth = async (year: number, month: number) => {
   const response = await api.get(`meals/current-month/${year}-${month}`);
   return response.data;

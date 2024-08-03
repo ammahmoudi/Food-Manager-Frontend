@@ -2,6 +2,7 @@ import { FC } from 'react';
 
 import { Avatar,Link } from '@nextui-org/react';
 import { MealDetailsData } from '../interfaces/MealDetailsData';
+import { format } from 'date-fns-jalali';
 
 const StarIcon: FC<{ filled: boolean }> = ({ filled }) => (
   <svg
@@ -48,7 +49,7 @@ const MealDetails: FC<{ data: MealDetailsData }> = ({ data }) => {
               <span className="text-muted-foreground text-sm">({rating})</span>
             </div>
           </div>
-          <div className="text-sm text-muted-foreground">Posted on {datePosted}</div>
+          <div className="text-sm text-muted-foreground">Posted on {format(datePosted,'yyyy/MM/dd')}</div>
           <Link href={`/foods/${foodId}`}>
             <p className="text-blue-500 hover:underline">View Food Details</p>
           </Link>
