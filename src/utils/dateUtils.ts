@@ -18,3 +18,9 @@ export const dateTimeToJalaali = (dateTime: DateTime): string => {
   const { jy, jm, jd } = jalaali.toJalaali(dateTime.year, dateTime.month, dateTime.day);
   return `${jy}-${jm.toString().padStart(2, "0")}-${jd.toString().padStart(2, "0")}`;
 };
+export const formatDateToYYYYMMDD = (date: Date): string => {
+  const year: number = date.getFullYear();
+  const month: string = String(date.getMonth() + 1).padStart(2, '0');
+  const day: string = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};

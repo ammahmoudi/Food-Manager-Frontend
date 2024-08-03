@@ -10,7 +10,7 @@ import { getAdminCheck } from '@/services/api';
 interface CalendarProps {
   year: number;
   month: number;
-  meals: { date: string; meals: Meal[] }[];
+  meals: { date: Date; meals: Meal[] }[];
   onMonthChange: (year: number, month: number) => void;
 }
 
@@ -25,7 +25,7 @@ const Calendar: FC<CalendarProps> = ({ year, month, meals, onMonthChange }) => {
     const fetchAdminStatus = async () => {
       try {
         const response = await getAdminCheck();
-        setIsAdmin(response.isAdmin);
+        setIsAdmin(response.is_admin);
       } catch (error) {
         console.error('Failed to fetch admin status:', error);
       }
@@ -41,6 +41,7 @@ const Calendar: FC<CalendarProps> = ({ year, month, meals, onMonthChange }) => {
     weeks.push(weekDays);
     currentWeek = addWeeks(currentWeek, 1);
   }
+  // console.log(weeks);
 
   const handlePrevMonth = () => {
     const prevMonth = subMonths(currentMonth, 1);
@@ -75,12 +76,12 @@ const Calendar: FC<CalendarProps> = ({ year, month, meals, onMonthChange }) => {
       <div className="grid grid-cols-7 gap-0 ">
         {weeks.map((week, i) => (
           week.map((day, j) => {
-            const cellMeals = meals.find((cell) => isSameDay(parseISO(cell.date), day))?.meals || [];
+            const cellMeals = meals.find((cell) => isSameDay(cell.date, day))?.meals || [];
             return (
               <div key={j} className=" flex flex-col items-center justify-start min-h-[50px] aspect-square">
                 {isSameMonth(day, currentMonth) ? (
                   <>
-                    <MealCell date={day.toISOString()} initialMeals={cellMeals} isAdmin={isAdmin} />
+                    <MealCell date={day} initialMeals={cellMeals} isAdmin={isAdmin} />
                   </>
                 ) : null}
               </div>

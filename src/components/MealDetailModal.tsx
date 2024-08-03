@@ -9,11 +9,13 @@ import { MealDetailsData } from '../interfaces/MealDetailsData';
 import { Comment } from '../interfaces/Comment';
 import FoodSelection from './FoodSelection';
 import { Food } from '../interfaces/Food';
+import { formatDateToYYYYMMDD } from '@/utils/dateUtils';
+import MealForm from './MealForm';
 
 interface MealDetailModalProps {
   visible: boolean;
   onClose: () => void;
-  date: string;
+  date: Date;
   isAdmin: boolean;
 }
 
@@ -24,10 +26,11 @@ const MealDetailModal: FC<MealDetailModalProps> = ({ visible, onClose, date, isA
   const router = useRouter();
 
   useEffect(() => {
+    console.log(isAdmin)
     const fetchMeal = async () => {
       if (date) {
         try {
-          const fetchedMeal = await getMealByDate(date);
+          const fetchedMeal = await getMealByDate((formatDateToYYYYMMDD(date)));
           setMeal({
             ...fetchedMeal,
             foodId: fetchedMeal.food.id,
@@ -39,6 +42,7 @@ const MealDetailModal: FC<MealDetailModalProps> = ({ visible, onClose, date, isA
             comments: [],
           });
           setSelectedFood(fetchedMeal.food);
+          console.log(fetchedMeal) 
         } catch (error) {
           console.error('Failed to fetch meal:', error);
         }
@@ -76,20 +80,18 @@ const MealDetailModal: FC<MealDetailModalProps> = ({ visible, onClose, date, isA
     }
   }, [meal]);
 
-  const handleSave = async () => {
-    if (selectedFood) {
-      try {
-        if (meal) {
-          await updateMeal(meal.id, { ...meal, food: selectedFood.id });
-        } else {
-          await createMeal({ date, food: selectedFood.id, rating: 0 });
-        }
-        router.refresh();
-        setSelectedFood(null);
-        onClose();
-      } catch (error) {
-        console.error('Failed to save meal:', error);
+  const handleSave = async (food: Food) => {
+    try {
+      if (meal) {
+        await updateMeal(meal.id, { ...meal, food: food.id });
+      } else {
+        await createMeal({ date, food: food.id, rating: 0 });
       }
+      router.refresh();
+      setSelectedFood(null);
+      onClose();
+    } catch (error) {
+      console.error('Failed to save meal:', error);
     }
   };
 
@@ -111,14 +113,14 @@ const MealDetailModal: FC<MealDetailModalProps> = ({ visible, onClose, date, isA
             mealDetailsData && <MealDetails data={mealDetailsData} />
           ) : (
             isAdmin && (
-              <FoodSelection selectedFood={selectedFood} onFoodSelect={setSelectedFood} />
+              <MealForm  date={date} onSave={handleSave} />
             )
           )}
         </ModalBody>
-        {isAdmin && (
+        {isAdmin && meal && (
           <ModalFooter>
-            <Button color="primary" onPress={handleSave}>
-              {meal ? 'Update Meal' : 'Add Meal'}
+            <Button color="primary" onPress={() => selectedFood &&  handleSave(selectedFood)}>
+              Update Meal
             </Button>
             <Button color="danger" variant="light" onPress={onClose}>
               Cancel

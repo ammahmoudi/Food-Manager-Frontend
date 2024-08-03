@@ -3,11 +3,11 @@ import { Food } from './Food';
 export interface Meal {
   comments: never[];
   id: number;
-  date: string;
+  date: Date;
   food: Food | null;
   imageUrl: string;
   title: string;
   description: string;
   rating: number;
-  datePosted: string;
+  datePosted: Date;
 }

@@ -6,7 +6,7 @@ export interface MealDetailsData {
   title: string;
   description: string;
   rating: number;
-  datePosted: string;
+  datePosted: Date;
   comments: Comment[];
   [key: string]: any; // Allows for additional properties
 }

@@ -20,13 +20,13 @@ export default function CalendarPage({ params }: { params: { year: string; month
   }
 
   const router = useRouter();
-  const [cells, setCells] = useState<{ date: string; meals: Meal[] }[]>([]);
+  const [cells, setCells] = useState<{ date: Date; meals: Meal[] }[]>([]);
 
   const fetchMeals = async (year: number, month: number) => {
     try {
       const response = await getMealsForCurrentMonth(year, month);
       // console.log('Response:', response);
-      const mealCells = response.map((day: { date: string;food: Food,rating:number }) => ({
+      const mealCells = response.map((day: { date: Date;food: Food,rating:number }) => ({
         date: day.date,
         meals: [day],
       }));
