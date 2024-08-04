@@ -54,11 +54,12 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeals, isAdmin }) => {
             radius="md"
             key={meal.id}
             isPressable
+            className='h-full w-full' 
             onPress={handleOpenModal}
           >
             <Image
               removeWrapper
-              className="z-0 w-full h-full object-cover"
+              className="z-0 w-full h-full object-cover  "
               src={meal.food?.picture}
               alt={meal.food?.name}
               radius="none"

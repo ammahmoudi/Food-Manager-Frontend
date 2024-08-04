@@ -85,7 +85,7 @@ const MealDetailModal: FC<MealDetailModalProps> = ({ visible, onClose, date, isA
       if (meal) {
         await updateMeal(meal.id, { ...meal, food: food.id });
       } else {
-        await createMeal({ date, food: food.id, rating: 0 });
+        await createMeal({ date: formatDateToYYYYMMDD(date), food: {id:food.id,name:food.name,description:food.description,picture:null}, rating: 0 });
       }
       router.refresh();
       setSelectedFood(null);

@@ -21,6 +21,7 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({ selectedFood,
       try {
         const response = await getFoods();
         setFoods(response);
+        console.log('Fetched foods:', response);
       } catch (error) {
         console.error('Failed to fetch foods:', error);
       }
@@ -49,13 +50,15 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({ selectedFood,
         selectorButton: "text-default-500",
       }}
       className='w-full'
-      fullWidth
       defaultItems={foods}
       inputValue={inputValue}
       onInputChange={setInputValue}
       onSelectionChange={(key) => {
-        const selected = foods.find((food) => food.id === key);
-        onFoodSelect(selected || null);
+      
+        if (key !== null) {
+          const selected = foods.find((food) => food.id === +key);
+          onFoodSelect(selected || null);
+        }
       }}
       inputProps={{
         classNames: {

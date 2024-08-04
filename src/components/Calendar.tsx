@@ -1,11 +1,11 @@
 'use client';
 
-import { FC, useEffect, useState } from 'react';
-import { Button } from '@nextui-org/react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek, addWeeks, isSameMonth, parseISO, isSameDay, newDate } from 'date-fns-jalali';
-import MealCell from './MealCell';
-import { Meal } from '../interfaces/Meal';
 import { getAdminCheck } from '@/services/api';
+import { Button } from '@nextui-org/react';
+import { addMonths, addWeeks, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameDay, isSameMonth, newDate, startOfMonth, startOfWeek, subMonths } from 'date-fns-jalali';
+import { FC, useEffect, useState } from 'react';
+import { Meal } from '../interfaces/Meal';
+import MealCell from './MealCell';
 
 interface CalendarProps {
   year: number;
@@ -78,7 +78,7 @@ const Calendar: FC<CalendarProps> = ({ year, month, meals, onMonthChange }) => {
           week.map((day, j) => {
             const cellMeals = meals.find((cell) => isSameDay(cell.date, day))?.meals || [];
             return (
-              <div key={j} className=" flex flex-col items-center justify-start min-h-[50px] aspect-square">
+              <div key={j} className=" flex flex-col items-center justify-start  aspect-square">
                 {isSameMonth(day, currentMonth) ? (
                   <>
                     <MealCell date={day} initialMeals={cellMeals} isAdmin={isAdmin} />

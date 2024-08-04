@@ -41,39 +41,36 @@ const MealForm: FC<MealFormProps> = ({ date, onSave }) => {
 
   return (
     <div className="meal-form">
+      
       {selectedFood && (
-        <Card className="mb-4">
-          <CardHeader>
-            <h2 className="text-lg font-bold">{selectedFood.name}</h2>
-          </CardHeader>
-          <CardBody>
-            <Image src={selectedFood.picture} alt={selectedFood.name} className="w-full h-48 object-cover rounded-md" />
-            <p className="mt-2">{selectedFood.description}</p>
-          </CardBody>
-          <CardFooter>
-            <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <svg
-                    key={i}
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill={i < averageRating ? 'currentColor' : 'none'}
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                  </svg>
-                ))}
-              </div>
-              <span className="text-muted-foreground text-sm">({averageRating.toFixed(1)})</span>
-            </div>
-          </CardFooter>
-        </Card>
+         <Card isFooterBlurred  className=" aspect-square mb-4">
+         <CardHeader className="absolute z-10 top-1 flex-col items-start ">
+         <h3 className="text-white font-bold text-2xl" style={{ textShadow: '0 0 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 0, 0, 0.5)' }}>
+  {selectedFood.name}
+</h3>
+
+           <p className="text-lg text-white/80 uppercase font-medium" style={{ textShadow: '0 0 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 0, 0, 0.5)' }}>{selectedFood.description}</p>
+         </CardHeader>
+         <Image
+           removeWrapper
+           alt={selectedFood.name}
+           className="z-0 w-full h-full object-cover"
+           src={selectedFood.picture}
+         />
+         <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100">
+          
+           <div className="flex flex-grow gap-2 items-center">
+            
+             <div className="flex flex-col">
+               <p className="text-tiny text-white/60"><span className="text-muted-foreground text-sm">({averageRating.toFixed(1)})</span>
+               </p>
+             </div>
+           </div>
+           <Button radius="full" size="sm">more</Button>
+         </CardFooter>
+       </Card>
+
+
       )}
       <CustomFoodAutocomplete selectedFood={selectedFood} onFoodSelect={setSelectedFood} />
       <Button
