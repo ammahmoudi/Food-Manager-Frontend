@@ -1,10 +1,11 @@
 'use client';
 
 import React, { FC, useState, useEffect } from 'react';
-import { Autocomplete, AutocompleteItem, Avatar, Button, useDisclosure } from '@nextui-org/react';
+import { Autocomplete, AutocompleteItem, Avatar, Button, Link, useDisclosure } from '@nextui-org/react';
 import { getFoods,addFood } from '../services/api';
 import { Food } from '../interfaces/Food';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
+import { PlusIcon } from '@heroicons/react/24/solid';
 
 interface CustomFoodAutocompleteProps {
   selectedFood: Food | null;
@@ -43,13 +44,15 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({ selectedFood,
     }
   };
 
-  return (
+  return ( 
+  <div className='justify-between flex gap-2 '>
     <Autocomplete
       classNames={{
         listboxWrapper: "max-h-[320px]",
         selectorButton: "text-default-500",
       }}
-      className='w-full'
+      className=''
+      variant='flat'
       defaultItems={foods}
       inputValue={inputValue}
       onInputChange={setInputValue}
@@ -63,12 +66,13 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({ selectedFood,
       inputProps={{
         classNames: {
           input: "ml-1",
-          inputWrapper: "h-[48px]",
+          inputWrapper: "h-full",
         },
       }}
       listboxProps={{
         hideSelectedIcon: false,
-        emptyContent: 'Your own empty content text.',
+        emptyContent: <Link><PlusCircleIcon className='size-6'></PlusCircleIcon>Add This Food</Link>,
+
 
 
         itemClasses: {
@@ -95,8 +99,8 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({ selectedFood,
         },
       }}
       startContent={<MagnifyingGlassIcon className="text-default-400 size-6" strokeWidth={2.5}  />}
-      radius="full"
-      variant="bordered"
+      radius='lg'
+      
     >
       {(item) => (
         <AutocompleteItem key={item.id} textValue={item.name}>
@@ -111,8 +115,10 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({ selectedFood,
             
           </div>
         </AutocompleteItem>
-      )}
+      )} 
     </Autocomplete>
+    <Button isIconOnly color='success' className=' h-full w-auto aspect-square '  ><PlusIcon className='text-white size-6'></PlusIcon></Button>
+    </div>
   );
 };
 

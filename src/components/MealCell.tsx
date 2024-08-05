@@ -1,16 +1,17 @@
-'use client';
+"use client";
 
-import { FC, useState, useEffect } from 'react';
-import { Card, CardFooter, CardHeader, Image } from '@nextui-org/react';
-import { Meal } from '../interfaces/Meal';
-import { format, isToday, parseISO } from 'date-fns-jalali';
+import { FC, useState, useEffect } from "react";
+import { Card, CardFooter, CardHeader, Image } from "@nextui-org/react";
+import { Meal } from "../interfaces/Meal";
+import { format, isToday, parseISO } from "date-fns-jalali";
 
-import MealDetailModal from './MealDetailModal';
-import { getMealByDate } from '@/services/api';
+import MealDetailModal from "./MealDetailModal";
+import { getMealByDate } from "@/services/api";
+import { formatDateToYYYYMMDD } from "@/utils/dateUtils";
 
 interface MealCellProps {
   date: Date;
-  initialMeals: Meal[]|[];
+  initialMeals: Meal[] | [];
   isAdmin: boolean;
 }
 
@@ -18,20 +19,19 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeals, isAdmin }) => {
   const [meals, setMeals] = useState<Meal[]>(initialMeals);
   const [modalVisible, setModalVisible] = useState(false);
 
+  const fetchMeals = async () => {
+    try {
+      const response = await getMealByDate(formatDateToYYYYMMDD(date));
+      setMeals([response]);
+      console.log('meals updated',meals)
+    } catch (error) {
+      console.error("Failed to fetch meals:", error);
+    }
+  };
   useEffect(() => {
     if (initialMeals.length === 0 && date) {
-      // const fetchMeals = async () => {
-      //   try {
-      //     const response = await getMealByDate(date.split('T')[0]);
-      //     setMeals(response);
-      //   } catch (error) {
-      //     console.error('Failed to fetch meals:', error);
-      //   }
-      // };
-
       // fetchMeals();
-    }
-    else {
+    } else {
       setMeals(initialMeals);
     }
   }, [date, initialMeals]);
@@ -41,12 +41,15 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeals, isAdmin }) => {
   };
 
   const handleCloseModal = () => {
+    console.log('closing the modal')
+    fetchMeals();
     setModalVisible(false);
   };
 
   return (
-    <div className={`meal-cell h-full w-full p-0.5 ${'shadow-indigo-500/50'?isToday(date):''
-    }`} >
+    <div
+      className={`meal-cell h-full w-full p-0.5 `}
+    >
       {meals.length > 0 ? (
         meals.map((meal) => (
           <Card
@@ -54,8 +57,9 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeals, isAdmin }) => {
             radius="md"
             key={meal.id}
             isPressable
-            className='h-full w-full' 
+            className={`h-full w-full ${isToday(date) ? "shadow-indigo-500/50" : ""}`}
             onPress={handleOpenModal}
+
           >
             <Image
               removeWrapper
@@ -66,9 +70,8 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeals, isAdmin }) => {
             />
             <CardHeader className="absolute z-10  flex-col items-center justify-center h-full">
               <p className="text-medium text-white/90  uppercase font-bold">
-                {format((date || ''), 'd')}
+                {format(date || "", "d")}
               </p>
-
             </CardHeader>
 
             <CardFooter className="absolute before:bg-white/60 bottom-0 border-t-1 border-zinc-100/50 z-10 justify-center py-1 lg:py-2 hidden sm:block">
@@ -86,14 +89,11 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeals, isAdmin }) => {
           isPressable
           onPress={handleOpenModal}
         >
-          <div className='h-full flex items-center justify-center '>
+          <div className="h-full flex items-center justify-center ">
             <p className="text-medium text-black/60 uppercase font-bold text-center">
-              {format(date, 'd')}
+              {format(date, "d")}
             </p>
-
-   
           </div>
-    
         </Card>
       )}
 

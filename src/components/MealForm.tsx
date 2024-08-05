@@ -66,7 +66,7 @@ const MealForm: FC<MealFormProps> = ({ date, onSave }) => {
                </p>
              </div>
            </div>
-           <Button radius="full" size="sm">more</Button>
+           <Button radius="full" size="sm" className='bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg'>more</Button>
          </CardFooter>
        </Card>
 
@@ -75,6 +75,7 @@ const MealForm: FC<MealFormProps> = ({ date, onSave }) => {
       <CustomFoodAutocomplete selectedFood={selectedFood} onFoodSelect={setSelectedFood} />
       <Button
         color="primary"
+        variant='ghost'
         onPress={() => selectedFood && onSave(selectedFood)}
         className="mt-4"
       >

@@ -73,7 +73,7 @@ const Calendar: FC<CalendarProps> = ({ year, month, meals, onMonthChange }) => {
           </div>
         ))}
         </div>
-      <div className="grid grid-cols-7 gap-0 ">
+      <div className="grid grid-cols-7 gap-1 ">
         {weeks.map((week, i) => (
           week.map((day, j) => {
             const cellMeals = meals.find((cell) => isSameDay(cell.date, day))?.meals || [];

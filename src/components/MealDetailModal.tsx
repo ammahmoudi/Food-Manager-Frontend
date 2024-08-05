@@ -11,6 +11,7 @@ import FoodSelection from './FoodSelection';
 import { Food } from '../interfaces/Food';
 import { formatDateToYYYYMMDD } from '@/utils/dateUtils';
 import MealForm from './MealForm';
+import { CreateMealData } from '../interfaces/CreateMealData';
 
 interface MealDetailModalProps {
   visible: boolean;
@@ -85,7 +86,8 @@ const MealDetailModal: FC<MealDetailModalProps> = ({ visible, onClose, date, isA
       if (meal) {
         await updateMeal(meal.id, { ...meal, food: food.id });
       } else {
-        await createMeal({ date: formatDateToYYYYMMDD(date), food: {id:food.id,name:food.name,description:food.description,picture:null}, rating: 0 });
+        const newMeal:CreateMealData= {food_id:food.id,date:formatDateToYYYYMMDD(date)}
+        await createMeal(newMeal);
       }
       router.refresh();
       setSelectedFood(null);

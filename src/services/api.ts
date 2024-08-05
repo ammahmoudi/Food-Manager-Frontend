@@ -89,7 +89,9 @@ export const getMealById = async (id: number) => {
 };
 
 export const getMealByDate = async (date: string) => {
+  console.log('requesting meal data',date)
   const response = await api.get(`meals/date/${date}/`);
+  console.log('response of meal data',response)
   return response.data;
 };
 
