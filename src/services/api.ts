@@ -1,3 +1,5 @@
+import { Food } from '@/interfaces/Food';
+import { FoodFormData } from '@/interfaces/FoodFormData';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8000/api/';
@@ -109,12 +111,44 @@ export const getFoodComments = async (foodId: number) => {
   const response = await api.get(`foods/${foodId}/comments/`);
   return response.data;
 };
+const createFormData = (food: Partial<FoodFormData>) => {
+  const formData = new FormData();
+  if (food.name) formData.append('name', food.name);
+  if (food.description) formData.append('description', food.description);
+  if (food.picture) {
+    if (typeof food.picture === 'string') {
+      formData.append('picture_url', food.picture);
+    } else {
+      formData.append('picture', food.picture as File);
+    }
+  }
+  return formData;
+};
 
-export const addFood = async (food: { name: string; description: string; picture: string }) => {
-  const response = await api.post('foods/', food);
+export const addFood = async (food: FoodFormData) => {
+  const formData = createFormData(food);
+  const response = await api.post('foods/', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 
+export const updateFood = async (id: number, food: FoodFormData) => {
+  const formData = createFormData(food);
+  const response = await api.put(`foods/${id}/`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+export const deleteFood = async (id: number) => {
+  const response = await api.delete(`foods/${id}/`);
+  return response.data;
+};
 export const updateMeal = async (id: number, meal: any) => {
   const response = await api.put(`meals/${id}/`, meal);
   return response.data;

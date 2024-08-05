@@ -105,7 +105,7 @@ const MealDetailModal: FC<MealDetailModalProps> = ({ visible, onClose, date, isA
     : null;
 
   return (
-    <Modal isOpen={visible} onOpenChange={onClose}>
+    <Modal isOpen={visible} size='sm' scrollBehavior='inside' onOpenChange={onClose}>
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <p>{meal ? 'Meal Details' : 'Add New Meal'}</p>

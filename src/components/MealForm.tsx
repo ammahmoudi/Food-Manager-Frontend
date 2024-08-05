@@ -51,12 +51,12 @@ const MealForm: FC<MealFormProps> = ({ date, onSave }) => {
 
            <p className="text-lg text-white/80 uppercase font-medium" style={{ textShadow: '0 0 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 0, 0, 0.5)' }}>{selectedFood.description}</p>
          </CardHeader>
-         <Image
-           removeWrapper
-           alt={selectedFood.name}
-           className="z-0 w-full h-full object-cover"
-           src={selectedFood.picture}
-         />
+        <Image
+          removeWrapper
+          alt={selectedFood.name}
+          className="z-0 w-full h-full object-cover"
+          src={selectedFood.picture}
+        />
          <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100">
           
            <div className="flex flex-grow gap-2 items-center">
