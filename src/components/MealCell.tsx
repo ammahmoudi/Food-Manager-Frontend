@@ -41,7 +41,6 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeals, isAdmin }) => {
   };
 
   const handleCloseModal = () => {
-    console.log('closing the modal')
     fetchMeals();
     setModalVisible(false);
   };

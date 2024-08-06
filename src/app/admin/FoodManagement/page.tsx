@@ -59,7 +59,7 @@ const FoodManagement = () => {
         <FoodModal
           visible={isModalVisible}
           onClose={() => setIsModalVisible(false)}
-        //   initialData={selectedFood}
+          initialData={selectedFood}
           isEditMode={isEditMode}
           onSave={handleSave}
           onDelete={handleDelete}

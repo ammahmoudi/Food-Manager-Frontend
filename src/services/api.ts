@@ -116,7 +116,7 @@ const createFormData = (food: Partial<FoodFormData>) => {
   if (food.name) formData.append('name', food.name);
   if (food.description) formData.append('description', food.description);
   if (food.picture) {
-    if (typeof food.picture === 'string') {
+    if (typeof food.picture === 'string' && food.picture === '') {
       formData.append('picture_url', food.picture);
     } else {
       formData.append('picture', food.picture as File);
@@ -126,17 +126,20 @@ const createFormData = (food: Partial<FoodFormData>) => {
 };
 
 export const addFood = async (food: FoodFormData) => {
+  console.log('sending food data',food)
   const formData = createFormData(food);
   const response = await api.post('foods/', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
+
   return response.data;
 };
 
 export const updateFood = async (id: number, food: FoodFormData) => {
   const formData = createFormData(food);
+  console.log('sending food data to update',formData)
   const response = await api.put(`foods/${id}/`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',

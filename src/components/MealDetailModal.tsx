@@ -43,21 +43,20 @@ const MealDetailModal: FC<MealDetailModalProps> = ({ visible, onClose, date, isA
             comments: [],
           });
           setSelectedFood(fetchedMeal.food);
-          console.log(fetchedMeal) 
+          console.log(fetchedMeal)
         } catch (error) {
           console.error('Failed to fetch meal:', error);
         }
       }
       console.log(date)
       console.log('meal',meal)
-      
     };
 
 
     if (visible) {
       fetchMeal();
     }
-  }, [date, visible]);
+  }, [date, visible,isAdmin,meal]);
 
   useEffect(() => {
     const fetchComments = async () => {

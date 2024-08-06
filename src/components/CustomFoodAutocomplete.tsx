@@ -1,50 +1,78 @@
-'use client';
+"use client";
 
-import React, { FC, useState, useEffect } from 'react';
-import { Autocomplete, AutocompleteItem, Avatar, Button, Link, useDisclosure, Modal, ModalBody, ModalFooter, ModalHeader, ModalContent } from '@nextui-org/react';
-import { getFoods, addFood } from '../services/api';
-import { Food } from '../interfaces/Food';
-import { MagnifyingGlassIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
-import { PlusIcon } from '@heroicons/react/24/solid';
-import FoodForm from './FoodForm';
+import React, { FC, useState, useEffect } from "react";
+import {
+  Autocomplete,
+  AutocompleteItem,
+  Avatar,
+  Button,
+  Link,
+  useDisclosure,
+} from "@nextui-org/react";
+import { getFoods, addFood } from "../services/api";
+import { Food } from "../interfaces/Food";
+import {
+  MagnifyingGlassIcon,
+  PlusCircleIcon,
+} from "@heroicons/react/24/outline";
+import { PlusIcon } from "@heroicons/react/24/solid";
+import FoodModal from "./FoodModal";
 
 interface CustomFoodAutocompleteProps {
   selectedFood: Food | null;
   onFoodSelect: (food: Food | null) => void;
+  shouldUpdate: boolean;
+  onUpdateComplete: () => void;
 }
 
-const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({ selectedFood, onFoodSelect }) => {
+const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({
+  selectedFood,
+  onFoodSelect,
+  shouldUpdate,
+  onUpdateComplete,
+}) => {
   const [foods, setFoods] = useState<Food[]>([]);
-  const [inputValue, setInputValue] = useState('');
-  const { isOpen: isModalOpen, onOpen: openModal, onClose: closeModal } = useDisclosure();
+  const [inputValue, setInputValue] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+
   const fetchFoods = async () => {
     try {
       const response = await getFoods();
       setFoods(response);
-      console.log('Fetched foods:', response);
+      console.log("Fetched foods:", response);
     } catch (error) {
-      console.error('Failed to fetch foods:', error);
+      console.error("Failed to fetch foods:", error);
     }
   };
+
   useEffect(() => {
     fetchFoods();
-  }, [fetchFoods]);
+  }, []);
 
-  const handleAddNewFood = async (food: Food) => {
-    try {
-      const newFood = await addFood({ name: food.name, description: food.description, picture: food.picture });
-      // setFoods([...foods, newFood]);
+  useEffect(() => {
+    if (shouldUpdate) {
       fetchFoods();
-      onFoodSelect(newFood);
-      closeModal();
-    } catch (error) {
-      console.error('Failed to add new food:', error);
+      onUpdateComplete();
     }
+  }, [shouldUpdate, onUpdateComplete]);
+
+  const handleOpenModal = () => {
+    setModalVisible(true);
   };
 
-  const handleFoodDelete = (foodId: number) => {
-    setFoods(foods.filter(food => food.id !== foodId));
-    onFoodSelect(null);
+  const handleCloseModal = () => {
+    setModalVisible(false);
+    fetchFoods(); // Refresh the food list after closing the modal
+  };
+
+  const handleSave = (food: Food) => {
+    fetchFoods();
+    onFoodSelect(food);
+    setInputValue(food.name);
+  };
+
+  const handleDelete = () => {
+    fetchFoods();
   };
 
   return (
@@ -54,10 +82,10 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({ selectedFood,
           listboxWrapper: "max-h-[320px]",
           selectorButton: "text-default-500",
         }}
-        className=""
         variant="flat"
         defaultItems={foods}
-        inputValue={inputValue}
+        defaultInputValue={inputValue}
+        
         onInputChange={setInputValue}
         onSelectionChange={(key) => {
           if (key !== null) {
@@ -65,6 +93,7 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({ selectedFood,
             onFoodSelect(selected || null);
           }
         }}
+        defaultSelectedKey={selectedFood?.id.toString() || ""}
         inputProps={{
           classNames: {
             input: "ml-1",
@@ -101,43 +130,52 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({ selectedFood,
             content: "p-1 border-small border-default-100 bg-background",
           },
         }}
-        startContent={<MagnifyingGlassIcon className="text-default-400 size-6" strokeWidth={2.5} />}
+        startContent={
+          <MagnifyingGlassIcon
+            className="text-default-400 size-6"
+            strokeWidth={2.5}
+          />
+        }
         radius="lg"
       >
         {(item) => (
           <AutocompleteItem key={item.id} textValue={item.name}>
             <div className="flex justify-between items-center">
               <div className="flex gap-2 items-center">
-                <Avatar alt={item.name} className="flex-shrink-0" size="sm" src={item.picture} />
+                <Avatar
+                  alt={item.name}
+                  className="flex-shrink-0"
+                  size="sm"
+                  src={item.picture}
+                />
                 <div className="flex flex-col">
                   <span className="text-small">{item.name}</span>
-                  <span className="text-tiny text-default-400 overflow-hidden truncate">{item.description}</span>
+                  <span className="text-tiny text-default-400 overflow-hidden truncate">
+                    {item.description}
+                  </span>
                 </div>
               </div>
             </div>
           </AutocompleteItem>
         )}
       </Autocomplete>
-      <Button isIconOnly color="success" className="h-full w-auto aspect-square" onPress={openModal}>
+      <Button
+        isIconOnly
+        color="success"
+        className="h-full w-auto aspect-square"
+        onPress={handleOpenModal}
+      >
         <PlusIcon className="text-white size-6"></PlusIcon>
       </Button>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <ModalContent>
-          <ModalHeader>Add New Food</ModalHeader>
-          <ModalBody>
-            <FoodForm
-              initialData={null}
-              isEditMode={false}
-              onSave={handleAddNewFood}
-              onDelete={handleFoodDelete}
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button onClick={closeModal}>Close</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <FoodModal
+        visible={modalVisible}
+        onClose={handleCloseModal}
+        initialData={null}
+        isEditMode={false}
+        onSave={handleSave}
+        onDelete={handleDelete}
+      />
     </div>
   );
 };

@@ -16,7 +16,7 @@ interface FoodModalProps {
 
 const FoodModal: FC<FoodModalProps> = ({ visible, onClose, initialData, isEditMode, onSave, onDelete }) => {
   return (
-    <Modal isOpen={visible} onOpenChange={onClose}>
+    <Modal isOpen={visible} onOpenChange={onClose} size='sm' scrollBehavior='inside'>
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1">
           <p>{isEditMode ? 'Edit Food' : 'Create Food'}</p>

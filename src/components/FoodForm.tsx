@@ -49,7 +49,6 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
       } else {
         savedFood = await addFood(foodData);
       }
-
       onSave(savedFood);
     } catch (error) {
       console.error('Failed to save food:', error);
@@ -112,8 +111,10 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
           type="file"
           id="food-image-input"
           accept="image/*"
-          style={{ display: 'none' }}
+          className="hidden"
           onChange={handleImageChange}
+          title="Food Image"
+          placeholder="Select an image"
         />
       </div>
       <Input
@@ -132,7 +133,7 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
       />
 
       <div className="flex space-x-4">
-        <Button color="primary" onClick={handleSave}>
+        <Button color="primary" variant='ghost' onClick={handleSave}>
           {isEditMode ? 'Update Food' : 'Create Food'}
         </Button>
         {isEditMode && (

@@ -18,9 +18,10 @@ const Calendar: FC<CalendarProps> = ({ year, month, meals, onMonthChange }) => {
   const currentMonth = newDate(year, month - 1, 1);
   const firstDayOfMonth = startOfMonth(currentMonth);
   const lastDayOfMonth = endOfMonth(currentMonth);
-  const [isAdmin, setIsAdmin] = useState(false);
   const weeks = [];
   let currentWeek = startOfWeek(firstDayOfMonth, { weekStartsOn: 6 });
+  const [isAdmin, setIsAdmin] = useState(false);
+
   useEffect(() => {
     const fetchAdminStatus = async () => {
       try {
