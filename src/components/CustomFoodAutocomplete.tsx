@@ -69,6 +69,8 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({
     fetchFoods();
     onFoodSelect(food);
     setInputValue(food.name);
+    
+  
   };
 
   const handleDelete = () => {
@@ -93,7 +95,7 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({
             onFoodSelect(selected || null);
           }
         }}
-        defaultSelectedKey={selectedFood?.id.toString() || ""}
+        selectedKey={selectedFood?.id.toString() || ""}
         inputProps={{
           classNames: {
             input: "ml-1",

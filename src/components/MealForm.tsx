@@ -8,6 +8,7 @@ import {
   CardFooter,
   CardHeader,
   Image,
+  Link,
 } from "@nextui-org/react";
 import { Food } from "../interfaces/Food";
 import { getAdminCheck, getMealsWithFood } from "../services/api";
@@ -81,6 +82,7 @@ const MealForm: FC<MealFormProps> = ({ date, onSave }) => {
 
   const handleDelete = (foodId: number) => {
     fetchMealsWithFood();
+    setSelectedFood(null);
   };
 
   return (
@@ -142,7 +144,11 @@ const MealForm: FC<MealFormProps> = ({ date, onSave }) => {
               radius="full"
               size="sm"
               className="bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
+              as={Link}
+              href={`/foods/${selectedFood.id}`}
+              isExternal
             >
+
               more
             </Button>
           </CardFooter>
