@@ -17,7 +17,6 @@ const GlobalNavbar = () => {
       setIsSignedIn(true)
     }
     if (pathName=='/login'){
-      console.log(pathName)
       setShowNavbar(false)
     }
     

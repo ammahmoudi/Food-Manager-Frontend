@@ -27,6 +27,9 @@ const EditMealPage = () => {
         setDate(fetchedMeal.date);
         setRating(fetchedMeal.rating);
       } catch (error) {
+        setMeal(null);
+        setRating(0);
+        setSelectedFood(null);
         console.error('Failed to fetch meal:', error);
       }
     };

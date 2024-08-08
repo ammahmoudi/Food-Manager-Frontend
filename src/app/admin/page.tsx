@@ -39,14 +39,12 @@ const AdminPage = () => {
       const today = DateTime.now();
       const next7Days = Array.from({ length: 7 }, (_, i) => dateTimeToJalaali(DateTime.fromISO(today.plus({ days: i }).toISODate())));
       const fetchedMeals = await getMeals();
-      // console.log('fetched meals',fetchedMeals)
       const mealsData = next7Days.map(date => ({
         date,
         food: fetchedMeals.find((meal: Meal) => meal.date === date)?.food || null,
         rating: fetchedMeals.find((meal: Meal) => meal.date === date)?.rating || 0,
       }));
       setMeals(mealsData);
-      console.log('meals',mealsData)
     };
 
     fetchFoods();
@@ -67,13 +65,11 @@ const AdminPage = () => {
     onClose();
   };
  const handleSelectFood = (meal: Meal,food: Food) => {
-  console.log('set food for meal',meal,food)
     setMeals(meals.map(m => (m.date === meal.date ? { ...m, food: food } : m)));
   }
 
  
   const handleSaveMeal = async (meal:Meal) => {
-      console.log(meal);
       await saveMeal({ date: meal.date, foodId: meal.food?.id || 0 });
       // setMeals(meals.map(m => (meal.date === m.date ? { ...m, food: meal.food } : m)));
     

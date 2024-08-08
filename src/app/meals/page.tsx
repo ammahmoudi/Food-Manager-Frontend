@@ -47,7 +47,6 @@ const MealsPage = () => {
       try {
         const response = await getFilteredMeals(filter);
         setMeals(response);
-        console.log(response);
       } catch (error) {
         console.error('Failed to fetch meals:', error);
       }

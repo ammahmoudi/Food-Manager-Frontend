@@ -20,7 +20,6 @@ const UserProfile = () => {
     const fetchUser = async () => {
       try {
         const response = await api.get('auth/users/me/');
-        console.log(response.data)
         setUser(response.data);
       } catch (error) {
         console.error('Error fetching user data:', error);

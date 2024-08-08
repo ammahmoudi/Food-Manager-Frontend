@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import Calendar from '@/components/Calendar';
 import { getMealsForCurrentMonth } from '@/services/api';
 import { notFound } from 'next/navigation';
@@ -21,17 +21,16 @@ export default function CalendarPage({ params }: { params: { year: string; month
 
   const router = useRouter();
   const [cells, setCells] = useState<{ date: Date; meals: Meal[] }[]>([]);
-
+  const [got,setGot]=useState(false);
   const fetchMeals = async (year: number, month: number) => {
     try {
       const response = await getMealsForCurrentMonth(year, month);
-      // console.log('Response:', response);
       const mealCells = response.map((day: { date: Date;food: Food,rating:number }) => ({
         date: day.date,
         meals: [day],
       }));
       setCells(mealCells);
-      console.log('Fetched meals:', mealCells);
+      setGot(true);
     } catch (error) {
       console.error('Failed to fetch meals:', error);
     }
@@ -39,6 +38,7 @@ export default function CalendarPage({ params }: { params: { year: string; month
 
   useEffect(() => {
     fetchMeals(parsedYear, parsedMonth);
+    
   }, [parsedYear, parsedMonth]);
 
   const handleMonthChange = (newYear: number, newMonth: number) => {
@@ -47,7 +47,7 @@ export default function CalendarPage({ params }: { params: { year: string; month
 
   return(
     <div className=' container xl:w-1/2 mx-auto '>
-      <Calendar year={parsedYear} month={parsedMonth} onMonthChange={handleMonthChange} meals={cells} />
+     { got&&<Calendar year={parsedYear} month={parsedMonth} onMonthChange={handleMonthChange} meals={cells} />}
     </div>
 
 

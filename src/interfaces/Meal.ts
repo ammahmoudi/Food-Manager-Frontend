@@ -5,9 +5,9 @@ export interface Meal {
   id: number;
   date: Date;
   food: Food | null;
-  imageUrl: string;
-  title: string;
-  description: string;
+  imageUrl?: string;
+  title?: string;
+  description?: string;
   rating: number;
-  datePosted: Date;
+  datePosted?: Date;
 }

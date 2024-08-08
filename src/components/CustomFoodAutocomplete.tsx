@@ -39,7 +39,6 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({
     try {
       const response = await getFoods();
       setFoods(response);
-      console.log("Fetched foods:", response);
     } catch (error) {
       console.error("Failed to fetch foods:", error);
     }

@@ -91,9 +91,7 @@ export const getMealById = async (id: number) => {
 };
 
 export const getMealByDate = async (date: string) => {
-  console.log('requesting meal data',date)
   const response = await api.get(`meals/date/${date}/`);
-  console.log('response of meal data',response)
   return response.data;
 };
 
@@ -126,7 +124,6 @@ const createFormData = (food: Partial<FoodFormData>) => {
 };
 
 export const addFood = async (food: FoodFormData) => {
-  console.log('sending food data',food)
   const formData = createFormData(food);
   const response = await api.post('foods/', formData, {
     headers: {
@@ -139,7 +136,6 @@ export const addFood = async (food: FoodFormData) => {
 
 export const updateFood = async (id: number, food: FoodFormData) => {
   const formData = createFormData(food);
-  console.log('sending food data to update',formData)
   const response = await api.put(`foods/${id}/`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
@@ -161,7 +157,10 @@ export const saveMeal = async (meal: { date: string; foodId: number }) => {
   const response = await api.post('meals/', meal);
   return response.data;
 };
-
+export const deleteMeal = async (id: number) => {
+  const response = await api.delete(`meals/${id}/`);
+  return response.data;
+};
 export const getMealsWithFood = async (foodId: number) => {
   const response = await api.get(`foods/${foodId}/meals/`);
   return response.data;

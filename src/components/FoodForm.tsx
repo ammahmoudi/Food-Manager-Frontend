@@ -8,7 +8,7 @@ import { addFood, updateFood, deleteFood } from '../services/api';
 import { TrashIcon } from '@heroicons/react/24/solid';
 
 interface FoodFormProps {
-  initialData?: Food | null;
+  initialData: Food|null ;
   isEditMode: boolean;
   onSave: (food: Food) => void;
   onDelete: (foodId: number) => void;
@@ -132,8 +132,8 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
         onChange={(e) => setDescription(e.target.value)}
       />
 
-      <div className="flex space-x-4">
-        <Button color="primary" variant='ghost' onClick={handleSave}>
+      <div className="flex justify-left gap-2">
+        <Button color="primary"  onPress={handleSave}>
           {isEditMode ? 'Update Food' : 'Create Food'}
         </Button>
         {isEditMode && (
