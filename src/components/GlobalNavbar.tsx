@@ -1,43 +1,59 @@
 // components/Navbar.tsx
-'use client';
+"use client";
 
-import { Navbar, NavbarBrand, Link, Button, NavbarContent, NavbarItem } from "@nextui-org/react";
-import LogoutButton from './LogoutButton';
+import {
+	Navbar,
+	NavbarBrand,
+	Link,
+	Button,
+	NavbarContent,
+	NavbarItem,
+	DropdownTrigger,
+	DropdownItem,
+	DropdownMenu,
+	Avatar,
+	Dropdown,
+} from "@nextui-org/react";
+import LogoutButton from "./LogoutButton";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import UserDropdown from "./UserDropdown";
 
 const GlobalNavbar = () => {
-  const [isSignedIn,setIsSignedIn]=useState(false)
-  const [showNavbar,setShowNavbar]=useState(true)
-  const pathName=usePathname()
-  useEffect(() => {
+	const [isSignedIn, setIsSignedIn] = useState(false);
+	const [showNavbar, setShowNavbar] = useState(true);
+	const pathName = usePathname();
+	useEffect(() => {
+		const token =
+			localStorage.getItem("access") || sessionStorage.getItem("access");
+		if (token) {
+			setIsSignedIn(true);
+		}
+		if (pathName == "/login") {
+			setShowNavbar(false);
+		}
+	}, [pathName]);
+	return (
+		<Navbar className={showNavbar ? "" : "hidden"} isBordered>
+			<NavbarBrand>
+				<p className="font-bold text-inherit">Berchi</p>
+			</NavbarBrand>
+			<NavbarContent>
+				<Link href="/">Home</Link>
+        <Link href="/calendar">Calendar</Link>
+        <Link href="/meals">Meals</Link>
+				<Link href="/foods">Foods</Link>
 
-    const token = localStorage.getItem('access') || sessionStorage.getItem('access');
-    if (token) {
-      setIsSignedIn(true)
-    }
-    if (pathName=='/login'){
-      setShowNavbar(false)
-    }
-    
-  }, );
-  return (
-   
-    <Navbar className={showNavbar?"":"hidden"} isBordered>
-      <NavbarBrand>
-        <p>
-          LunchApp
-        </p>
-      </NavbarBrand>
-      <NavbarContent>
-        <Link href="/">Home</Link>
-        {isSignedIn&&<Link href="/profile">Profile</Link>}
-      </NavbarContent>
-      <NavbarContent>
-        {isSignedIn&&<LogoutButton />}
-      </NavbarContent>
-    </Navbar>
-  );
+			</NavbarContent>
+			<NavbarContent as="div" justify="end">
+				{isSignedIn ? (
+					<UserDropdown />
+				) : (
+					<Button>Sign In</Button>
+				)}
+			</NavbarContent>
+		</Navbar>
+	);
 };
 
 export default GlobalNavbar;

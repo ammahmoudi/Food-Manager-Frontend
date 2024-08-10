@@ -5,5 +5,5 @@ export default function CalendarRedirect() {
   const currentDate = startOfToday();
   const year = format(currentDate, 'yyyy');
   const month = format(currentDate, 'MM');
-  redirect(`/admin/calendar/${year}/${month}`);
+  redirect(`/calendar/${year}/${month}`);
 }
