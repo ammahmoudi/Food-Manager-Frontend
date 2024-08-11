@@ -16,27 +16,26 @@ import {
 	ModalHeader,
 	useDisclosure,
 } from "@nextui-org/react";
+import { DatePicker } from "@nextui-org/react";
+import { getLocalTimeZone, today } from "@internationalized/date";
 import { Food } from "../interfaces/Food";
 import {
 	createMeal,
 	deleteMeal,
 	getAdminCheck,
 	getMealByDate,
-	getMealsWithFood,
 	updateMeal,
 } from "../services/api";
 import CustomFoodAutocomplete from "./CustomFoodAutocomplete";
-import { MealWithFood } from "../interfaces/MealWithFood";
-import { PencilSquareIcon } from "@heroicons/react/24/outline";
 import FoodModal from "./FoodModal";
 import { Meal } from "@/interfaces/Meal";
 import { formatDateToYYYYMMDD } from "@/utils/dateUtils";
-import { MealFormData } from "@/interfaces/MealFormData";
 import { CreateMealData } from "@/interfaces/CreateMealData";
+import { PencilSquareIcon } from "@heroicons/react/16/solid";
 
 interface MealFormProps {
 	initialData: Meal | null;
-	date: Date;
+	date: Date | null;
 	onSave: (meal: Meal | null) => void;
 	onDelete: (mealId: number) => void;
 }
@@ -48,29 +47,34 @@ const MealForm: FC<MealFormProps> = ({
 	onDelete,
 }) => {
 	const [selectedFood, setSelectedFood] = useState<Food | null>(null);
+	const [selectedDate, setSelectedDate] = useState<Date | null>(date || new Date());
 	const [foodModalVisible, setFoodModalVisible] = useState(false);
 	const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-
 	const [isAdmin, setIsAdmin] = useState(false);
 	const [shouldUpdateFoods, setShouldUpdateFoods] = useState(false);
 	const [meal, setMeal] = useState<Meal | null>(initialData);
+
 	const fetchMeal = useCallback(async () => {
-		try {
-			const response = await getMealByDate(formatDateToYYYYMMDD(date));
-			setMeal(response);
-			if (!selectedFood) {
-				setSelectedFood(response.food);
+		if (selectedDate) {
+			try {
+				const response = await getMealByDate(formatDateToYYYYMMDD(selectedDate));
+				setMeal(response);
+				if (!selectedFood) {
+					setSelectedFood(response.food);
+				}
+			} catch (error) {
+				setMeal(null);
+				console.error("Failed to fetch meal:", error);
 			}
-		} catch (error) {
-			setMeal(null);
-			console.error("Failed to fetch meal:", error);
 		}
-	}, [date, selectedFood]);
+	}, [selectedDate, selectedFood]);
+
 	useEffect(() => {
-		if (initialData && date) {
+		if (initialData && selectedDate) {
 			fetchMeal();
 		}
-	}, [date, fetchMeal, initialData]);
+	}, [selectedDate, fetchMeal, initialData]);
+
 	const fetchAdminStatus = async () => {
 		try {
 			const response = await getAdminCheck();
@@ -79,9 +83,11 @@ const MealForm: FC<MealFormProps> = ({
 			console.error("Failed to fetch admin status:", error);
 		}
 	};
+
 	useEffect(() => {
 		fetchAdminStatus();
 	}, []);
+
 	const handleOpenFoodModal = () => {
 		setFoodModalVisible(true);
 	};
@@ -99,8 +105,8 @@ const MealForm: FC<MealFormProps> = ({
 	const handleFoodDelete = (foodId: number) => {
 		fetchMeal();
 		setSelectedFood(null);
-		console.log("food deleted",meal);
 	};
+
 	const handleOpenDeleteModal = () => {
 		setDeleteModalVisible(true);
 	};
@@ -108,18 +114,20 @@ const MealForm: FC<MealFormProps> = ({
 	const handleCloseDeleteModal = () => {
 		setDeleteModalVisible(false);
 	};
+
 	const handleSaveMeal = async () => {
 		try {
 			const newMeal: CreateMealData = {
 				food_id: selectedFood?.id,
-				date: formatDateToYYYYMMDD(date),
+				date: formatDateToYYYYMMDD(selectedDate || new Date()),
 			};
 			let updatedMeal: Meal | null = meal;
 			if (meal) {
 				if (!selectedFood) {
-					handleOpenDeleteModal()
+					handleOpenDeleteModal();
+				} else {
+					updatedMeal = await updateMeal(meal.id, newMeal);
 				}
-				updatedMeal = await updateMeal(meal.id, newMeal);
 			} else if (selectedFood) {
 				updatedMeal = await createMeal(newMeal);
 			}
@@ -128,6 +136,7 @@ const MealForm: FC<MealFormProps> = ({
 			console.error("Failed to save meal:", error);
 		}
 	};
+
 	const handleDeleteMeal = async () => {
 		try {
 			if (meal) {
@@ -135,7 +144,7 @@ const MealForm: FC<MealFormProps> = ({
 				onDelete(meal.id);
 			}
 		} catch (error) {
-			console.error("Failed to delte meal:", error);
+			console.error("Failed to delete meal:", error);
 		}
 	};
 
@@ -180,7 +189,7 @@ const MealForm: FC<MealFormProps> = ({
 					</CardHeader>
 					<Image
 						alt={selectedFood.name}
-						className="z-0 w-full h-full  object-cover"
+						className="z-0 w-full h-full object-cover"
 						classNames={{ wrapper: "w-full h-full max-w-full max-h-full " }}
 						src={selectedFood.picture ?? "/images/food-placeholder.jpg"}
 					/>
@@ -207,6 +216,16 @@ const MealForm: FC<MealFormProps> = ({
 			)}
 			{isAdmin && (
 				<>
+					{!date && (
+						<div className="mb-4">
+							<DatePicker
+								label="Select Date"
+								minValue={today(getLocalTimeZone())}
+								defaultValue={today(getLocalTimeZone())}
+								onChange={(newDate) => setSelectedDate(new Date(newDate.toString()))}
+							/>
+						</div>
+					)}
 					<CustomFoodAutocomplete
 						selectedFood={selectedFood}
 						onFoodSelect={setSelectedFood}
@@ -214,13 +233,7 @@ const MealForm: FC<MealFormProps> = ({
 						onUpdateComplete={() => setShouldUpdateFoods(false)}
 					/>
 					<div className="flex justify-left gap-2">
-				
-						<Button
-							color="primary"
-						
-							onPress={handleSaveMeal}
-							className="mt-4"
-						>
+						<Button color="primary" onPress={handleSaveMeal} className="mt-4">
 							{meal ? "Update Meal" : "Add Meal"}
 						</Button>
 						{meal && (
@@ -249,17 +262,17 @@ const MealForm: FC<MealFormProps> = ({
 				<ModalContent>
 					<ModalHeader>Delete Meal</ModalHeader>
 					<ModalBody>Are you sure you want to delete this meal item?</ModalBody>
-					<ModalFooter>
-						<Button color="danger" onClick={handleDeleteMeal}>
-							Delete
-						</Button>
-						<Button variant="light" onClick={handleCloseDeleteModal}>
-							Cancel
-						</Button>
-					</ModalFooter>
-				</ModalContent>
-			</Modal>
-		</div>
+						<ModalFooter>
+							<Button color="danger" onClick={handleDeleteMeal}>
+								Delete
+							</Button>
+							<Button variant="light" onClick={handleCloseDeleteModal}>
+								Cancel
+							</Button>
+						</ModalFooter>
+					</ModalContent>
+				</Modal>
+			</div>
 	);
 };
 

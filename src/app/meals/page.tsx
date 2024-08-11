@@ -1,139 +1,205 @@
 "use client";
 
-import { FC, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button, Link } from "@nextui-org/react";
-import {
-	Dropdown,
-	DropdownMenu,
-	DropdownTrigger,
-	DropdownItem,
-} from "@nextui-org/react";
-import { Meal } from "../../interfaces/Meal";
-import { toJalali } from "../../utils/dateUtils";
-import { getAdminCheck, getFilteredMeals } from "@/services/api";
-import { format } from "date-fns-jalali";
+import { Key, useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { getMeals, getFilteredMeals } from "@/services/api";
+import { Meal } from "@/interfaces/Meal";
 import MealCard from "@/components/MealCard";
-const ListOrderedIcon = (props: any) => (
-	<svg
-		{...props}
-		xmlns="http://www.w3.org/2000/svg"
-		width="24"
-		height="24"
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		strokeWidth="2"
-		strokeLinecap="round"
-		strokeLinejoin="round"
-	>
-		<line x1="10" x2="21" y1="6" y2="6" />
-		<line x1="10" x2="21" y1="12" y2="12" />
-		<line x1="10" x2="21" y1="18" y2="18" />
-		<path d="M4 6h1v4" />
-		<path d="M4 10h2" />
-		<path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />
-	</svg>
-);
-
-const StarIcon: FC<{ filled: boolean }> = ({ filled }) => (
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		width="24"
-		height="24"
-		viewBox="0 0 24 24"
-		fill={filled ? "currentColor" : "none"}
-		stroke="currentColor"
-		strokeWidth="2"
-		strokeLinecap="round"
-		strokeLinejoin="round"
-	>
-		<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-	</svg>
-);
+import {
+	Input,
+	Tabs,
+	Tab,
+	Dropdown,
+	DropdownTrigger,
+	DropdownMenu,
+	DropdownItem,
+	Button,
+} from "@nextui-org/react";
+import {
+	CalendarIcon,
+	ClockIcon,
+	ArrowUpIcon,
+	ArrowDownIcon,
+  PlusIcon,
+} from "@heroicons/react/24/outline";
+import MealDetailModal from "@/components/MealDetailModal";
 
 const MealsPage = () => {
 	const [meals, setMeals] = useState<Meal[]>([]);
-	const [filter, setFilter] = useState("all");
-	const [sort, setSort] = useState("rating");
-	const [isAdmin, setIsAdmin] = useState(false);
-	const [got, setGot] = useState(false);
+	const [filteredMeals, setFilteredMeals] = useState<Meal[]>([]);
+	const [searchTerm, setSearchTerm] = useState<string>("");
+	const [sortOrder, setSortOrder] = useState<"date" | "rating">("date");
+  const [modalVisible, setModalVisible] = useState(false);
+
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const filterType = searchParams.get("filter") || "current-week"; // Default filter
+
+	const fetchMeals = useCallback(async () => {
+		try {
+			let response;
+			if (filterType === "all") {
+				response = await getMeals();
+			} else {
+				response = await getFilteredMeals(filterType);
+			}
+			setMeals(response);
+			setFilteredMeals(response);
+		} catch (error) {
+			console.error("Failed to fetch meals:", error);
+		}
+	}, [filterType]);
 
 	useEffect(() => {
-		const fetchMeals = async () => {
-			try {
-				const response = await getFilteredMeals(filter);
-				setMeals(response);
-				setGot(true);
-			} catch (error) {
-				console.error("Failed to fetch meals:", error);
-			}
-		};
-
-		const checkAdmin = async () => {
-			try {
-				const response = await getAdminCheck();
-				setIsAdmin(response.is_admin);
-			} catch (error) {
-				console.error("Failed to check admin status:", error);
-			}
-		};
-
 		fetchMeals();
-		checkAdmin();
-	}, [filter]);
+	}, [fetchMeals]);
 
-	const sortMeals = (meals: Meal[]) => {
-		return meals.sort((a, b) => {
-			if (sort === "rating") {
-				return b.rating - a.rating;
-			} else {
-				return new Date(a.date).getTime() - new Date(b.date).getTime();
-			}
-		});
+	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchTerm(event.target.value);
+		if (event.target.value === "") {
+			setFilteredMeals(meals);
+		} else {
+			const filtered = meals.filter((meal) =>
+				meal.food?.name.toLowerCase().includes(event.target.value.toLowerCase())
+			);
+			setFilteredMeals(filtered);
+		}
 	};
 
-	const filteredMeals = sortMeals(meals);
+	const handleTabChange = (key: Key) => {
+		router.push(`?filter=${key}`);
+	};
+
+	const handleSortChange = (order: "date" | "rating") => {
+		setSortOrder(order);
+		const sortedMeals = [...filteredMeals].sort((a, b) => {
+			if (order === "date") {
+				return new Date(a.date).getTime() - new Date(b.date).getTime();
+			} else {
+				return b.rating - a.rating;
+			}
+		});
+		setFilteredMeals(sortedMeals);
+	};
+  const handleOpenModal = () => {
+		setModalVisible(true);
+	};
+
+	const handleCloseModal = () => {
+		fetchMeals();
+		setModalVisible(false);
+	};
+	const handleSave = (meal: Meal | null) => {
+	};
+	const handleDelete = (mealId: number) => {
+	};
 
 	return (
-		<div className=" container xl:w-1/2 mx-auto p-2 items-center">
-			<div className="flex flex-col items-center">
-				<div className="flex items-center py-2 space-x-1 mb-4">
-					<Button variant="bordered" onClick={() => setFilter("all")}>
-						Show All
-					</Button>
-					<Button variant="bordered" onClick={() => setFilter("current_week")}>
-						This Week
-					</Button>
-					<Button variant="bordered" onClick={() => setFilter("upcoming")}>
-						Upcoming
-					</Button>
-					<Button variant="bordered" onClick={() => setFilter("past")}>
-						Past
-					</Button>
-					<Dropdown>
-						<DropdownTrigger>
-							<Button variant="bordered" className="gap-1">
-								<ListOrderedIcon className="h-4 w-4" />
-								Sort by
-							</Button>
-						</DropdownTrigger>
-						<DropdownMenu>
-							<DropdownItem onClick={() => setSort("rating")}>
-								Rating
-							</DropdownItem>
-							<DropdownItem onClick={() => setSort("date")}>Date</DropdownItem>
-						</DropdownMenu>
-					</Dropdown>
-				</div>
+		<div className="container xl:w-1/2 mx-auto p-2 items-center">
+			<div className="flex justify-between items-center mb-4 gap-2">
+				<Input
+					isClearable
+					placeholder="Search by food name"
+					value={searchTerm}
+					onChange={handleSearchChange}
+					className="w-full"
+				/>
+        				<Button
+					isIconOnly
+					color="success"
+					className="h-full w-auto aspect-square"
+					onPress={handleOpenModal}
+				>
+					<PlusIcon className="text-white size-6"></PlusIcon>
+				</Button>
+				<Dropdown>
+					<DropdownTrigger>
+						<Button variant="flat">
+							Sort by {sortOrder === "date" ? "Date" : "Rating"}
+						</Button>
+					</DropdownTrigger>
+					<DropdownMenu
+						onAction={(key) => handleSortChange(key as "date" | "rating")}
+					>
+						<DropdownItem key="date">
+							<div className="flex items-center space-x-2">
+								<ArrowUpIcon className="w-5 h-5" />
+								<span>Date</span>
+							</div>
+						</DropdownItem>
+						<DropdownItem key="rating">
+							<div className="flex items-center space-x-2">
+								<ArrowDownIcon className="w-5 h-5" />
+								<span>Rating</span>
+							</div>
+						</DropdownItem>
+					</DropdownMenu>
+				</Dropdown>
 			</div>
-			<div className="grid items-center justify-center gap-4">
-				{got &&
-					filteredMeals.map((meal) => (
-						<MealCard key={meal.id} date={meal.date} initialMeal={meal} />
-					))}
+
+			<Tabs
+				aria-label="Filter Options"
+				selectedKey={filterType}
+				onSelectionChange={handleTabChange}
+				variant="solid"
+				className="mb-4"
+				fullWidth
+				size="sm"
+			>
+				<Tab
+					key="current-week"
+					title={
+						<div className="flex items-center space-x-1">
+							<CalendarIcon className="w-5 h-5" />
+							<span>Current Week</span>
+						</div>
+					}
+				/>
+				<Tab
+					key="upcoming"
+					title={
+						<div className="flex items-center space-x-1">
+							<ClockIcon className="w-5 h-5" />
+							<span>Upcoming Meals</span>
+						</div>
+					}
+				/>
+				<Tab
+					key="past"
+					title={
+						<div className="flex items-center space-x-1">
+							<ArrowUpIcon className="w-5 h-5" />
+							<span>Past Meals</span>
+						</div>
+					}
+				/>
+				<Tab
+					key="all"
+					title={
+						<div className="flex items-center space-x-1">
+							<span>All Meals</span>
+						</div>
+					}
+				/>
+			</Tabs>
+
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-2">
+				{filteredMeals.map((meal) => (
+					<MealCard
+						key={meal.id}
+						date={new Date(meal.date)}
+						initialMeal={meal}
+					/>
+				))}
 			</div>
+      <MealDetailModal
+				visible={modalVisible}
+				onClose={handleCloseModal}
+				date={null}
+				onSave={handleSave}
+				initialData={null}
+				onDelete={handleDelete}
+			/>
 		</div>
 	);
 };

@@ -12,13 +12,14 @@ import {
 import MealForm from "./MealForm";
 import { format } from "date-fns-jalali";
 import { Meal } from "@/interfaces/Meal";
+import { getLocalTimeZone, today } from "@internationalized/date";
 
 interface MealDetailModalProps {
 	visible: boolean;
 	onClose: () => void;
 	onSave: (meal: Meal|null) => void;
 	onDelete: (mealId: number) => void;
-	date: Date;
+	date: Date|null;
 	initialData: Meal|null;
 }
 
@@ -40,8 +41,8 @@ const MealDetailModal: FC<MealDetailModalProps> = ({
 			<ModalContent>
 				<ModalHeader className="flex flex-col gap-1">
 					<p>
-						{initialData ? "Meal for" : "Meal for"}{" "}
-						{format(date, "yyyy/MM/dd")}
+						{date ? "Meal for" : "New Meal"}{" "}
+						{date&&format(date??today(getLocalTimeZone()).toDate(getLocalTimeZone()), "yyyy/MM/dd")}
 					</p>
 				</ModalHeader>
 				<ModalBody>

@@ -1,32 +1,26 @@
 import React, { useState } from "react";
 import { Card, CardBody, Image } from "@nextui-org/react";
-import { format } from "date-fns-jalali";
-import Link from "next/link";
 import { StarIcon } from "@heroicons/react/24/solid";
-import { Meal } from "../interfaces/Meal";
-import MealDetailModal from "./MealDetailModal";
-import { getMealByDate } from "@/services/api";
-import { formatDateToYYYYMMDD } from "@/utils/dateUtils";
+import { Food } from "../interfaces/Food";
+import { getFoodDetails } from "@/services/api";
+import FoodDetailModal from "./FoodModal";
+import FoodModal from "./FoodModal";
 
-interface MealCardProps {
-	date: Date;
-	initialMeal: Meal | null;
+interface FoodCardProps {
+	initialFood: Food;
 }
 
-const MealCard: React.FC<MealCardProps> = ({
-	date,
-	initialMeal,
-}): JSX.Element => {
-	const [meal, setMeal] = useState<Meal | null>(initialMeal);
+const FoodCard: React.FC<FoodCardProps> = ({ initialFood }): JSX.Element => {
+	const [food, setFood] = useState<Food | null>(initialFood);
 	const [modalVisible, setModalVisible] = useState(false);
 
-	const fetchMeal = async () => {
+	const fetchFood = async () => {
 		try {
-			const response = await getMealByDate(formatDateToYYYYMMDD(date));
-			setMeal(response);
+			const response = await getFoodDetails(food?.id!);
+			setFood(response);
 		} catch (error) {
-			setMeal(null);
-			console.error("Failed to fetch meals:", error);
+			setFood(null);
+			console.error("Failed to fetch food details:", error);
 		}
 	};
 
@@ -35,15 +29,18 @@ const MealCard: React.FC<MealCardProps> = ({
 	};
 
 	const handleCloseModal = () => {
-		fetchMeal();
+		fetchFood();
 		setModalVisible(false);
 	};
-	const handleSave = (meal: Meal | null) => {};
-	const handleDelete = (mealId: number) => {};
+	const handleSave = (food: Food) => {
+		fetchFood();
+	};
+
+	const handleDelete = () => {};
 
 	return (
-		<div className="meal-card h-full w-full p-0.5">
-			{meal ? (
+		<div className="food-card h-full w-full p-0.5">
+			{food ? (
 				<Card
 					isBlurred
 					className="border-none bg-background/60 dark:bg-default-100/50 h-full w-full"
@@ -55,28 +52,26 @@ const MealCard: React.FC<MealCardProps> = ({
 						<div className="flex items-center gap-4">
 							<div className="relative flex-shrink-0 aspect-square">
 								<Image
-									alt={meal.food?.name}
+									alt={food.name}
 									className="z-0 w-full h-full  object-cover"
-									classNames={{ wrapper: "w-full h-full max-w-full max-h-full " }}									shadow="md"
-									src={meal.food?.picture ?? "/images/food-placeholder.jpg"} // Add a placeholder image if no picture is available
+									classNames={{
+										wrapper: "w-full h-full max-w-full max-h-full",
+									}}
+									shadow="md"
+									src={food.picture ?? "/images/food-placeholder.jpg"} // Add a placeholder image if no picture is available
 									width={120} // Adjust width as needed
 									height={120} // Keep the height matching the content
 								/>
 							</div>
 
 							<div className="flex flex-col overflow-hidden">
-								<h1 className="font-black text-foreground/90">
-									{format(new Date(meal.date), "yyyy/MM/dd")}
-								</h1>
-								<h2 className="text-large font-semibold mt-2">
-									{meal.food?.name}
-								</h2>
+								<h1 className="font-black text-foreground/90">{food.name}</h1>
 								<div className="flex items-center gap-0.5 mt-1">
 									{[...Array(5)].map((_, i) => (
 										<StarIcon
 											key={i}
 											className={
-												(i < meal.rating
+												(i < food.rating
 													? "text-yellow-500"
 													: "text-gray-300") + " w-4 h-4"
 											}
@@ -84,17 +79,20 @@ const MealCard: React.FC<MealCardProps> = ({
 									))}
 								</div>
 								<p className="text-small text-foreground/80 mt-1 whitespace-nowrap overflow-hidden text-ellipsis">
-									{meal.food?.description}
+									{food.description}
+								</p>
+								<p className="text-xs text-foreground/60 mt-1">
+									{food.meal_count} meals
 								</p>
 							</div>
 						</div>
 					</CardBody>
-					<MealDetailModal
+					<FoodModal
 						visible={modalVisible}
 						onClose={handleCloseModal}
-						date={date}
+						initialData={food}
+						isEditMode={false}
 						onSave={handleSave}
-						initialData={meal}
 						onDelete={handleDelete}
 					/>
 				</Card>
@@ -108,22 +106,26 @@ const MealCard: React.FC<MealCardProps> = ({
 				>
 					<div className="h-full flex items-center justify-center ">
 						<p className="text-medium text-black/60 uppercase font-bold text-center">
-							{format(date, "d")}
+							No Data
 						</p>
 					</div>
 				</Card>
 			)}
 
-			<MealDetailModal
+			<FoodModal
 				visible={modalVisible}
 				onClose={handleCloseModal}
-				date={date}
-				onSave={handleSave}
-				initialData={meal}
-				onDelete={handleDelete}
+				initialData={food}
+				isEditMode={true}
+				onSave={function (food: Food): void {
+					throw new Error("Function not implemented.");
+				}}
+				onDelete={function (foodId: number): void {
+					throw new Error("Function not implemented.");
+				}}
 			/>
 		</div>
 	);
 };
 
-export default MealCard;
+export default FoodCard;

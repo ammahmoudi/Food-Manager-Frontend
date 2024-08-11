@@ -3,5 +3,6 @@ export interface Food {
     name: string;
     description: string;
     picture: string;
+    rating: number;
+    meal_count: number;
   }
-  
