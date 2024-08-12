@@ -49,7 +49,7 @@ const GlobalNavbar = () => {
 				{isSignedIn ? (
 					<UserDropdown />
 				) : (
-					<Button>Sign In</Button>
+					<Button href="/login">Sign In</Button>
 				)}
 			</NavbarContent>
 		</Navbar>
