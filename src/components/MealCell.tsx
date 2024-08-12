@@ -56,7 +56,7 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeal }) => {
 				>
 					<Image
 						className="z-0 w-full h-full  object-cover"
-						classNames={{ wrapper: "w-full h-full max-w-full max-h-full " }}
+						classNames={{ wrapper: "w-full h-full aspect-square " }}
 						src={meal.food?.picture ?? "/images/food-placeholder.jpg"}
 						alt={meal.food?.name}
 						radius="none"
