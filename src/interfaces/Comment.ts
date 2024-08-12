@@ -1,6 +1,10 @@
 export interface Comment {
-    avatarUrl: string;
-    name: string;
-    date: string;
-    text: string;
-  }  
+  userId: number;
+  userName: string;
+  userPicture: string;
+  date: string;
+  text: string;
+  mealName: string;
+  mealDate: string;
+  mealPicture: string | null;
+}

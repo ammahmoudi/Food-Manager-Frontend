@@ -7,20 +7,20 @@ import { Meal } from "@/interfaces/Meal";
 import MealCard from "@/components/MealCard";
 import {
 	Input,
-	Tabs,
-	Tab,
 	Dropdown,
 	DropdownTrigger,
 	DropdownMenu,
 	DropdownItem,
 	Button,
+	Tab,
+	Tabs,
 } from "@nextui-org/react";
 import {
 	CalendarIcon,
 	ClockIcon,
 	ArrowUpIcon,
 	ArrowDownIcon,
-  PlusIcon,
+	PlusIcon,
 } from "@heroicons/react/24/outline";
 import MealDetailModal from "@/components/MealDetailModal";
 
@@ -29,7 +29,7 @@ const MealsPage = () => {
 	const [filteredMeals, setFilteredMeals] = useState<Meal[]>([]);
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [sortOrder, setSortOrder] = useState<"date" | "rating">("date");
-  const [modalVisible, setModalVisible] = useState(false);
+	const [modalVisible, setModalVisible] = useState(false);
 
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -81,7 +81,8 @@ const MealsPage = () => {
 		});
 		setFilteredMeals(sortedMeals);
 	};
-  const handleOpenModal = () => {
+
+	const handleOpenModal = () => {
 		setModalVisible(true);
 	};
 
@@ -89,9 +90,16 @@ const MealsPage = () => {
 		fetchMeals();
 		setModalVisible(false);
 	};
+
 	const handleSave = (meal: Meal | null) => {
+		// Optionally handle the save logic
 	};
+
 	const handleDelete = (mealId: number) => {
+		setMeals((prevMeals) => prevMeals.filter((meal) => meal.id !== mealId));
+		setFilteredMeals((prevFilteredMeals) =>
+			prevFilteredMeals.filter((meal) => meal.id !== mealId)
+		);
 	};
 
 	return (
@@ -104,7 +112,7 @@ const MealsPage = () => {
 					onChange={handleSearchChange}
 					className="w-full"
 				/>
-        				<Button
+				<Button
 					isIconOnly
 					color="success"
 					className="h-full w-auto aspect-square"
@@ -189,10 +197,11 @@ const MealsPage = () => {
 						key={meal.id}
 						date={new Date(meal.date)}
 						initialMeal={meal}
+						onDelete={handleDelete}  // Pass the handleDelete function to MealCard
 					/>
 				))}
 			</div>
-      <MealDetailModal
+			<MealDetailModal
 				visible={modalVisible}
 				onClose={handleCloseModal}
 				date={null}

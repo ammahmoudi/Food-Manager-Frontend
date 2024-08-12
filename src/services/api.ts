@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Food } from "@/interfaces/Food";
 import { FoodFormData } from "@/interfaces/FoodFormData";
+import { Meal } from "@/interfaces/Meal";
 
 const API_BASE_URL = "http://localhost:8000/api/";
 
@@ -117,7 +118,15 @@ export const getMealComments = async (mealId: number) => {
 	const response = await api.get(`meals/${mealId}/comments/`);
 	return response.data;
 };
-
+export const getLatestComments = async () => {
+    const response = await api.get('comments/latest/');
+    return response.data;
+};
+export const getCurrentDayMeal = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    const response = await api.get<Meal>(`meals/date/${today}/`);
+    return response.data;
+};
 export const getFoodDetails = async (foodId: number) => {
 	const response = await api.get(`foods/${foodId}/`);
 	return response.data;
