@@ -12,8 +12,8 @@ import {
 	DropdownMenu,
 	DropdownItem,
 	Button,
-	Tabs,
 	Tab,
+	Tabs,
 } from "@nextui-org/react";
 import {
 	CalendarIcon,

@@ -137,7 +137,15 @@ export const getMealComments = async (mealId: number) => {
 	const response = await api.get(`meals/${mealId}/comments/`);
 	return response.data;
 };
-
+export const getLatestComments = async () => {
+    const response = await api.get('comments/latest/');
+    return response.data;
+};
+export const getCurrentDayMeal = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    const response = await api.get<Meal>(`meals/date/${today}/`);
+    return response.data;
+};
 export const getFoodDetails = async (foodId: number) => {
 	const response = await api.get(`foods/${foodId}/`);
 	return response.data;
