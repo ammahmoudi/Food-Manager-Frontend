@@ -22,18 +22,20 @@ import { CalendarProps, MealCellData } from "@/interfaces/Calendar";
 import { Food } from "@/interfaces/Food";
 
 const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
+    const [currentYear, setCurrentYear] = useState(year);
+    const [currentMonth, setCurrentMonth] = useState(month);
     const [cells, setCells] = useState<MealCellData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    const currentMonth = newDate(year, month - 1, 1);
-    const firstDayOfMonth = startOfMonth(currentMonth);
-    const lastDayOfMonth = endOfMonth(currentMonth);
+    const currentMonthDate = newDate(currentYear, currentMonth - 1, 1);
+    const firstDayOfMonth = startOfMonth(currentMonthDate);
+    const lastDayOfMonth = endOfMonth(currentMonthDate);
 
     useEffect(() => {
         const fetchMeals = async () => {
             try {
                 setLoading(true);
-                const response = await getMealsForCurrentMonth(year, month);
+                const response = await getMealsForCurrentMonth(currentYear, currentMonth);
                 const mealCells = response.map(
                     (day: { date: Date; food: Food; rating: number }) => ({
                         date: day.date,
@@ -49,7 +51,7 @@ const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
         };
 
         fetchMeals();
-    }, [year, month]);
+    }, [currentYear, currentMonth]);
 
     const weeks = [];
     let currentWeek = startOfWeek(firstDayOfMonth, { weekStartsOn: 6 });
@@ -64,17 +66,25 @@ const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
     }
 
     const handlePrevMonth = () => {
-        const prevMonth = subMonths(currentMonth, 1);
+        const prevMonth = subMonths(currentMonthDate, 1);
         const newYear = parseInt(format(prevMonth, "yyyy"), 10);
         const newMonth = parseInt(format(prevMonth, "MM"), 10);
-        onMonthChange(newYear, newMonth);
+        if (newYear !== currentYear || newMonth !== currentMonth) {
+            setCurrentYear(newYear);
+            setCurrentMonth(newMonth);
+            if (onMonthChange) onMonthChange(newYear, newMonth);
+        }
     };
 
     const handleNextMonth = () => {
-        const nextMonth = addMonths(currentMonth, 1);
+        const nextMonth = addMonths(currentMonthDate, 1);
         const newYear = parseInt(format(nextMonth, "yyyy"), 10);
         const newMonth = parseInt(format(nextMonth, "MM"), 10);
-        onMonthChange(newYear, newMonth);
+        if (newYear !== currentYear || newMonth !== currentMonth) {
+            setCurrentYear(newYear);
+            setCurrentMonth(newMonth);
+            if (onMonthChange) onMonthChange(newYear, newMonth);
+        }
     };
 
     if (loading) {
@@ -97,7 +107,7 @@ const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
                     disableRipple
                     className="text-xl text-white font-bold w-full text-center bg-black/50 "
                 >
-                    {format(currentMonth, "MMMM yyyy")}
+                    {format(currentMonthDate, "MMMM yyyy")}
                 </Button>
                 <Button className="px-10" onClick={handleNextMonth}>
                     Next Month
@@ -120,7 +130,7 @@ const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
                                 key={j}
                                 className="flex flex-col items-center justify-start aspect-square"
                             >
-                                {isSameMonth(day, currentMonth) ? (
+                                {isSameMonth(day, currentMonthDate) ? (
                                     <MealCell
                                         date={day}
                                         initialMeal={

@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Avatar,Link } from '@nextui-org/react';
+import { Avatar,Link,Image } from '@nextui-org/react';
 import { FoodDetailsData } from '../interfaces/FoodDetailsData';
 
 const StarIcon: FC<{ filled: boolean }> = ({ filled }) => (
@@ -25,7 +25,7 @@ const FoodDetails: FC<{ data: FoodDetailsData }> = ({ data }) => {
     <div className="max-w-4xl mx-auto px-4 py-12 md:px-6 lg:py-16">
       <div className="grid md:grid-cols-2 gap-8 items-start">
         <div>
-          <img
+          <Image
             src={imageUrl}
             alt="Food Image"
             width={600}
@@ -54,10 +54,10 @@ const FoodDetails: FC<{ data: FoodDetailsData }> = ({ data }) => {
         <div className="space-y-8">
           {comments.map((comment, index) => (
             <div key={index} className="flex gap-4">
-              <Avatar className="w-10 h-10 border" src={comment.avatarUrl} name={comment.name[0]} />
+              <Avatar className="w-10 h-10 border" src={comment.userPicture} name={comment.userName} />
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <div className="font-medium">{comment.name}</div>
+                  <div className="font-medium">{comment.mealName}</div>
                   <time className="text-muted-foreground text-sm">{comment.date}</time>
                 </div>
                 <p className="text-muted-foreground">{comment.text}</p>

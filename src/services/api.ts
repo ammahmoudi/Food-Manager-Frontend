@@ -94,25 +94,7 @@ api.interceptors.response.use(
 	}
 );
 
-export const getLatestComments = async () => {
-    const response = await axios.get<Comment[]>('/api/comments/latest/');
-    return response.data.map(comment => ({
-        userId: comment.user.id,
-        userName: comment.user.name,
-        userPicture: comment.user.user_image, 
-        date: comment.date,
-        text: comment.text,
-        mealName: comment.meal.food.name,
-        mealDate: comment.meal.date,
-        mealPicture: comment.meal.food.picture || null,
-    }));
-};
 
-export const getCurrentDayMeal = async () => {
-    const today = new Date().toISOString().split('T')[0];
-    const response = await axios.get<Meal>(`/api/meals/date/${today}/`);
-    return response.data;
-};
 export const getFoods = async () => {
 	const response = await api.get("foods/");
 	return response.data;
