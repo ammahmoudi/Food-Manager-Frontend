@@ -11,7 +11,7 @@ import {
 } from "@nextui-org/react";
 import { ArrowUpIcon, ArrowDownIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { Food } from "@/interfaces/Food";
-import { getFoods } from "@/services/api";
+import { getFoods, deleteFood } from "@/services/api"; // Ensure you import deleteFood
 import FoodCard from "@/components/FoodCard";
 import FoodModal from "@/components/FoodModal";
 
@@ -70,12 +70,12 @@ const FoodsPage = () => {
 	};
 
 	const handleSave = (food: Food) => {
-		fetchFoods();
-
+		// Optionally handle the save logic
 	};
 
-	const handleDelete = () => {
-		fetchFoods();
+	const handleDelete = (foodId: number) => {
+		setFoods(prevFoods => prevFoods.filter(food => food.id !== foodId));
+		setFilteredFoods(prevFilteredFoods => prevFilteredFoods.filter(food => food.id !== foodId));
 	};
 
 	return (
@@ -123,7 +123,11 @@ const FoodsPage = () => {
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-2">
 				{filteredFoods.map((food) => (
-					<FoodCard key={food.id} initialFood={food} />
+					<FoodCard
+						key={food.id}
+						initialFood={food}
+						onDelete={handleDelete}  // Pass the handleDelete function to FoodCard
+					/>
 				))}
 			</div>
 			<FoodModal

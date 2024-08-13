@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Card, CardBody, Image } from "@nextui-org/react";
 import { format } from "date-fns-jalali";
-import Link from "next/link";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { Meal } from "../interfaces/Meal";
 import MealDetailModal from "./MealDetailModal";
@@ -11,11 +10,13 @@ import { formatDateToYYYYMMDD } from "@/utils/dateUtils";
 interface MealCardProps {
 	date: Date;
 	initialMeal: Meal | null;
+	onDelete: (mealId: number) => void;
 }
 
 const MealCard: React.FC<MealCardProps> = ({
 	date,
 	initialMeal,
+	onDelete,
 }): JSX.Element => {
 	const [meal, setMeal] = useState<Meal | null>(initialMeal);
 	const [modalVisible, setModalVisible] = useState(false);
@@ -38,8 +39,14 @@ const MealCard: React.FC<MealCardProps> = ({
 		fetchMeal();
 		setModalVisible(false);
 	};
-	const handleSave = (meal: Meal | null) => {};
-	const handleDelete = (mealId: number) => {};
+
+	const handleSave = (meal: Meal | null) => {
+		// Optionally handle save logic
+	};
+
+	const handleDelete = (mealId: number) => {
+		onDelete(mealId);
+	};
 
 	return (
 		<div className="meal-card h-full w-full p-0.5">
@@ -56,8 +63,11 @@ const MealCard: React.FC<MealCardProps> = ({
 							<div className="relative flex-shrink-0 aspect-square">
 								<Image
 									alt={meal.food?.name}
-									className="z-0 w-full h-full  object-cover"
-									classNames={{ wrapper: "w-full h-full max-w-full max-h-full " }}									shadow="md"
+									className="z-0 w-full h-full object-cover"
+									classNames={{
+										wrapper: "w-full h-full max-w-full max-h-full ",
+									}}
+									shadow="md"
 									src={meal.food?.picture ?? "/images/food-placeholder.jpg"} // Add a placeholder image if no picture is available
 									width={120} // Adjust width as needed
 									height={120} // Keep the height matching the content
