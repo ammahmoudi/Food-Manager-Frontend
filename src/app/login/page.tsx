@@ -57,7 +57,7 @@ export default function Login() {
       <p className="text-sm font-normal text-gray-600 mb-7">Welcome Back</p>
       <Input className=" outline-none  border-2 rounded-2xl mb-4"  placeholder="Phone" onChange={(e) => setPhoneNumber(e.target.value)} startContent={<PhoneIcon className='text-default-500 size-6'/>} />
 
-      <Input className="outline-none   border-2 rounded-2xl mb-4"  placeholder="Password"onChange={(e) => setPassword(e.target.value)} startContent={<KeyIcon className='text-default-500 size-6'/>}       endContent={
+      <Input  className="outline-none   border-2 rounded-2xl mb-4"  placeholder="Password"onChange={(e) => setPassword(e.target.value)} startContent={<KeyIcon className='text-default-500 size-6'/>}       endContent={
         <button className="focus:outline-none" type="button" onClick={toggleVisibility}>
           {isVisible ? (
             <EyeSlashIcon className="text-2xl text-default-400 pointer-events-none" />

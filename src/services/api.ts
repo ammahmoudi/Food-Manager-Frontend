@@ -231,5 +231,29 @@ export const login = async (phone_number: string, password: string) => {
 	const { access, refresh } = response.data;
 	return { access, refresh };
 };
-
+// Fetch current user data
+export const getCurrentUser = async () => {
+	const response = await api.get('/auth/users/me/');
+	return response.data;
+  };
+  
+  // Update current user data
+  export const updateUser = async (data: any) => {
+	const response = await api.patch('/auth/users/me/', data, {
+	  headers: {
+		'Content-Type': 'multipart/form-data',
+	  },
+	});
+	return response.data;
+  };
+  
+  // Change user password
+  export const changePassword = async (oldPassword: string, newPassword: string, confirmPassword: string) => {
+	const response = await api.post('auth/users/set_password/', {
+	  current_password: oldPassword,
+	  new_password: newPassword,
+	  re_new_password: confirmPassword,
+	});
+	return response.data;
+  };
 export default api;

@@ -21,6 +21,7 @@ const HomePage = () => {
 	const [latestComments, setLatestComments] = useState<Comment[]>([]);
 	const [currentDayMeal, setCurrentDayMeal] = useState<Meal | null>(null);
 	const [isAdmin, setIsAdmin] = useState(false);
+  
 
 	const fetchAdminStatus = async () => {
 		try {

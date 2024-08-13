@@ -39,7 +39,7 @@ const GlobalNavbar = () => {
 				<p className="font-bold text-inherit">Berchi</p>
 			</NavbarBrand>
 			<NavbarContent>
-				<Link href="/">Home</Link>
+				<Link href="/home">Home</Link>
         <Link href="/calendar">Calendar</Link>
         <Link href="/meals">Meals</Link>
 				<Link href="/foods">Foods</Link>

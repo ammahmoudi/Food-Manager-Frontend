@@ -1,4 +1,3 @@
-// components/UserDropdown.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,7 +8,7 @@ import {
 	DropdownMenu,
 	DropdownItem,
 } from "@nextui-org/react";
-import api from "../services/api";
+import { getCurrentUser } from "../services/api"; // Import the API function
 
 interface User {
     id: number;
@@ -24,8 +23,8 @@ const UserDropdown = () => {
 	useEffect(() => {
 		const fetchUser = async () => {
 			try {
-				const response = await api.get("auth/users/me/");
-				setUser(response.data);
+				const userData = await getCurrentUser(); // Use the getCurrentUser API function
+				setUser(userData);
 			} catch (error) {
 				console.error("Error fetching user data:", error);
 			}
@@ -56,7 +55,7 @@ const UserDropdown = () => {
 					<p className="font-semibold">Signed in as</p>
 					<p className="font-semibold">{user.name}</p>
 				</DropdownItem>
-				<DropdownItem key="settings">My Settings</DropdownItem>
+				<DropdownItem key="settings" href="/settings">My Settings</DropdownItem>
 				<DropdownItem key="logout"  color="danger" href="/logout">
 					Log Out
 				</DropdownItem>
