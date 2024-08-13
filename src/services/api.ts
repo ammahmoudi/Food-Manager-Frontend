@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Food } from "@/interfaces/Food";
 import { FoodFormData } from "@/interfaces/FoodFormData";
+import { Meal } from "@/interfaces/Meal";
 
 const API_BASE_URL = "http://localhost:8000/api/";
 
@@ -93,6 +94,25 @@ api.interceptors.response.use(
 	}
 );
 
+export const getLatestComments = async () => {
+    const response = await axios.get<Comment[]>('/api/comments/latest/');
+    return response.data.map(comment => ({
+        userId: comment.user.id,
+        userName: comment.user.name,
+        userPicture: comment.user.user_image, 
+        date: comment.date,
+        text: comment.text,
+        mealName: comment.meal.food.name,
+        mealDate: comment.meal.date,
+        mealPicture: comment.meal.food.picture || null,
+    }));
+};
+
+export const getCurrentDayMeal = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    const response = await axios.get<Meal>(`/api/meals/date/${today}/`);
+    return response.data;
+};
 export const getFoods = async () => {
 	const response = await api.get("foods/");
 	return response.data;
@@ -129,20 +149,27 @@ export const getFoodComments = async (foodId: number) => {
 };
 const createFormData = (food: Partial<FoodFormData>) => {
 	const formData = new FormData();
+
 	if (food.name) formData.append("name", food.name);
 	if (food.description) formData.append("description", food.description);
-	if (food.picture) {
-		if (typeof food.picture === "string" && food.picture === "") {
-			formData.append("picture_url", food.picture);
-		} else {
-			formData.append("picture", food.picture as File);
-		}
+
+	// Handle picture field
+	if (food.picture === "") {
+		// If the picture is an empty string, indicate that the picture should be removed
+		formData.append("remove_picture", "true");
+	} else if (food.picture && typeof food.picture !== "string") {
+		// Only append the file if it's not a string (i.e., it's a File)
+		formData.append("picture", food.picture as File);
 	}
+
 	return formData;
 };
 
+
 export const addFood = async (food: FoodFormData) => {
 	const formData = createFormData(food);
+	console.log("form_Data",food)
+
 	const response = await api.post("foods/", formData, {
 		headers: {
 			"Content-Type": "multipart/form-data",
@@ -152,8 +179,10 @@ export const addFood = async (food: FoodFormData) => {
 	return response.data;
 };
 
-export const updateFood = async (id: number, food: FoodFormData) => {
+export const updateFood = async (id: number, food: Partial<FoodFormData>) => {
 	const formData = createFormData(food);
+	console.log("form_Data",food)
+
 	const response = await api.put(`foods/${id}/`, formData, {
 		headers: {
 			"Content-Type": "multipart/form-data",
