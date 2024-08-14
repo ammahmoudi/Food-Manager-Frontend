@@ -94,7 +94,6 @@ api.interceptors.response.use(
 	}
 );
 
-
 export const getFoods = async () => {
 	const response = await api.get("foods/");
 	return response.data;
@@ -120,13 +119,13 @@ export const getMealComments = async (mealId: number) => {
 	return response.data;
 };
 export const getLatestComments = async () => {
-    const response = await api.get('comments/latest/');
-    return response.data;
+	const response = await api.get("comments/latest/");
+	return response.data;
 };
 export const getCurrentDayMeal = async () => {
-    const today = new Date().toISOString().split('T')[0];
-    const response = await api.get<Meal>(`meals/date/${today}/`);
-    return response.data;
+	const today = new Date().toISOString().split("T")[0];
+	const response = await api.get<Meal>(`meals/date/${today}/`);
+	return response.data;
 };
 export const getFoodDetails = async (foodId: number) => {
 	const response = await api.get(`foods/${foodId}/`);
@@ -155,10 +154,9 @@ const createFormData = (food: Partial<FoodFormData>) => {
 	return formData;
 };
 
-
 export const addFood = async (food: FoodFormData) => {
 	const formData = createFormData(food);
-	console.log("form_Data",food)
+	console.log("form_Data", food);
 
 	const response = await api.post("foods/", formData, {
 		headers: {
@@ -171,7 +169,7 @@ export const addFood = async (food: FoodFormData) => {
 
 export const updateFood = async (id: number, food: Partial<FoodFormData>) => {
 	const formData = createFormData(food);
-	console.log("form_Data",food)
+	console.log("form_Data", food);
 
 	const response = await api.put(`foods/${id}/`, formData, {
 		headers: {
@@ -233,27 +231,51 @@ export const login = async (phone_number: string, password: string) => {
 };
 // Fetch current user data
 export const getCurrentUser = async () => {
-	const response = await api.get('/auth/users/me/');
+	const response = await api.get("/auth/users/me/");
 	return response.data;
-  };
-  
-  // Update current user data
-  export const updateUser = async (data: any) => {
-	const response = await api.patch('/auth/users/me/', data, {
-	  headers: {
-		'Content-Type': 'multipart/form-data',
-	  },
+};
+
+// Update current user data
+export const updateUser = async (userData: any) => {
+	const formData = new FormData();
+	formData.append("name", userData.name);
+	formData.append("phone_number", userData.phone_number);
+
+	if (userData.user_image) {
+		formData.append("user_image", userData.user_image);
+	}
+
+	if (userData.remove_image) {
+		formData.append("remove_image", "true"); // Add this flag to the request
+	}
+	const response = await api.put("auth/users/me/", formData, {
+		headers: {
+			"Content-Type": "multipart/form-data",
+		},
+
+	});
+	console.log(userData)
+
+	return response.data;
+};
+
+// Change user password
+export const changePassword = async (
+	oldPassword: string,
+	newPassword: string,
+	confirmPassword: string
+) => {
+	const response = await api.post("auth/users/set_password/", {
+		current_password: oldPassword,
+		new_password: newPassword,
+		re_new_password: confirmPassword,
 	});
 	return response.data;
-  };
-  
-  // Change user password
-  export const changePassword = async (oldPassword: string, newPassword: string, confirmPassword: string) => {
-	const response = await api.post('auth/users/set_password/', {
-	  current_password: oldPassword,
-	  new_password: newPassword,
-	  re_new_password: confirmPassword,
+};
+export const checkPhoneNumberUnique = async (phoneNumber: string) => {
+	const response = await api.get("users/check-phone-number/", {
+		params: { phone_number: phoneNumber },
 	});
 	return response.data;
-  };
+};
 export default api;
