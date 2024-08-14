@@ -278,4 +278,8 @@ export const checkPhoneNumberUnique = async (phoneNumber: string) => {
 	});
 	return response.data;
 };
-export default api;
+export const signup = async (data: any) => {
+	const response = await api.post('/auth/users/', data);
+	return response.data;
+  };
+export default api

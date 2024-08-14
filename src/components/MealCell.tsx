@@ -64,8 +64,8 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeal }) => {
                     radius="md"
                     key={meal.id}
                     isPressable
-                    className={`h-full w-full ${
-                        isToday(date) ? "shadow-indigo-500/50" : ""
+                    className={`h-full w-full  ${
+                        isToday(date) ? "shadow-md shadow-emerald-800" : ""
                     }`}
                     onPress={handleOpenModal}
                 >
@@ -93,8 +93,9 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeal }) => {
                 <Card
                     isFooterBlurred
                     radius="md"
-                    className="h-full w-full justify-center items-center"
-                    isPressable
+                    className={`h-full w-full justify-center items-center  ${
+                        isToday(date) ? "shadow-md shadow-emerald-800" : ""
+                    }`}                    isPressable
                     onPress={handleOpenModal}
                 >
                     <div className="h-full flex items-center justify-center ">

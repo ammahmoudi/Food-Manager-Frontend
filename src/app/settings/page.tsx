@@ -249,7 +249,7 @@ const SettingsPage = () => {
 							isDisabled={
 								name === initialData.name &&
 								phoneNumber === initialData.phoneNumber &&
-								userImageUrl === initialData.userImageUrl
+								(userImageUrl === initialData.userImageUrl)
 							}
 							color="primary"
 							onPress={handleSave}
