@@ -68,7 +68,7 @@ const MealCard: React.FC<MealCardProps> = ({
 										wrapper: "w-full h-full max-w-full max-h-full ",
 									}}
 									shadow="md"
-									src={meal.food?.picture ?? "/images/food-placeholder.jpg"} // Add a placeholder image if no picture is available
+									src={meal.food?.image as string ?? "/images/food-placeholder.jpg"} // Add a placeholder image if no picture is available
 									width={120} // Adjust width as needed
 									height={120} // Keep the height matching the content
 								/>
@@ -86,7 +86,7 @@ const MealCard: React.FC<MealCardProps> = ({
 										<StarIcon
 											key={i}
 											className={
-												(i < meal.rating
+												(i < meal.avg_rate
 													? "text-yellow-500"
 													: "text-gray-300") + " w-4 h-4"
 											}

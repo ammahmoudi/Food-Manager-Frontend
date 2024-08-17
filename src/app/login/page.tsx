@@ -1,7 +1,7 @@
 // app/login/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Key } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Input,
@@ -26,7 +26,7 @@ export default function AuthPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || 'login';
-  const [selected, setSelected] = useState(initialTab);
+  const [selected, setSelected] = useState<any>(initialTab);
 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [name, setName] = useState('');

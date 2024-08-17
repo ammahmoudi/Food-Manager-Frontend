@@ -21,6 +21,7 @@ const FoodCard: React.FC<FoodCardProps> = ({
     try {
       const response = await getFoodDetails(food?.id!);
       setFood(response);
+      console.log(response)
     } catch (error) {
       setFood(null);
       console.error("Failed to fetch food details:", error);
@@ -64,7 +65,7 @@ const FoodCard: React.FC<FoodCardProps> = ({
                     wrapper: "w-full h-full max-w-full max-h-full",
                   }}
                   shadow="md"
-                  src={food.picture ?? "/images/food-placeholder.jpg"}
+                  src={food.image as string ?? "/images/food-placeholder.jpg"}
                   width={120}
                   height={120}
                 />
@@ -77,7 +78,7 @@ const FoodCard: React.FC<FoodCardProps> = ({
                     <StarIcon
                       key={i}
                       className={
-                        (i < food.rating
+                        (i < food.avg_rate
                           ? "text-yellow-500"
                           : "text-gray-300") + " w-4 h-4"
                       }

@@ -2,7 +2,7 @@ export interface Food {
     id: number;
     name: string;
     description: string;
-    picture: string;
-    rating: number;
+    image: string|File;
+    avg_rate: number;
     meal_count: number;
   }

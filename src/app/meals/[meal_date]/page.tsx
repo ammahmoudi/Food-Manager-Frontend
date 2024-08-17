@@ -43,7 +43,7 @@ const MealDetailPage = () => {
           const fetchedComments = await getMealComments(meal.id);
           setComments(fetchedComments.map((comment: any) => ({
             avatarUrl: comment.user.user_image,
-            name: comment.user.name,
+            name: comment.user.full_name,
             date: comment.date,
             text: comment.text,
           })));

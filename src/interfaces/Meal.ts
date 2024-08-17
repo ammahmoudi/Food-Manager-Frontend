@@ -1,13 +1,9 @@
 import { Food } from './Food';
 
 export interface Meal {
-  comments: never[];
+  comments: Comment[];
   id: number;
   date: Date;
   food: Food | null;
-  imageUrl?: string;
-  title?: string;
-  description?: string;
-  rating: number;
-  datePosted?: Date;
+  avg_rate: number;
 }

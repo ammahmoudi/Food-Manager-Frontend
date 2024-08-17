@@ -32,6 +32,8 @@ import { Meal } from "@/interfaces/Meal";
 import { formatDateToYYYYMMDD } from "@/utils/dateUtils";
 import { CreateMealData } from "@/interfaces/CreateMealData";
 import { PencilSquareIcon } from "@heroicons/react/16/solid";
+import CommentSection from "./CommentSection";
+import RateSection from "./RateSection";
 
 interface MealFormProps {
 	initialData: Meal | null;
@@ -47,7 +49,9 @@ const MealForm: FC<MealFormProps> = ({
 	onDelete,
 }) => {
 	const [selectedFood, setSelectedFood] = useState<Food | null>(null);
-	const [selectedDate, setSelectedDate] = useState<Date | null>(date || new Date());
+	const [selectedDate, setSelectedDate] = useState<Date | null>(
+		date || new Date()
+	);
 	const [foodModalVisible, setFoodModalVisible] = useState(false);
 	const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 	const [isAdmin, setIsAdmin] = useState(false);
@@ -57,7 +61,9 @@ const MealForm: FC<MealFormProps> = ({
 	const fetchMeal = useCallback(async () => {
 		if (selectedDate) {
 			try {
-				const response = await getMealByDate(formatDateToYYYYMMDD(selectedDate));
+				const response = await getMealByDate(
+					formatDateToYYYYMMDD(selectedDate)
+				);
 				setMeal(response);
 				if (!selectedFood) {
 					setSelectedFood(response.food);
@@ -181,6 +187,7 @@ const MealForm: FC<MealFormProps> = ({
 									size="sm"
 									className=" aspect-square bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
 									onPress={handleOpenFoodModal}
+									isIconOnly
 								>
 									<PencilSquareIcon className="h-5 w-5" />
 								</Button>
@@ -191,7 +198,9 @@ const MealForm: FC<MealFormProps> = ({
 						alt={selectedFood.name}
 						className="z-0 w-full h-full object-cover"
 						classNames={{ wrapper: "w-full h-full max-w-full max-h-full " }}
-						src={selectedFood.picture ?? "/images/food-placeholder.jpg"}
+						src={
+							(selectedFood.image as string) ?? "/images/food-placeholder.jpg"
+						}
 					/>
 					<CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100">
 						<div className="flex flex-grow gap-2 items-center">
@@ -209,7 +218,7 @@ const MealForm: FC<MealFormProps> = ({
 							href={`/foods/${selectedFood.id}`}
 							isExternal
 						>
-							more
+							<span>more</span>
 						</Button>
 					</CardFooter>
 				</Card>
@@ -222,7 +231,9 @@ const MealForm: FC<MealFormProps> = ({
 								label="Select Date"
 								minValue={today(getLocalTimeZone())}
 								defaultValue={today(getLocalTimeZone())}
-								onChange={(newDate) => setSelectedDate(new Date(newDate.toString()))}
+								onChange={(newDate) =>
+									setSelectedDate(new Date(newDate.toString()))
+								}
 							/>
 						</div>
 					)}
@@ -232,9 +243,15 @@ const MealForm: FC<MealFormProps> = ({
 						shouldUpdate={shouldUpdateFoods}
 						onUpdateComplete={() => setShouldUpdateFoods(false)}
 					/>
+					{meal && (
+						<>
+							<RateSection mealId={meal.id} />
+							<CommentSection mealId={meal.id} />
+						</>
+					)}
 					<div className="flex justify-left gap-2">
 						<Button color="primary" onPress={handleSaveMeal} className="mt-4">
-							{meal ? "Update Meal" : "Add Meal"}
+							<span>{meal ? "Update Meal" : "Add Meal"}</span>
 						</Button>
 						{meal && (
 							<Button
@@ -262,17 +279,17 @@ const MealForm: FC<MealFormProps> = ({
 				<ModalContent>
 					<ModalHeader>Delete Meal</ModalHeader>
 					<ModalBody>Are you sure you want to delete this meal item?</ModalBody>
-						<ModalFooter>
-							<Button color="danger" onClick={handleDeleteMeal}>
-								Delete
-							</Button>
-							<Button variant="light" onClick={handleCloseDeleteModal}>
-								Cancel
-							</Button>
-						</ModalFooter>
-					</ModalContent>
-				</Modal>
-			</div>
+					<ModalFooter>
+						<Button color="danger" onClick={handleDeleteMeal}>
+							Delete
+						</Button>
+						<Button variant="light" onClick={handleCloseDeleteModal}>
+							Cancel
+						</Button>
+					</ModalFooter>
+				</ModalContent>
+			</Modal>
+		</div>
 	);
 };
 

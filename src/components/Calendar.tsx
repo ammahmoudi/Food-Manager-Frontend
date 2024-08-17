@@ -103,7 +103,6 @@ const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
                 </Button>
                 <Button
                     disabled
-                    disableAnimation
                     disableRipple
                     className="text-xl text-white font-bold w-full text-center bg-black/50 "
                 >

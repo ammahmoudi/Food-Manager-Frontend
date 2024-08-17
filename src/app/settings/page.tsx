@@ -30,6 +30,8 @@ import {
 	TrashIcon,
 } from "@heroicons/react/24/solid";
 import debounce from "@/utils/debounce";
+import { User } from "@/interfaces/User";
+import { init } from "next/dist/compiled/webpack/webpack";
 
 const SettingsPage = () => {
 	const [name, setName] = useState("");
@@ -37,7 +39,7 @@ const SettingsPage = () => {
 	const [userImage, setUserImage] = useState<File | null>(null);
 	const [userImageUrl, setUserImageUrl] = useState("");
 	const [role, setRole] = useState("");
-	const [initialData, setInitialData] = useState<any>({});
+	const [initialData, setInitialData] = useState<User>();
 	const [nameError, setNameError] = useState("");
 	const [phoneError, setPhoneError] = useState("");
 
@@ -56,14 +58,16 @@ const SettingsPage = () => {
 		const fetchUserData = async () => {
 			try {
 				const user = await getCurrentUser();
-				setName(user.name);
+				setName(user.full_name);
 				setPhoneNumber(user.phone_number);
 				setUserImageUrl(user.user_image || "");
 				setRole(user.role);
 				setInitialData({
-					name: user.name,
-					phoneNumber: user.phone_number,
-					userImageUrl: user.user_image,
+					id: user.id,
+					full_name: user.full_name,
+					phone_number: user.phone_number,
+					user_image: user.user_image,
+					role: user.role,
 				});
 			} catch (error) {
 				console.error("Failed to fetch user data:", error);
@@ -71,6 +75,7 @@ const SettingsPage = () => {
 		};
 
 		fetchUserData();
+
 	}, []);
 
 	const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -78,6 +83,7 @@ const SettingsPage = () => {
 		if (file) {
 			setUserImage(file);
 			setUserImageUrl(URL.createObjectURL(file));
+			console.log("image file changed", file);
 		}
 	};
 
@@ -108,29 +114,36 @@ const SettingsPage = () => {
 	};
 
 	const debounceValidatePhoneNumber = debounce(async (value: string) => {
-    if(value!==initialData.phoneNumber){
-		setPhoneError(await validatePhoneNumber(value));
-  }
+		if (value !== initialData?.phone_number) {
+			setPhoneError(await validatePhoneNumber(value));
+		}
 	});
-  const handleSave = async () => {
-    try {
-        if (!nameError && !phoneError) {
-            const updatedUser = await updateUser({
-                name,
-                phone_number: phoneNumber,
-                user_image: userImage,
-                remove_image: userImageUrl === "" ? true : false,  // If the image URL is empty, remove the image
-            });
-            setInitialData({
-                name,
-                phoneNumber,
-                userImageUrl: updatedUser.user_image || "",  // Update to the new image URL or an empty string
-            });
-        }
-    } catch (error) {
-        console.error("Failed to save user data:", error);
-    }
-};
+	const handleSave = async () => {
+		try {
+			if (!nameError && !phoneError) {
+				const updatedUser = await updateUser({
+					full_name: name,
+					phone_number: phoneNumber,
+					user_image: userImage,
+					remove_image: userImage === null ? true : false, // If the image URL is empty, remove the image
+				});
+				setInitialData({
+					id: updatedUser.id,
+					full_name: updatedUser.full_name,
+					phone_number: updatedUser.phone_number,
+					user_image: updatedUser.user_image,
+					role: updatedUser.role,
+				});
+				setUserImage(null);
+				setUserImageUrl(updatedUser.user_image)
+				console.log('image url',userImageUrl)
+				console.log('user image',userImage)
+				console.log('intital_image',initialData?.user_image)
+			}
+		} catch (error) {
+			console.error("Failed to save user data:", error);
+		}
+	};
 
 	const handlePasswordChange = async () => {
 		try {
@@ -190,7 +203,7 @@ const SettingsPage = () => {
 							</div>
 						)}
 					</Card>
-					<Input
+					<input
 						type="file"
 						id="user-image-input"
 						accept="image/*"
@@ -247,9 +260,10 @@ const SettingsPage = () => {
 					<div className="flex justify-between gap-2">
 						<Button
 							isDisabled={
-								name === initialData.name &&
-								phoneNumber === initialData.phoneNumber &&
-								(userImageUrl === initialData.userImageUrl)
+								initialData&&
+								name === initialData.full_name &&
+								phoneNumber === initialData.phone_number &&
+								(userImage === initialData.user_image||userImageUrl===initialData.user_image)
 							}
 							color="primary"
 							onPress={handleSave}

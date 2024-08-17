@@ -7,19 +7,11 @@ import { DateTime } from 'luxon';
 import { jalaaliToDateTime, dateTimeToJalaali } from '../../utils/dateUtils';
 import withAdminAuth from '../../components/withAdminAuth';
 import {addFood,getFoods,getMeals,saveMeal} from '@/services/api';
+import { Meal } from '@/interfaces/Meal';
+import { Food } from '@/interfaces/Food';
 
-interface Food {
-  id: number;
-  name: string;
-  description: string;
-  picture: string;
-}
 
-interface Meal {
-  date: string;
-  food: Food | null;
-  rating: number;
-}
+
 
 const AdminPage = () => {
   const [meals, setMeals] = useState<Meal[]>([]);

@@ -1,8 +1,8 @@
 export interface User {
     id: number;
-    name: string;
+    full_name: string;
     phone_number: string;
-    user_image: string;
+    user_image: string|File;
     role: string;
   }
   

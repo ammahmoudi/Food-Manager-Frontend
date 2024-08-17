@@ -38,7 +38,7 @@ const refreshToken = async () => {
 	const refresh = getRefreshToken();
 	if (refresh) {
 		try {
-			const response = await axios.post(`${API_BASE_URL}auth/jwt/refresh/`, {
+			const response = await api.post(`auth/jwt/refresh/`, {
 				refresh,
 			});
 			const { access } = response.data;
@@ -142,13 +142,13 @@ const createFormData = (food: Partial<FoodFormData>) => {
 	if (food.name) formData.append("name", food.name);
 	if (food.description) formData.append("description", food.description);
 
-	// Handle picture field
-	if (food.picture === "") {
-		// If the picture is an empty string, indicate that the picture should be removed
+	// Handle image field
+	if (food.image === "") {
+		// If the image is an empty string, indicate that the image should be removed
 		formData.append("remove_picture", "true");
-	} else if (food.picture && typeof food.picture !== "string") {
+	} else if (food.image && typeof food.image !== "string") {
 		// Only append the file if it's not a string (i.e., it's a File)
-		formData.append("picture", food.picture as File);
+		formData.append("image", food.image as File);
 	}
 
 	return formData;
@@ -217,7 +217,7 @@ export const createMeal = async (data: any) => {
 };
 
 export const getAdminCheck = async () => {
-	const response = await api.get("admin-check/");
+	const response = await api.get("admin-check/get/");
 	return response.data;
 };
 
@@ -238,7 +238,7 @@ export const getCurrentUser = async () => {
 // Update current user data
 export const updateUser = async (userData: any) => {
 	const formData = new FormData();
-	formData.append("name", userData.name);
+	formData.append("full_name", userData.full_name);
 	formData.append("phone_number", userData.phone_number);
 
 	if (userData.user_image) {
@@ -252,9 +252,8 @@ export const updateUser = async (userData: any) => {
 		headers: {
 			"Content-Type": "multipart/form-data",
 		},
-
 	});
-	console.log(userData)
+	console.log(userData);
 
 	return response.data;
 };
@@ -279,7 +278,77 @@ export const checkPhoneNumberUnique = async (phoneNumber: string) => {
 	return response.data;
 };
 export const signup = async (data: any) => {
-	const response = await api.post('/auth/users/', data);
+	const response = await api.post("/auth/users/", data);
 	return response.data;
+};
+export const getUserCommentForMeal = async (mealId: number) => {
+	try {
+		const response = await api.get(`/meals/${mealId}/comments/`);
+		return response.data;
+	} catch (error) {
+		console.error("Error fetching user comments:", error);
+		throw error;
+	}
+};
+
+export const createOrUpdateComment = async (
+	mealId: number,
+	data: { rating: number; comment: string }
+) => {
+	try {
+		const response = await api.post(`/meals/${mealId}/comment/`, data);
+		return response.data;
+	} catch (error) {
+		console.error("Error saving comment:", error);
+		throw error;
+	}
+};
+// Fetch the user's rating for a specific meal
+export const getUserRateForMeal = async (mealId: number) => {
+	const response = await api.get(`/meals/${mealId}/rate/`);
+	return response.data;
+};
+
+// Submit or update the user's rating for a specific meal
+export const submitRateForMeal = async (mealId: number, rate: number) => {
+	const response = await api.post(`/meals/${mealId}/rate/`, { rate });
+	return response.data;
+};
+
+// Fetch the user's comments for a specific meal
+export const getUserCommentsForMeal = async (mealId: number) => {
+	const response = await api.get(`/meals/${mealId}/comments/`);
+	return response.data;
+};
+
+// Submit a comment for a specific meal
+export const submitCommentForMeal = async (mealId: number, text: string) => {
+	const response = await api.post(`/comments/`, { meal: mealId, text });
+	return response.data;
+};
+
+const createComment = async (mealId, text) => {
+	try {
+	  const response = await api.post('/comments/', {
+		meal: mealId,
+		text: text,
+	  });
+	  return response.data;
+	} catch (error) {
+	  console.error('Failed to create comment:', error);
+	  throw error;
+	}
   };
-export default api
+// Update a comment for a specific meal
+export const updateCommentForMeal = async (commentId: number, text: string) => {
+	const response = await api.put(`/comments/${commentId}/`, { text });
+	return response.data;
+};
+
+// Delete a comment for a specific meal
+export const deleteCommentForMeal = async (commentId: number) => {
+	const response = await api.delete(`/comments/${commentId}/`);
+	return response.data;
+};
+
+export default api;

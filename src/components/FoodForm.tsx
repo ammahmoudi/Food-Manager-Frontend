@@ -18,7 +18,7 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
   const [name, setName] = useState(initialData?.name || '');
   const [description, setDescription] = useState(initialData?.description || '');
   const [image, setImage] = useState<File | null>(null);
-  const [imageUrl, setImageUrl] = useState(initialData?.picture || '');
+  const [imageUrl, setImageUrl] = useState(initialData?.image || '');
 
   const { isOpen: isModalOpen, onOpen: openModal, onClose: closeModal } = useDisclosure();
 
@@ -40,7 +40,7 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
       const foodData: FoodFormData = {
         name,
         description,
-        picture: image ? image : imageUrl,
+        image: image ? image : imageUrl,
       };
 
       let savedFood: Food;
@@ -81,7 +81,7 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
                 removeWrapper
                 alt="Food Image"
                 className="z-0 w-full h-full object-cover"
-                src={imageUrl}
+                src={imageUrl as string}
               />
               <CardFooter className="absolute bottom-0 z-10">
                 <div className="flex items-center">
