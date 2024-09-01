@@ -15,13 +15,12 @@ import { ChatBubbleLeftIcon } from "@heroicons/react/24/outline";
 import { format, startOfToday } from "date-fns-jalali";
 import UserChip from "@/components/UserChip";
 import MealChip from "@/components/MealChip";
-import { Food } from '../../interfaces/Food';
+import { Food } from "../../interfaces/Food";
 
 const HomePage = () => {
 	const [latestComments, setLatestComments] = useState<Comment[]>([]);
 	const [currentDayMeal, setCurrentDayMeal] = useState<Meal | null>(null);
 	const [isAdmin, setIsAdmin] = useState(false);
-  
 
 	const fetchAdminStatus = async () => {
 		try {
@@ -97,32 +96,31 @@ const HomePage = () => {
 									</h3>
 									{latestComments.length > 0 ? (
 										latestComments.map((comment) => (
-											<Card
-												key={comment.date + comment.userId}
-												className="mb-6"
-											>
+											<Card key={comment.id} className="mb-6">
 												<CardBody>
 													<div className="flex mb-2 items-center gap-4">
-													
 														<div className="flex flex-col items-left">
 															<p className="text-md text-medium mb-2">
 																{comment.text}
 															</p>
 															<span className="inline-flex items-baseline gap-1">
 																<UserChip
-																	userName={comment.userName}
-																	userAvatar={comment.userPicture}
-																	userHandle={comment.userName}
+																	userName={comment.user.full_name}
+																	userAvatar={comment.user.user_image as string}
+																	userHandle={comment.user.full_name}
 																	bio="Full-stack developer, @getnextui lover she/her 🎉"
 																	following={100}
 																	followers={2500}
 																/>
 																on
 																<MealChip
-																	mealName={comment.mealName}
-																	mealDate={comment.mealDate}
+																	mealName={comment.meal.food?.name ?? "a food"}
+																	mealDate={format(
+																		new Date(comment.meal.date),
+																		"yyyy/MM/dd"
+																	)}
 																	mealPicture={
-																		comment.mealPicture ??
+																		(comment.meal.food?.image as string) ??
 																		"images/food-placeholder.jpg"
 																	}
 																	foodDescription="a food"
@@ -130,10 +128,13 @@ const HomePage = () => {
 																	onDelete={(mealId) => {
 																		console.log("Meal deleted:", mealId);
 																	}}
-																/>
-																{/* <p className="text-xs text-gray-500 mb-1">
-																{comment.date}
-															</p> */}
+																/> at 
+																
+																{format(
+																		new Date(comment.meal.date),
+																		"yyyy/MM/dd"
+																	)}
+															
 															</span>
 														</div>
 													</div>

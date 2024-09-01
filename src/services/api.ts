@@ -38,6 +38,7 @@ const refreshToken = async () => {
 	const refresh = getRefreshToken();
 	if (refresh) {
 		try {
+			console.log('refreshing the key...')
 			const response = await api.post(`auth/jwt/refresh/`, {
 				refresh,
 			});
@@ -72,6 +73,7 @@ api.interceptors.response.use(
 	(response) => response,
 	async (error) => {
 		const originalRequest = error.config;
+		console.log('error',error)
 		if (
 			error.response &&
 			error.response.status === 401 &&
@@ -323,22 +325,22 @@ export const getUserCommentsForMeal = async (mealId: number) => {
 
 // Submit a comment for a specific meal
 export const submitCommentForMeal = async (mealId: number, text: string) => {
-	const response = await api.post(`/comments/`, { meal: mealId, text });
+	const response = await api.post(`/comments/`, { meal_id: mealId, text });
 	return response.data;
 };
 
-const createComment = async (mealId, text) => {
+const createComment = async (mealId: any, text: any) => {
 	try {
-	  const response = await api.post('/comments/', {
-		meal: mealId,
-		text: text,
-	  });
-	  return response.data;
+		const response = await api.post("/comments/", {
+			meal: mealId,
+			text: text,
+		});
+		return response.data;
 	} catch (error) {
-	  console.error('Failed to create comment:', error);
-	  throw error;
+		console.error("Failed to create comment:", error);
+		throw error;
 	}
-  };
+};
 // Update a comment for a specific meal
 export const updateCommentForMeal = async (commentId: number, text: string) => {
 	const response = await api.put(`/comments/${commentId}/`, { text });
