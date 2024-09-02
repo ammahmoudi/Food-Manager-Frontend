@@ -2,99 +2,161 @@ import axios from "axios";
 import { Food } from "@/interfaces/Food";
 import { FoodFormData } from "@/interfaces/FoodFormData";
 import { Meal } from "@/interfaces/Meal";
+import jwt_decode from "jwt-decode"; // To decode JWT and check expiration
 
 const API_BASE_URL = "http://localhost:8000/api/";
 
 const api = axios.create({
-	baseURL: API_BASE_URL,
+    baseURL: API_BASE_URL,
 });
 
+// Utility to decode token and check expiration
+const isTokenExpired = (token: string) => {
+    try {
+        const decodedToken = jwt_decode(token);
+        const currentTime = Date.now() / 1000; // Convert to seconds
+        return decodedToken.exp < currentTime;
+    } catch (error) {
+        console.error("Failed to decode token:", error);
+        return true; // If decoding fails, assume token is expired
+    }
+};
+
 const getToken = () => {
-	return localStorage.getItem("access") || sessionStorage.getItem("access");
+    return localStorage.getItem("access") || sessionStorage.getItem("access");
 };
 
 const getRefreshToken = () => {
-	return localStorage.getItem("refresh") || sessionStorage.getItem("refresh");
+    return localStorage.getItem("refresh") || sessionStorage.getItem("refresh");
 };
 
 const setToken = (access: string, refresh: string, remember: boolean) => {
-	if (remember) {
-		localStorage.setItem("access", access);
-		localStorage.setItem("refresh", refresh);
-	} else {
-		sessionStorage.setItem("access", access);
-		sessionStorage.setItem("refresh", refresh);
-	}
+    if (remember) {
+        localStorage.setItem("access", access);
+        localStorage.setItem("refresh", refresh);
+    } else {
+        sessionStorage.setItem("access", access);
+        sessionStorage.setItem("refresh", refresh);
+    }
 };
 
 const clearTokens = () => {
-	localStorage.removeItem("access");
-	localStorage.removeItem("refresh");
-	sessionStorage.removeItem("access");
-	sessionStorage.removeItem("refresh");
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    sessionStorage.removeItem("access");
+    sessionStorage.removeItem("refresh");
+};
+
+const isTokenValid = (token: string) => {
+    try {
+        const decoded: any = jwt_decode(token);
+        const currentTime = Date.now() / 1000; // Current time in seconds
+        return decoded.exp > currentTime;
+    } catch (error) {
+        return false;
+    }
 };
 
 const refreshToken = async () => {
-	const refresh = getRefreshToken();
-	if (refresh) {
-		try {
-			console.log('refreshing the key...')
-			const response = await api.post(`auth/jwt/refresh/`, {
-				refresh,
-			});
-			const { access } = response.data;
-			const remember = Boolean(localStorage.getItem("refresh"));
-			setToken(access, refresh, remember);
-			return access;
-		} catch (error) {
-			console.error("Failed to refresh token:", error);
-			clearTokens();
-			return null;
-		}
-	}
-	clearTokens();
-	return null;
+    const refresh = getRefreshToken();
+    if (refresh && isTokenValid(refresh)) {
+        try {
+            console.log('Attempting to refresh token...');
+            const response = await api.post(`auth/jwt/refresh/`, {
+                refresh,
+            });
+            const { access } = response.data;
+            const remember = Boolean(localStorage.getItem("refresh"));
+            setToken(access, refresh, remember);
+            return access;
+        } catch (error) {
+            console.error("Failed to refresh token:", error);
+            clearTokens();
+            window.location.href = "/login"; // Redirect to login page if refresh fails
+            return null;
+        }
+    }
+    clearTokens();
+    window.location.href = "/login"; // Redirect to login page if no valid refresh token
+    return null;
 };
 
 api.interceptors.request.use(
-	(config) => {
-		const token = getToken();
-		if (token) {
-			config.headers.Authorization = `Bearer ${token}`;
-		}
-		return config;
-	},
-	(error) => {
-		return Promise.reject(error);
-	}
+    (config) => {
+        const token = getToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
 );
 
 api.interceptors.response.use(
-	(response) => response,
-	async (error) => {
-		const originalRequest = error.config;
-		console.log('error',error)
-		if (
-			error.response &&
-			error.response.status === 401 &&
-			!originalRequest._retry
-		) {
-			originalRequest._retry = true;
-			const newToken = await refreshToken();
-			if (newToken) {
-				originalRequest.headers.Authorization = `Bearer ${newToken}`;
-				return api(originalRequest);
-			}
-		}
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+        console.log('API call error:', error);
 
-		if (error.response && error.response.status === 401) {
-			clearTokens();
-			window.location.href = "/login"; // Redirect to login page
-		}
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            const newToken = await refreshToken();
+            if (newToken) {
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                return api(originalRequest);
+            }
+        }
 
-		return Promise.reject(error);
-	}
+        if (error.response && error.response.status === 401) {
+            clearTokens();
+            window.location.href = "/login"; // Redirect to login page
+        }
+
+        return Promise.reject(error);
+    }
 );
+
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+        if (
+            error.response &&
+            error.response.status === 401 &&
+            !originalRequest._retry
+        ) {
+            originalRequest._retry = true;
+
+            // Avoid infinite loop by checking if the request is a refresh attempt
+            if (originalRequest.url.includes('/auth/jwt/refresh/')) {
+                clearTokens();
+                window.location.href = "/login";
+                return Promise.reject(error);
+            }
+
+            const newToken = await refreshToken();
+            if (newToken) {
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                return api(originalRequest);
+            } else {
+                clearTokens();
+                window.location.href = "/login";
+            }
+        }
+
+        if (error.response && error.response.status === 401) {
+            clearTokens();
+            window.location.href = "/login";
+        }
+
+        return Promise.reject(error);
+    }
+);
+
+
+
 
 export const getFoods = async () => {
 	const response = await api.get("foods/");
@@ -158,8 +220,6 @@ const createFormData = (food: Partial<FoodFormData>) => {
 
 export const addFood = async (food: FoodFormData) => {
 	const formData = createFormData(food);
-	console.log("form_Data", food);
-
 	const response = await api.post("foods/", formData, {
 		headers: {
 			"Content-Type": "multipart/form-data",
@@ -171,8 +231,6 @@ export const addFood = async (food: FoodFormData) => {
 
 export const updateFood = async (id: number, food: Partial<FoodFormData>) => {
 	const formData = createFormData(food);
-	console.log("form_Data", food);
-
 	const response = await api.put(`foods/${id}/`, formData, {
 		headers: {
 			"Content-Type": "multipart/form-data",
@@ -281,7 +339,7 @@ export const checkPhoneNumberUnique = async (phoneNumber: string) => {
 };
 export const signup = async (data: any) => {
 	const response = await api.post("/auth/users/", data);
-	return response.data;
+	return response;
 };
 export const getUserCommentForMeal = async (mealId: number) => {
 	try {

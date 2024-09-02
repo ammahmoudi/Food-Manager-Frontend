@@ -75,7 +75,6 @@ const SettingsPage = () => {
 		};
 
 		fetchUserData();
-
 	}, []);
 
 	const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -135,10 +134,10 @@ const SettingsPage = () => {
 					role: updatedUser.role,
 				});
 				setUserImage(null);
-				setUserImageUrl(updatedUser.user_image)
-				console.log('image url',userImageUrl)
-				console.log('user image',userImage)
-				console.log('intital_image',initialData?.user_image)
+				setUserImageUrl(updatedUser.user_image);
+				console.log("image url", userImageUrl);
+				console.log("user image", userImage);
+				console.log("intital_image", initialData?.user_image);
 			}
 		} catch (error) {
 			console.error("Failed to save user data:", error);
@@ -260,10 +259,11 @@ const SettingsPage = () => {
 					<div className="flex justify-between gap-2">
 						<Button
 							isDisabled={
-								initialData&&
+								initialData &&
 								name === initialData.full_name &&
 								phoneNumber === initialData.phone_number &&
-								(userImage === initialData.user_image||userImageUrl===initialData.user_image)
+								(userImage === initialData.user_image ||
+									userImageUrl === initialData.user_image)
 							}
 							color="primary"
 							onPress={handleSave}
