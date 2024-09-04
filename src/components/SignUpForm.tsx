@@ -4,9 +4,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input, Button } from "@nextui-org/react";
-import { UserCircleIcon, DevicePhoneMobileIcon, KeyIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
+import {
+	UserCircleIcon,
+	DevicePhoneMobileIcon,
+	KeyIcon,
+	EyeIcon,
+	EyeSlashIcon,
+} from "@heroicons/react/24/solid";
 import { checkPhoneNumberUnique, signup, login } from "@/services/api";
 import debounce from "@/utils/debounce";
+import { useUser } from "@/context/UserContext";
 
 export default function SignupForm() {
 	const router = useRouter();
@@ -19,8 +26,9 @@ export default function SignupForm() {
 	const [passwordError, setPasswordError] = useState("");
 	const [confirmPasswordError, setConfirmPasswordError] = useState("");
 	const [isVisible, setIsVisible] = useState(false);
+	const { handleSignup } = useUser();
 
-    const validateName = (value: string) => {
+	const validateName = (value: string) => {
 		return value.trim() ? "" : "Name cannot be empty";
 	};
 
@@ -93,41 +101,19 @@ export default function SignupForm() {
 		debounceValidateConfirmPassword(value);
 	};
 
-    const handleLogin = async () => {
-		try {
-			const { access, refresh } = await login(phoneNumber, password);
-			
-				localStorage.setItem("access", access);
-				localStorage.setItem("refresh", refresh);
-			
-				sessionStorage.setItem("access", access);
-				sessionStorage.setItem("refresh", refresh);
-			
-			router.push("/");
-		} catch (error) {
-			console.error("Login failed:", error);
-		}
-	};
-	const handleSignup = async (e: React.FormEvent) => {
+	const handleSignupUser = async (e: React.FormEvent) => {
 		e.preventDefault();
 		try {
 			if (!password || password !== confirmPassword) {
 				setPasswordError("Passwords do not match or are invalid");
 				return;
 			}
-			const response = await signup({
+			const response = await handleSignup({
 				phone_number: phoneNumber,
 				full_name: name,
 				password: password,
 				re_password: confirmPassword,
 			});
-            console.log(response)
-            
-			if (response.status === 201) {
-				// Signup was successful, now attempt to login
-                handleLogin();
-				
-			}
 		} catch (error) {
 			console.error("Signup failed:", error);
 		}
@@ -136,68 +122,64 @@ export default function SignupForm() {
 	return (
 		<form className="flex flex-col gap-4" onSubmit={handleSignup}>
 			<Input
-										isRequired
-										label="Full Name"
-										placeholder="Enter your full name"
-										type="text"
-										startContent={
-											<UserCircleIcon className="h-5 w-5 text-gray-500" />
-										}
-										value={name}
-										isInvalid={!!nameError}
-										errorMessage={nameError}
-										onChange={(e) => handleNameChange(e.target.value)}
-									/>
-									<Input
-										isRequired
-										label="Phone Number"
-										placeholder="Enter your phone number"
-										type="tel"
-										startContent={
-											<DevicePhoneMobileIcon className="h-5 w-5 text-gray-500" />
-										}
-										value={phoneNumber}
-										isInvalid={!!phoneError}
-										errorMessage={phoneError}
-										onChange={(e) => handlePhoneNumberChange(e.target.value)}
-									/>
-									<Input
-										isRequired
-										label="Password"
-										placeholder="Enter your password"
-										type={isVisible ? "text" : "password"}
-										startContent={<KeyIcon className="h-5 w-5 text-gray-500" />}
-										value={password}
-										isInvalid={!!passwordError}
-										errorMessage={passwordError}
-										onChange={(e) => handlePasswordChange(e.target.value)}
-									/>
-									<Input
-										isRequired
-										label="Confirm Password"
-										placeholder="Confirm your password"
-										type={isVisible ? "text" : "password"}
-										startContent={<KeyIcon className="h-5 w-5 text-gray-500" />}
-										value={confirmPassword}
-										isInvalid={!!confirmPasswordError}
-										errorMessage={confirmPasswordError}
-										onChange={(e) =>
-											handleConfirmPasswordChange(e.target.value)
-										}
-									/>
-									<Button
-										type="submit"
-										fullWidth
-										color="primary"
-										isDisabled={
-											!!phoneError ||
-											!!passwordError ||
-											!!nameError ||
-											!!confirmPasswordError
-										}
-									>
-										Sign up
-									</Button>
+				isRequired
+				label="Full Name"
+				placeholder="Enter your full name"
+				type="text"
+				startContent={<UserCircleIcon className="h-5 w-5 text-gray-500" />}
+				value={name}
+				isInvalid={!!nameError}
+				errorMessage={nameError}
+				onChange={(e) => handleNameChange(e.target.value)}
+			/>
+			<Input
+				isRequired
+				label="Phone Number"
+				placeholder="Enter your phone number"
+				type="tel"
+				startContent={
+					<DevicePhoneMobileIcon className="h-5 w-5 text-gray-500" />
+				}
+				value={phoneNumber}
+				isInvalid={!!phoneError}
+				errorMessage={phoneError}
+				onChange={(e) => handlePhoneNumberChange(e.target.value)}
+			/>
+			<Input
+				isRequired
+				label="Password"
+				placeholder="Enter your password"
+				type={isVisible ? "text" : "password"}
+				startContent={<KeyIcon className="h-5 w-5 text-gray-500" />}
+				value={password}
+				isInvalid={!!passwordError}
+				errorMessage={passwordError}
+				onChange={(e) => handlePasswordChange(e.target.value)}
+			/>
+			<Input
+				isRequired
+				label="Confirm Password"
+				placeholder="Confirm your password"
+				type={isVisible ? "text" : "password"}
+				startContent={<KeyIcon className="h-5 w-5 text-gray-500" />}
+				value={confirmPassword}
+				isInvalid={!!confirmPasswordError}
+				errorMessage={confirmPasswordError}
+				onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+			/>
+			<Button
+				type="submit"
+				fullWidth
+				color="primary"
+				isDisabled={
+					!!phoneError ||
+					!!passwordError ||
+					!!nameError ||
+					!!confirmPasswordError
+				}
+			>
+				Sign up
+			</Button>
 		</form>
 	);
 }

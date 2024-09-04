@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { startOfToday, format } from "date-fns-jalali";
 import Calendar from "@/components/Calendar";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function CalendarPage() {
     const searchParams = useSearchParams();
@@ -31,12 +32,14 @@ export default function CalendarPage() {
     };
 
     return (
-        <div className="container xl:w-1/2 mx-auto">
+     <ProtectedRoute>
+           <div className="container xl:w-1/2 mx-auto">
             <Calendar
                 year={year}
                 month={month}
                 onMonthChange={handleMonthChange}
             />
         </div>
+     </ProtectedRoute>
     );
 }

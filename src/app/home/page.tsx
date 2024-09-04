@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import {
-	getLatestComments,
-	getCurrentDayMeal,
-	getAdminCheck,
-} from "@/services/api";
+import { getLatestComments, getCurrentDayMeal } from "@/services/api";
 import { Comment } from "@/interfaces/Comment";
 import { Meal } from "@/interfaces/Meal";
 import MealCard from "@/components/MealCard";
@@ -16,24 +12,14 @@ import { format, startOfToday } from "date-fns-jalali";
 import UserChip from "@/components/UserChip";
 import MealChip from "@/components/MealChip";
 import { Food } from "../../interfaces/Food";
+import { useUser } from "@/context/UserContext";
+import CommentCard from "@/components/CommentCard";
+import CommentSection from "@/components/CommentSection";
 
 const HomePage = () => {
 	const [latestComments, setLatestComments] = useState<Comment[]>([]);
 	const [currentDayMeal, setCurrentDayMeal] = useState<Meal | null>(null);
-	const [isAdmin, setIsAdmin] = useState(false);
-
-	const fetchAdminStatus = async () => {
-		try {
-			const response = await getAdminCheck();
-			setIsAdmin(response.is_admin);
-		} catch (error) {
-			console.error("Failed to fetch admin status:", error);
-		}
-	};
-
-	useEffect(() => {
-		fetchAdminStatus();
-	}, []);
+	const { isAdmin } = useUser();
 
 	const fetchLatestComments = useCallback(async () => {
 		try {
@@ -58,18 +44,20 @@ const HomePage = () => {
 	};
 
 	useEffect(() => {
-		fetchLatestComments();
+		if (isAdmin) {
+			fetchLatestComments();
+		}
 		fetchCurrentDayMeal();
-	}, [fetchLatestComments, fetchCurrentDayMeal]);
+	}, [fetchLatestComments, fetchCurrentDayMeal, isAdmin]);
 
 	const currentDate = startOfToday();
 	let currentYear = Number(format(currentDate, "yyyy"));
 	let currentMonth = Number(format(currentDate, "MM"));
 
 	return (
-		<div className="container mx-auto p-4">
+		<div className="container mx-auto p-4 w-screen">
 			<div className="flex flex-col lg:flex-row justify-between gap-6">
-				<div className="flex-1 lg:basis-1/2">
+				<div className="flex-1 lg:basis-1/2 lg:w-1/2">
 					{/* Current Day Meal Card */}
 					{currentDayMeal && (
 						<div>
@@ -84,7 +72,7 @@ const HomePage = () => {
 
 					{/* Admin-Specific Section */}
 					{isAdmin && (
-						<div className="mt-8">
+						<div className="mt-8 flex-1">
 							<h2 className="text-2xl font-semibold mb-4">Admin Dashboard</h2>
 
 							{/* Latest Comments Card */}
@@ -94,56 +82,20 @@ const HomePage = () => {
 										<ChatBubbleLeftIcon className="w-5 h-5 mr-2" />
 										Latest Comments
 									</h3>
-									{latestComments.length > 0 ? (
+									{/* {latestComments.length > 0 ? (
 										latestComments.map((comment) => (
-											<Card key={comment.id} className="mb-6">
-												<CardBody>
-													<div className="flex mb-2 items-center gap-4">
-														<div className="flex flex-col items-left">
-															<p className="text-md text-medium mb-2">
-																{comment.text}
-															</p>
-															<span className="inline-flex items-baseline gap-1">
-																<UserChip
-																	userName={comment.user.full_name}
-																	userAvatar={comment.user.user_image as string}
-																	userHandle={comment.user.full_name}
-																	bio="Full-stack developer, @getnextui lover she/her 🎉"
-																	following={100}
-																	followers={2500}
-																/>
-																on
-																<MealChip
-																	mealName={comment.meal.food?.name ?? "a food"}
-																	mealDate={format(
-																		new Date(comment.meal.date),
-																		"yyyy/MM/dd"
-																	)}
-																	mealPicture={
-																		(comment.meal.food?.image as string) ??
-																		"images/food-placeholder.jpg"
-																	}
-																	foodDescription="a food"
-																	rating={0}
-																	onDelete={(mealId) => {
-																		console.log("Meal deleted:", mealId);
-																	}}
-																/> at 
-																
-																{format(
-																		new Date(comment.meal.date),
-																		"yyyy/MM/dd"
-																	)}
-															
-															</span>
-														</div>
-													</div>
-												</CardBody>
-											</Card>
+									<CommentCard key={comment.id} comment={comment} onDelete={function (commentId: number): void {
+												throw new Error("Function not implemented.");
+											} } onUpdate={function (comment: Comment): void {
+												throw new Error("Function not implemented.");
+											} } onClick={function (): void {
+												throw new Error("Function not implemented.");
+											} } />
 										))
 									) : (
 										<p>No comments available.</p>
-									)}
+									)} */}
+									{<CommentSection variant="latest" />}
 								</CardBody>
 							</Card>
 
@@ -153,7 +105,7 @@ const HomePage = () => {
 				</div>
 
 				{/* Calendar Component */}
-				<div className="flex-1 lg:basis-1/2">
+				<div className="flex-1 lg:basis-1/2 lg:w-1/2">
 					<h2 className="text-2xl font-semibold mb-4">Calendar</h2>
 					<div className="w-full h-auto">
 						<Calendar

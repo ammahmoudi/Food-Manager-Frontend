@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Input, Button, Checkbox } from "@nextui-org/react";
 import { PhoneIcon, KeyIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
 import { login } from "@/services/api";
+import { useUser } from "@/context/UserContext";
 
 export default function LoginForm() {
 	const router = useRouter();
@@ -15,28 +16,22 @@ export default function LoginForm() {
 	const [isVisible, setIsVisible] = useState(false);
 	const [phoneError, setPhoneError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
+    const { isAuthenticated,handleLogin } = useUser();
+
 
 	const toggleVisibility = () => setIsVisible(!isVisible);
 
-	const handleLogin = async (e: React.FormEvent) => {
+	const handleLoginUser = async (e: React.FormEvent) => {
 		e.preventDefault();
 		try {
-			const { access, refresh } = await login(phoneNumber, password);
-			if (rememberMe) {
-				localStorage.setItem("access", access);
-				localStorage.setItem("refresh", refresh);
-			} else {
-				sessionStorage.setItem("access", access);
-				sessionStorage.setItem("refresh", refresh);
-			}
-			router.push("/");
+			handleLogin(phoneNumber,password,rememberMe)
 		} catch (error) {
 			console.error("Login failed:", error);
 		}
 	};
 
 	return (
-		<form className="flex flex-col gap-4" onSubmit={handleLogin}>
+		<form className="flex flex-col gap-4" onSubmit={handleLoginUser}>
 			<Input
 				isRequired
 				label="Phone Number"

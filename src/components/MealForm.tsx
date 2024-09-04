@@ -22,7 +22,6 @@ import { Food } from "../interfaces/Food";
 import {
 	createMeal,
 	deleteMeal,
-	getAdminCheck,
 	getMealByDate,
 	updateMeal,
 } from "../services/api";
@@ -34,6 +33,7 @@ import { CreateMealData } from "@/interfaces/CreateMealData";
 import { PencilSquareIcon } from "@heroicons/react/16/solid";
 import CommentSection from "./CommentSection";
 import RateSection from "./RateSection";
+import { useUser } from "@/context/UserContext";
 
 interface MealFormProps {
 	initialData: Meal | null;
@@ -54,9 +54,9 @@ const MealForm: FC<MealFormProps> = ({
 	);
 	const [foodModalVisible, setFoodModalVisible] = useState(false);
 	const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-	const [isAdmin, setIsAdmin] = useState(false);
 	const [shouldUpdateFoods, setShouldUpdateFoods] = useState(false);
 	const [meal, setMeal] = useState<Meal | null>(initialData);
+	const { isAdmin, user } = useUser();
 
 	const fetchMeal = useCallback(async () => {
 		if (selectedDate) {
@@ -68,6 +68,7 @@ const MealForm: FC<MealFormProps> = ({
 				if (!selectedFood) {
 					setSelectedFood(response.food);
 				}
+				console.log(response)
 			} catch (error) {
 				setMeal(null);
 				console.error("Failed to fetch meal:", error);
@@ -80,19 +81,6 @@ const MealForm: FC<MealFormProps> = ({
 			fetchMeal();
 		}
 	}, [selectedDate, fetchMeal, initialData]);
-
-	const fetchAdminStatus = async () => {
-		try {
-			const response = await getAdminCheck();
-			setIsAdmin(response.is_admin);
-		} catch (error) {
-			console.error("Failed to fetch admin status:", error);
-		}
-	};
-
-	useEffect(() => {
-		fetchAdminStatus();
-	}, []);
 
 	const handleOpenFoodModal = () => {
 		setFoodModalVisible(true);
@@ -206,7 +194,7 @@ const MealForm: FC<MealFormProps> = ({
 						<div className="flex flex-grow gap-2 items-center">
 							<div className="flex flex-col">
 								<p className="text-tiny text-white/60">
-									<span className="text-muted-foreground text-sm"></span>
+									<span className="text-muted-foreground text-sm">{selectedFood.avg_rate}/5.0</span>
 								</p>
 							</div>
 						</div>
@@ -243,12 +231,16 @@ const MealForm: FC<MealFormProps> = ({
 						shouldUpdate={shouldUpdateFoods}
 						onUpdateComplete={() => setShouldUpdateFoods(false)}
 					/>
-					{meal && (
-						<>
-							<RateSection mealId={meal.id} />
-							<CommentSection mealId={meal.id} />
-						</>
-					)}
+				</>
+			)}
+			{meal && (
+				<>
+					<RateSection mealId={meal.id} />
+					<CommentSection variant="meal" mealId={meal.id} meal={meal} />
+				</>
+			)}
+			{isAdmin && (
+				<>
 					<div className="flex justify-left gap-2">
 						<Button color="primary" onPress={handleSaveMeal} className="mt-4">
 							<span>{meal ? "Update Meal" : "Add Meal"}</span>

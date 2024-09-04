@@ -1,8 +1,10 @@
 import { FC } from 'react';
 
-import { Avatar,Link } from '@nextui-org/react';
+import { Avatar,Image,Link } from '@nextui-org/react';
 import { MealDetailsData } from '../interfaces/MealDetailsData';
 import { format } from 'date-fns-jalali';
+import { Meal } from '@/interfaces/Meal';
+import CommentSection from './CommentSection';
 
 const StarIcon: FC<{ filled: boolean }> = ({ filled }) => (
   <svg
@@ -20,16 +22,15 @@ const StarIcon: FC<{ filled: boolean }> = ({ filled }) => (
   </svg>
 );
 
-const MealDetails: FC<{ data: MealDetailsData }> = ({ data }) => {
-  const { imageUrl, title, description, rating, datePosted, comments, foodId } = data;
+const MealDetails: FC<{ meal:Meal,}> = ({ meal}) => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 md:px-6 lg:py-16">
       <div className="grid md:grid-cols-2 gap-8 items-start">
         <div>
-          <img
-            src={imageUrl}
-            alt="Meal Image"
+          <Image
+            src={meal.food?.image as string}
+            alt={meal.food?.name}
             width={600}
             height={400}
             className="w-full rounded-lg object-cover"
@@ -37,19 +38,19 @@ const MealDetails: FC<{ data: MealDetailsData }> = ({ data }) => {
         </div>
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold">{title}</h1>
-            <p className="text-muted-foreground">{description}</p>
+            <h1 className="text-3xl font-bold">{meal.food?.name}</h1>
+            <p className="text-muted-foreground">{meal.food?.description}</p>
             <div className="flex items-center gap-2 mt-2">
               <div className="flex items-center gap-0.5">
                 {[...Array(5)].map((_, i) => (
-                  <StarIcon key={i} filled={i < rating} />
+                  <StarIcon key={i} filled={i < meal.avg_rate} />
                 ))}
               </div>
-              <span className="text-muted-foreground text-sm">({rating})</span>
+              <span className="text-muted-foreground text-sm">({meal.avg_rate})</span>
             </div>
           </div>
-          <div className="text-sm text-muted-foreground">Posted on {format(datePosted,'yyyy/MM/dd')}</div>
-          <Link href={`/foods/${foodId}`}>
+          <div className="text-sm text-muted-foreground">Posted on {format(meal.date,'yyyy/MM/dd')}</div>
+          <Link href={`/foods/${meal.food?.id}`}>
             <p className="text-blue-500 hover:underline">View Food Details</p>
           </Link>
         </div>
@@ -57,9 +58,9 @@ const MealDetails: FC<{ data: MealDetailsData }> = ({ data }) => {
       <div className="mt-12">
         <h2 className="text-2xl font-bold mb-6">Comments</h2>
         <div className="space-y-8">
-          {comments.map((comment, index) => (
+          {/* {comments.map((comment, index) => (
             <div key={index} className="flex gap-4">
-              <Avatar className="w-10 h-10 border" src={comment.avatarUrl} name={comment.name[0]} />
+              <Avatar className="w-10 h-10 border" src={comment.} name={comment.name[0]} />
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <div className="font-medium">{comment.name}</div>
@@ -68,7 +69,8 @@ const MealDetails: FC<{ data: MealDetailsData }> = ({ data }) => {
                 <p className="text-muted-foreground">{comment.text}</p>
               </div>
             </div>
-          ))}
+          ))} */}
+          <CommentSection mealId={meal.id} meal={meal}/>
         </div>
       </div>
     </div>

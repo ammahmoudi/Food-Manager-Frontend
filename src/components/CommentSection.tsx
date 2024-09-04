@@ -1,120 +1,200 @@
 // components/CommentSection.tsx
+
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Textarea } from "@nextui-org/react";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+	Button,
+	Modal,
+	ModalHeader,
+	ModalBody,
+	ModalFooter,
+	useDisclosure,
+	ModalContent,
+} from "@nextui-org/react";
 import { Comment } from "@/interfaces/Comment"; // Assuming you have these interfaces
-import { getLatestComments, submitCommentForMeal } from "@/services/api";
+import {
+	getMealComments,
+	getLatestComments,
+	getFoodComments,
+	getUserComments,
+	submitCommentForMeal,
+} from "@/services/api"; // Assuming these API functions exist
 import CommentCard from "./CommentCard";
+import CommentModal from "./CommentModal"; // Import the CommentModal component
+import { Meal } from "@/interfaces/Meal"; // Import the Meal interface
+
+type CommentSectionVariant = "meal" | "food" | "user" | "latest";
 
 interface CommentSectionProps {
-    mealId: number;
-    isAdmin: boolean;
-    currentUserId: number; // ID of the currently logged-in user
+	variant: CommentSectionVariant;
+	mealId?: number;
+	foodId?: number;
+	userId?: number;
+	meal?: Meal; // Assuming meal data is passed as prop for "meal" variant
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ mealId, isAdmin, currentUserId }) => {
-    const [comments, setComments] = useState<Comment[]>([]);
-    const [newComment, setNewComment] = useState<string>("");
-    const [showAllCommentsModal, setShowAllCommentsModal] = useState(false);
-    const [showNewCommentModal, setShowNewCommentModal] = useState(false);
+const CommentSection: React.FC<CommentSectionProps> = ({
+	variant,
+	mealId,
+	foodId,
+	userId,
+	meal,
+}) => {
+	const [comments, setComments] = useState<Comment[]>([]);
+	const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
+	const {
+		isOpen: isAllCommentsModalOpen,
+		onOpen: openAllCommentsModal,
+		onClose: closeAllCommentsModal,
+	} = useDisclosure();
+	const {
+		isOpen: isCommentModalOpen,
+		onOpen: openCommentModal,
+		onClose: closeCommentModal,
+	} = useDisclosure();
 
-    useEffect(() => {
-        const fetchComments = async () => {
-            try {
-                const response = await getLatestComments();
-                setComments(response);
-            } catch (error) {
-                console.error("Failed to fetch comments:", error);
-            }
-        };
+	// Fetch comments based on the variant
+	const fetchComments = useCallback(async () => {
+		try {
+			let response;
+			switch (variant) {
+				case "meal":
+					if (mealId) response = await getMealComments(mealId);
+					break;
+				case "food":
+					if (foodId) response = await getFoodComments(foodId);
+					break;
+				case "user":
+					if (userId) response = await getUserComments(userId);
+					break;
+				case "latest":
+					response = await getLatestComments();
+					break;
+				default:
+					throw new Error("Invalid variant type");
+			}
+			if (response) setComments(response);
+		} catch (error) {
+			console.error("Failed to fetch comments:", error);
+		}
+	}, [variant, mealId, foodId, userId]);
 
-        fetchComments();
-    }, [mealId]);
+	useEffect(() => {
+		fetchComments();
+	}, [fetchComments]);
 
-    const handleAddComment = async () => {
-        try {
-            const newCommentData = await submitCommentForMeal(mealId, newComment);
-            setComments([newCommentData, ...comments]);
-            setNewComment("");
-            setShowNewCommentModal(false);
-        } catch (error) {
-            console.error("Failed to add comment:", error);
-        }
-    };
+	const handleDeleteComment = (commentId: number) => {
+		// setComments(comments.filter((comment) => comment.id !== commentId));
+	};
 
-    const handleDeleteComment = (commentId: number) => {
-        setComments(comments.filter(comment => comment.id !== commentId));
-    };
+	const handleUpdateComment = (updatedComment: Comment) => {
+		// setComments(
+		// 	comments.map((comment) =>
+		// 		comment.id === updatedComment.id ? updatedComment : comment
+		// 	)
+		// );
+	};
 
-    const handleUpdateComment = (updatedComment: Comment) => {
-        setComments(comments.map(comment => (comment.id === updatedComment.id ? updatedComment : comment)));
-    };
+	const handleAddComment = async (newComment: Comment) => {
+		// if (variant === "meal" && meal) {
+		// 	try {
+		// 		const addedComment = await submitCommentForMeal(
+		// 			meal.id,
+		// 			newComment.text
+		// 		);
+		// 		setComments([addedComment, ...comments]);
+		// 	} catch (error) {
+		// 		console.error("Failed to add comment:", error);
+		// 	}
+		// }
+	};
 
-    return (
-        <div className="comment-section">
-            <h3 className="text-xl font-semibold mb-2">Comments</h3>
+	const openEditCommentModal = (comment: Comment) => {
+		setSelectedComment(comment);
+		openCommentModal();
+	};
 
-            {/* Display the latest two comments */}
-            {comments.slice(0, 2).map((comment) => (
-                <CommentCard
-                    key={comment.id}
-                    comment={comment}
-                    onDelete={handleDeleteComment}
-                    onUpdate={handleUpdateComment}
-                    isAdmin={isAdmin}
-                    currentUserId={currentUserId}
-                />
-            ))}
+	const openNewComment = () => {
+		setSelectedComment(null); // Reset to null for new comment
+		openCommentModal();
+	};
 
-            {/* Button to show all comments */}
-            {comments.length > 2 && (
-                <Button onClick={() => setShowAllCommentsModal(true)}>See All Comments</Button>
-            )}
+	const handleCloseCommentModal = () => {
+		closeCommentModal();
+		fetchComments(); // Refresh comments after closing the modal
+	};
 
-            {/* Button to add new comment */}
-            <Button color="primary" onClick={() => setShowNewCommentModal(true)}>Add Comment</Button>
+	return (
+		<div className="comment-section my-2">
+			<h3 className="text-xl font-semibold mb-2">Comments</h3>
 
-            {/* Modal for showing all comments */}
-            <Modal isOpen={showAllCommentsModal} onClose={() => setShowAllCommentsModal(false)}>
-                <ModalHeader>All Comments</ModalHeader>
-                <ModalBody>
-                    {comments.map((comment) => (
-                        <CommentCard
-                            key={comment.id}
-                            comment={comment}
-                            onDelete={handleDeleteComment}
-                            onUpdate={handleUpdateComment}
-                            isAdmin={isAdmin}
-                            currentUserId={currentUserId}
-                        />
-                    ))}
-                </ModalBody>
-                <ModalFooter>
-                    <Button onClick={() => setShowAllCommentsModal(false)}>Close</Button>
-                </ModalFooter>
-            </Modal>
+			{/* Display the latest two comments */}
+			{comments.slice(0, 1).map((comment) => (
+				<CommentCard
+					key={comment.id}
+					comment={comment}
+					onDelete={handleDeleteComment}
+					onUpdate={handleUpdateComment}
+					onClick={() => openEditCommentModal(comment)} // Open edit modal on click
+				/>
+			))}
 
-            {/* Modal for adding a new comment */}
-            <Modal isOpen={showNewCommentModal} onClose={() => setShowNewCommentModal(false)}>
-                <ModalHeader>Add New Comment</ModalHeader>
-                <ModalBody>
-                    <Textarea
-                        label="Comment"
-                        placeholder="Write your comment here..."
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                    />
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="primary" onClick={handleAddComment} isDisabled={!newComment}>
-                        Submit
-                    </Button>
-                    <Button onClick={() => setShowNewCommentModal(false)}>Cancel</Button>
-                </ModalFooter>
-            </Modal>
-        </div>
-    );
+			<div className="flex flex-grow flex-row justify-between">
+				{/* Button to show all comments */}
+				{comments.length > 1 && (
+					<Button onClick={openAllCommentsModal}>
+						See All {comments.length} Comments
+					</Button>
+				)}
+
+				{/* Button to add new comment, only visible for meal variant */}
+				{variant === "meal" && (
+					<Button color="primary" onClick={openNewComment}>
+						Add Comment
+					</Button>
+				)}
+			</div>
+
+			{/* Modal for showing all comments */}
+			<Modal
+				isOpen={isAllCommentsModalOpen}
+				onClose={closeAllCommentsModal}
+				scrollBehavior="inside"
+			>
+				<ModalContent>
+					<ModalHeader>All Comments</ModalHeader>
+					<ModalBody>
+						<div>
+							{comments.map((comment) => (
+								<CommentCard
+									key={comment.id}
+									comment={comment}
+									onDelete={handleDeleteComment}
+									onUpdate={handleUpdateComment}
+									onClick={() => openEditCommentModal(comment)} // Open edit modal on click
+								/>
+							))}
+						</div>
+					</ModalBody>
+					<ModalFooter>
+						<Button onClick={closeAllCommentsModal}>Close</Button>
+					</ModalFooter>
+				</ModalContent>
+			</Modal>
+
+			{/* Comment Modal for adding/editing a comment */}
+			<CommentModal
+				isOpen={isCommentModalOpen}
+				onClose={handleCloseCommentModal}
+				comment={selectedComment || undefined}
+				meal={meal||selectedComment?.meal}
+				onUpdate={handleUpdateComment}
+				onDelete={handleDeleteComment}
+				onAdd={handleAddComment} // Pass handleAddComment as onAdd
+			/>
+		</div>
+	);
 };
 
 export default CommentSection;

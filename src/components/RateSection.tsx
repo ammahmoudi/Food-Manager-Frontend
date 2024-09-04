@@ -43,7 +43,7 @@ const RateSection: React.FC<RateSectionProps> = ({ mealId }) => {
 	};
 
 	return (
-		<div className="rate-section">
+		<div className="rate-section mt-3">
 			<Slider
 				size="md"
 				step={1}

@@ -1,11 +1,11 @@
 // app/page.tsx
 "use client";
 
-import withAuth from "../components/withAuth";
 import { useEffect, useState } from "react";
 import { Card, CardBody, user } from "@nextui-org/react";
 import { getMeals } from "../services/api";
 import {useRouter} from "next/navigation";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 interface Meal {
 	id: number;
@@ -23,4 +23,4 @@ const Home = () => {
 };
 
 
-export default withAuth(Home);
+export default Home;

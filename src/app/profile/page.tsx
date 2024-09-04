@@ -1,7 +1,6 @@
 // app/profile/page.tsx
 'use client';
 
-import withAuth from '../../components/withAuth';
 import UserProfile from '../../components/UserProfile';
 
 const Profile = () => {
@@ -13,4 +12,4 @@ const Profile = () => {
   );
 };
 
-export default withAuth(Profile);
+export default (Profile);

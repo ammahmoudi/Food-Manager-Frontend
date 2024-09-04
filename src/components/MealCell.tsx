@@ -65,7 +65,7 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeal }) => {
                     key={meal.id}
                     isPressable
                     className={`h-full w-full  ${
-                        isToday(date) ? "shadow-md shadow-emerald-800" : ""
+                        isToday(date) ? "shadow-md border-3 border-primary shadow-primary" : ""
                     }`}
                     onPress={handleOpenModal}
                 >

@@ -1,32 +1,25 @@
 import React from "react";
 import { Avatar, Button, Card, CardBody, CardFooter, CardHeader } from "@nextui-org/react";
 import { Meal } from "@/interfaces/Meal";
+import { format } from "date-fns-jalali";
 
 interface MealDetailCardProps {
-  mealName: string;
-  mealDate: string;
-  mealPicture: string;
-  foodDescription: string;
-  rating: number;
+  meal:Meal
   onDelete: (mealId: number) => void;
 }
 
 export const MealDetailCard: React.FC<MealDetailCardProps> = ({
-  mealName,
-  mealDate,
-  mealPicture,
-  foodDescription,
-  rating,
+ meal,
   onDelete,
 }) => {
   return (
     <Card shadow="none" className="max-w-[300px] border-none bg-transparent">
       <CardHeader className="justify-between">
         <div className="flex gap-3">
-          <Avatar isBordered radius="full" size="md" src={mealPicture} />
+          <Avatar isBordered radius="full" size="md" src={(meal?.food?.image as string) ?? "images/food-placeholder.jpg"} />
           <div className="flex flex-col items-start justify-center">
-            <h4 className="text-small font-semibold leading-none text-default-600">{mealName}</h4>
-            <h5 className="text-small tracking-tight text-default-500">{mealDate}</h5>
+            <h4 className="text-small font-semibold leading-none text-default-600">{meal.food?.name}</h4>
+            <h5 className="text-small tracking-tight text-default-500">{format(meal.date,'YYYY/mm/dd')}</h5>
           </div>
         </div>
         <Button
@@ -39,13 +32,13 @@ export const MealDetailCard: React.FC<MealDetailCardProps> = ({
         </Button>
       </CardHeader>
       <CardBody className="px-3 py-0">
-        <p className="text-small pl-px text-default-500">{foodDescription}</p>
+        <p className="text-small pl-px text-default-500">{meal.food?.description}</p>
         <div className="flex items-center gap-0.5 mt-1">
           {[...Array(5)].map((_, i) => (
             <svg
               key={i}
               className={`w-4 h-4 ${
-                i < rating ? "text-yellow-500" : "text-gray-300"
+                i < meal.avg_rate ? "text-yellow-500" : "text-gray-300"
               }`}
               fill="currentColor"
               viewBox="0 0 20 20"
@@ -58,7 +51,7 @@ export const MealDetailCard: React.FC<MealDetailCardProps> = ({
       </CardBody>
       <CardFooter className="gap-3">
         <div className="flex gap-1">
-          <p className="text-default-500 text-small">Meal Date: {mealDate}</p>
+          <p className="text-default-500 text-small">Meal Date: {format(meal.date,'YYYY/mm/dd')}</p>
         </div>
       </CardFooter>
     </Card>

@@ -54,11 +54,11 @@ const FoodDetails: FC<{ data: FoodDetailsData }> = ({ data }) => {
         <div className="space-y-8">
           {comments.map((comment, index) => (
             <div key={index} className="flex gap-4">
-              <Avatar className="w-10 h-10 border" src={comment.userPicture} name={comment.userName} />
+              <Avatar className="w-10 h-10 border" src={comment.user.user_image as string} name={comment.user.full_name} />
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <div className="font-medium">{comment.mealName}</div>
-                  <time className="text-muted-foreground text-sm">{comment.date}</time>
+                  <div className="font-medium">{comment.meal.food?.name}</div>
+                  <time className="text-muted-foreground text-sm">{comment.createdAt}</time>
                 </div>
                 <p className="text-muted-foreground">{comment.text}</p>
               </div>

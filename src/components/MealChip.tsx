@@ -1,22 +1,15 @@
 import React from "react";
 import { Popover, PopoverTrigger, PopoverContent, Chip, Avatar } from "@nextui-org/react";
 import { MealDetailCard } from "./MealDetailCard";
+import { Meal } from "@/interfaces/Meal";
 
 interface MealChipProps {
-  mealName: string;
-  mealDate: string;
-  mealPicture: string;
-  foodDescription: string;
-  rating: number;
+meal:Meal;
   onDelete: (mealId: number) => void;
 }
 
 const MealChip: React.FC<MealChipProps> = ({
-  mealName,
-  mealDate,
-  mealPicture,
-  foodDescription,
-  rating,
+  meal,
   onDelete,
 }) => {
   return (
@@ -24,20 +17,17 @@ const MealChip: React.FC<MealChipProps> = ({
       <PopoverTrigger>
         <Chip
           variant="flat"
-          avatar={<Avatar name={mealName} src={mealPicture} />}
+          avatar={<Avatar name={meal?.food?.name} src={(meal?.food?.image as string) ?? "images/food-placeholder.jpg"} />}
           as="button"
           className="self-center"
+          size="sm"
         >
-          {mealName}
+          {meal?.food?.name}
         </Chip>
       </PopoverTrigger>
       <PopoverContent className="p-1">
         <MealDetailCard
-          mealName={mealName}
-          mealDate={mealDate}
-          mealPicture={mealPicture}
-          foodDescription={foodDescription}
-          rating={rating}
+          meal={meal}
           onDelete={onDelete}
         />
       </PopoverContent>

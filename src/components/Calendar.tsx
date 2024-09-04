@@ -20,6 +20,7 @@ import { getMealsForCurrentMonth } from "@/services/api";
 import MealCell from "./MealCell";
 import { CalendarProps, MealCellData } from "@/interfaces/Calendar";
 import { Food } from "@/interfaces/Food";
+import { convertPersianMonthToEnglish } from "@/utils/dateUtils";
 
 const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
     const [currentYear, setCurrentYear] = useState(year);
@@ -104,15 +105,15 @@ const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
                 <Button
                     disabled
                     disableRipple
-                    className="text-xl text-white font-bold w-full text-center bg-black/50 "
+                    className="text-xl text-white font-bold w-full text-center bg-primary "
                 >
-                    {format(currentMonthDate, "MMMM yyyy")}
+                    {convertPersianMonthToEnglish(format(currentMonthDate, "MMMM yyyy"))}
                 </Button>
                 <Button className="px-10" onClick={handleNextMonth}>
                     Next Month
                 </Button>
             </div>
-            <div className="grid grid-cols-7 gap-0 bg-black/50 rounded-xl mb-2">
+            <div className="grid grid-cols-7 gap-0 bg-primary rounded-xl mb-2">
                 {["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"].map((day) => (
                     <div key={day} className="text-center text-white py-2 font-bold">
                         {day}

@@ -57,7 +57,7 @@ const isTokenValid = (token: string) => {
     }
 };
 
-const refreshToken = async () => {
+export const refreshToken = async () => {
     const refresh = getRefreshToken();
     if (refresh && isTokenValid(refresh)) {
         try {
@@ -130,7 +130,7 @@ api.interceptors.response.use(
             originalRequest._retry = true;
 
             // Avoid infinite loop by checking if the request is a refresh attempt
-            if (originalRequest.url.includes('/auth/jwt/refresh/')) {
+            if (originalRequest.url.includes('/auth/jwt/refresh/')||originalRequest.url.includes('/users/me/')) {
                 clearTokens();
                 window.location.href = "/login";
                 return Promise.reject(error);
@@ -184,6 +184,12 @@ export const getMealComments = async (mealId: number) => {
 };
 export const getLatestComments = async () => {
 	const response = await api.get("comments/latest/");
+	console.log(response.data)
+	return response.data;
+};
+// Fetch comments by a specific user
+export const getUserComments = async (userId: number) => {
+	const response = await api.get(`users/${userId}/comments/`);
 	return response.data;
 };
 export const getCurrentDayMeal = async () => {
@@ -276,10 +282,6 @@ export const createMeal = async (data: any) => {
 	return response.data;
 };
 
-export const getAdminCheck = async () => {
-	const response = await api.get("admin-check/get/");
-	return response.data;
-};
 
 export const login = async (phone_number: string, password: string) => {
 	const response = await api.post("auth/jwt/create/", {

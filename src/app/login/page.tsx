@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, Tab, Card, CardBody, Link } from "@nextui-org/react";
 import SignupForm from "@/components/SignUpForm";
 import LoginForm from "../../components/LoginForm";
+import { useUser } from "@/context/UserContext";
 
 
 export default function AuthPage() {
@@ -13,18 +14,19 @@ export default function AuthPage() {
 	const searchParams = useSearchParams();
 	const initialTab = searchParams.get("tab") || "login";
 	const [selected, setSelected] = useState<any>(initialTab);
+  // const { isAuthenticated,isLoading  } = useUser();
+
 
 	useEffect(() => {
 		router.push(`?tab=${selected}`);
 	}, [selected, router]);
 
-	useEffect(() => {
-		const token =
-			localStorage.getItem("access") || sessionStorage.getItem("access");
-		if (token) {
-			router.push("/");
-		}
-	}, [router]);
+
+	// useEffect(() => {
+	// 	if (!isLoading && isAuthenticated) {  // Ensure isLoading is false before redirect
+	// 		router.push("/home");
+	// 	}
+	// }, [router, isAuthenticated, isLoading]); // Add isLoading to dependencies
 
 	return (
 		<div className="h-screen flex">

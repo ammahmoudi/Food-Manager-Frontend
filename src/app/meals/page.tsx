@@ -23,6 +23,7 @@ import {
 	PlusIcon,
 } from "@heroicons/react/24/outline";
 import MealDetailModal from "@/components/MealDetailModal";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const MealsPage = () => {
 	const [meals, setMeals] = useState<Meal[]>([]);
@@ -76,7 +77,7 @@ const MealsPage = () => {
 			if (order === "date") {
 				return new Date(a.date).getTime() - new Date(b.date).getTime();
 			} else {
-				return b.rating - a.rating;
+				return b.avg_rate - a.avg_rate;
 			}
 		});
 		setFilteredMeals(sortedMeals);
@@ -103,113 +104,115 @@ const MealsPage = () => {
 	};
 
 	return (
-		<div className="container xl:w-1/2 mx-auto p-2 items-center">
-			<div className="flex justify-between items-center mb-4 gap-2">
-				<Input
-					isClearable
-					placeholder="Search by food name"
-					value={searchTerm}
-					onChange={handleSearchChange}
-					className="w-full"
-				/>
-				<Button
-					isIconOnly
-					color="success"
-					className="h-full w-auto aspect-square"
-					onPress={handleOpenModal}
-				>
-					<PlusIcon className="text-white size-6"></PlusIcon>
-				</Button>
-				<Dropdown>
-					<DropdownTrigger>
-						<Button variant="flat">
-							Sort by {sortOrder === "date" ? "Date" : "Rating"}
-						</Button>
-					</DropdownTrigger>
-					<DropdownMenu
-						onAction={(key) => handleSortChange(key as "date" | "rating")}
-					>
-						<DropdownItem key="date">
-							<div className="flex items-center space-x-2">
-								<ArrowUpIcon className="w-5 h-5" />
-								<span>Date</span>
-							</div>
-						</DropdownItem>
-						<DropdownItem key="rating">
-							<div className="flex items-center space-x-2">
-								<ArrowDownIcon className="w-5 h-5" />
-								<span>Rating</span>
-							</div>
-						</DropdownItem>
-					</DropdownMenu>
-				</Dropdown>
-			</div>
-
-			<Tabs
-				aria-label="Filter Options"
-				selectedKey={filterType}
-				onSelectionChange={handleTabChange}
-				variant="solid"
-				className="mb-4"
-				fullWidth
-				size="sm"
-			>
-				<Tab
-					key="current-week"
-					title={
-						<div className="flex items-center space-x-1">
-							<CalendarIcon className="w-5 h-5" />
-							<span>Current Week</span>
-						</div>
-					}
-				/>
-				<Tab
-					key="upcoming"
-					title={
-						<div className="flex items-center space-x-1">
-							<ClockIcon className="w-5 h-5" />
-							<span>Upcoming Meals</span>
-						</div>
-					}
-				/>
-				<Tab
-					key="past"
-					title={
-						<div className="flex items-center space-x-1">
-							<ArrowUpIcon className="w-5 h-5" />
-							<span>Past Meals</span>
-						</div>
-					}
-				/>
-				<Tab
-					key="all"
-					title={
-						<div className="flex items-center space-x-1">
-							<span>All Meals</span>
-						</div>
-					}
-				/>
-			</Tabs>
-
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-2">
-				{filteredMeals.map((meal) => (
-					<MealCard
-						key={meal.id}
-						date={new Date(meal.date)}
-						initialMeal={meal}
-						onDelete={handleDelete}  // Pass the handleDelete function to MealCard
+		<ProtectedRoute>
+			<div className="container xl:w-1/2 mx-auto p-2 items-center">
+				<div className="flex justify-between items-center mb-4 gap-2">
+					<Input
+						isClearable
+						placeholder="Search by food name"
+						value={searchTerm}
+						onChange={handleSearchChange}
+						className="w-full"
 					/>
-				))}
+					<Button
+						isIconOnly
+						color="success"
+						className="h-full w-auto aspect-square"
+						onPress={handleOpenModal}
+					>
+						<PlusIcon className="text-white size-6"></PlusIcon>
+					</Button>
+					<Dropdown>
+						<DropdownTrigger>
+							<Button variant="flat">
+								Sort by {sortOrder === "date" ? "Date" : "Rating"}
+							</Button>
+						</DropdownTrigger>
+						<DropdownMenu
+							onAction={(key) => handleSortChange(key as "date" | "rating")}
+						>
+							<DropdownItem key="date">
+								<div className="flex items-center space-x-2">
+									<ArrowUpIcon className="w-5 h-5" />
+									<span>Date</span>
+								</div>
+							</DropdownItem>
+							<DropdownItem key="rating">
+								<div className="flex items-center space-x-2">
+									<ArrowDownIcon className="w-5 h-5" />
+									<span>Rating</span>
+								</div>
+							</DropdownItem>
+						</DropdownMenu>
+					</Dropdown>
+				</div>
+
+				<Tabs
+					aria-label="Filter Options"
+					selectedKey={filterType}
+					onSelectionChange={handleTabChange}
+					variant="solid"
+					className="mb-4"
+					fullWidth
+					size="sm"
+				>
+					<Tab
+						key="current-week"
+						title={
+							<div className="flex items-center space-x-1">
+								<CalendarIcon className="w-5 h-5" />
+								<span>Current Week</span>
+							</div>
+						}
+					/>
+					<Tab
+						key="upcoming"
+						title={
+							<div className="flex items-center space-x-1">
+								<ClockIcon className="w-5 h-5" />
+								<span>Upcoming Meals</span>
+							</div>
+						}
+					/>
+					<Tab
+						key="past"
+						title={
+							<div className="flex items-center space-x-1">
+								<ArrowUpIcon className="w-5 h-5" />
+								<span>Past Meals</span>
+							</div>
+						}
+					/>
+					<Tab
+						key="all"
+						title={
+							<div className="flex items-center space-x-1">
+								<span>All Meals</span>
+							</div>
+						}
+					/>
+				</Tabs>
+
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-2">
+					{filteredMeals.map((meal) => (
+						<MealCard
+							key={meal.id}
+							date={new Date(meal.date)}
+							initialMeal={meal}
+							onDelete={handleDelete} // Pass the handleDelete function to MealCard
+						/>
+					))}
+				</div>
+				<MealDetailModal
+					visible={modalVisible}
+					onClose={handleCloseModal}
+					date={null}
+					onSave={handleSave}
+					initialData={null}
+					onDelete={handleDelete}
+				/>
 			</div>
-			<MealDetailModal
-				visible={modalVisible}
-				onClose={handleCloseModal}
-				date={null}
-				onSave={handleSave}
-				initialData={null}
-				onDelete={handleDelete}
-			/>
-		</div>
+		</ProtectedRoute>
 	);
 };
 

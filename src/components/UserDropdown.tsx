@@ -10,22 +10,11 @@ import {
 } from "@nextui-org/react";
 import { getCurrentUser } from "../services/api"; // Import the API function
 import { User } from "@/interfaces/User";
+import { useUser } from "@/context/UserContext";
 
 const UserDropdown = () => {
-	const [user, setUser] = useState<User | null>(null);
+    const { isAuthenticated,user } = useUser();
 
-	useEffect(() => {
-		const fetchUser = async () => {
-			try {
-				const userData = await getCurrentUser(); // Use the getCurrentUser API function
-				setUser(userData);
-			} catch (error) {
-				console.error("Error fetching user data:", error);
-			}
-		};
-
-		fetchUser();
-	}, []);
 
 	if (!user) {
 		return <div>Loading...</div>;

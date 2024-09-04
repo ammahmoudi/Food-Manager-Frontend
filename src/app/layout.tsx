@@ -7,22 +7,18 @@ import GlobalNavbar from "../components/GlobalNavbar";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en" className="light">
-      <body className={inter.className}>
-
-        <Providers >
-
-<GlobalNavbar/> 
-           {children}
-          </Providers>
-       
-
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en" className="light">
+			<body className={inter.className}>
+				<Providers>
+					<GlobalNavbar />
+					{children}
+				</Providers>
+			</body>
+		</html>
+	);
 }

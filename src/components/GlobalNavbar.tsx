@@ -18,21 +18,18 @@ import LogoutButton from "./LogoutButton";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import UserDropdown from "./UserDropdown";
+import { useUser } from "@/context/UserContext";
 
 const GlobalNavbar = () => {
-	const [isSignedIn, setIsSignedIn] = useState(false);
+	const { isAdmin, isLoading, isAuthenticated } = useUser();
+
 	const [showNavbar, setShowNavbar] = useState(true);
 	const pathName = usePathname();
-	useEffect(() => {
-		const token =
-			localStorage.getItem("access") || sessionStorage.getItem("access");
-		if (token) {
-			setIsSignedIn(true);
-		}
-		if (pathName == "/login") {
-			setShowNavbar(false);
-		}
-	}, [pathName]);
+	// useEffect(() => {
+	// 	if (pathName == "/login") {
+	// 		setShowNavbar(false);
+	// 	}
+	// }, [pathName]);
 	return (
 		<Navbar className={showNavbar ? "" : "hidden"} isBordered>
 			<NavbarBrand>
@@ -40,13 +37,12 @@ const GlobalNavbar = () => {
 			</NavbarBrand>
 			<NavbarContent>
 				<Link href="/home">Home</Link>
-        <Link href="/calendar">Calendar</Link>
-        <Link href="/meals">Meals</Link>
+				<Link href="/calendar">Calendar</Link>
+				<Link href="/meals">Meals</Link>
 				<Link href="/foods">Foods</Link>
-
 			</NavbarContent>
 			<NavbarContent as="div" justify="end">
-				{isSignedIn ? (
+				{isAuthenticated ? (
 					<UserDropdown />
 				) : (
 					<Button href="/login">Sign In</Button>
