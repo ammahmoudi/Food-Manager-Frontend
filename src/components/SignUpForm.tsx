@@ -120,7 +120,7 @@ export default function SignupForm() {
 	};
 
 	return (
-		<form className="flex flex-col gap-4" onSubmit={handleSignup}>
+		<form className="flex flex-col gap-4" onSubmit={handleSignupUser}>
 			<Input
 				isRequired
 				label="Full Name"

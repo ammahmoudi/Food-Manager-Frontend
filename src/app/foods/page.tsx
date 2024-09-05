@@ -19,6 +19,7 @@ import { getFoods, deleteFood } from "@/services/api"; // Ensure you import dele
 import FoodCard from "@/components/FoodCard";
 import FoodModal from "@/components/FoodModal";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useUser } from "@/context/UserContext";
 
 const FoodsPage = () => {
 	const [foods, setFoods] = useState<Food[]>([]);
@@ -26,6 +27,7 @@ const FoodsPage = () => {
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [sortOrder, setSortOrder] = useState<"meals" | "rating">("meals");
 	const [modalVisible, setModalVisible] = useState(false);
+	const {isAdmin}=useUser();
 
 	const fetchFoods = useCallback(async () => {
 		try {
@@ -96,14 +98,15 @@ const FoodsPage = () => {
 						onChange={handleSearchChange}
 						className="w-full"
 					/>
-					<Button
+
+				{isAdmin&&	<Button
 						isIconOnly
 						color="success"
 						className="h-full w-auto aspect-square"
 						onPress={handleOpenModal}
 					>
 						<PlusIcon className="text-white size-6"></PlusIcon>
-					</Button>
+					</Button>}
 					<Dropdown>
 						<DropdownTrigger>
 							<Button variant="flat" className="px-10">

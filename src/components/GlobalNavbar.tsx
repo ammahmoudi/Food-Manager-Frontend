@@ -45,7 +45,7 @@ const GlobalNavbar = () => {
 				{isAuthenticated ? (
 					<UserDropdown />
 				) : (
-					<Button href="/login">Sign In</Button>
+					<Button  isLoading={isLoading} href="/login">Sign In</Button>
 				)}
 			</NavbarContent>
 		</Navbar>

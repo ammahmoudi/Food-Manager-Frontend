@@ -7,35 +7,28 @@ import FoodDetails from '../../../components/FoodDetails';
 import { FoodDetailsData } from '../../../interfaces/FoodDetailsData';
 import { Comment } from '../../../interfaces/Comment';
 import { MealWithFood } from '../../../interfaces/MealWithFood';
+import { Food } from '@/interfaces/Food';
+import { Meal } from '@/interfaces/Meal';
 
 const FoodDetailPage = () => {
   const { food_id } = useParams();
-  const [food, setFood] = useState<FoodDetailsData | null>(null);
+  const [food, setFood] = useState<Food>();
   const [comments, setComments] = useState<Comment[]>([]);
-  const [meals, setMeals] = useState<MealWithFood[]>([]);
+  const [meals, setMeals] = useState<Meal[]>([]);
 
   useEffect(() => {
-    const fetchFoodDetails = async () => {
+    const fetchFood = async () => {
       if (food_id) {
         try {
           const fetchedFood = await getFoodDetails(parseInt(food_id as string));
-          setFood({
-            id: fetchedFood.id,
-            imageUrl: fetchedFood.picture,
-            title: fetchedFood.name,
-            description: fetchedFood.description,
-            rating: 0, // will calculate later
-            datePosted: '', // populate if needed
-            comments: [],
-            meals: [],
-          });
+          setFood(fetchedFood);
         } catch (error) {
           console.error('Failed to fetch food details:', error);
         }
       }
     };
 
-    fetchFoodDetails();
+    fetchFood();
   }, [food_id]);
 
   useEffect(() => {
@@ -43,12 +36,7 @@ const FoodDetailPage = () => {
       if (food_id) {
         try {
           const fetchedComments = await getFoodComments(parseInt(food_id as string));
-          setComments(fetchedComments.map((comment: any) => ({
-            avatarUrl: comment.user.user_image,
-            name: comment.user.full_name,
-            date: comment.date,
-            text: comment.text,
-          })));
+          setComments(fetchedComments);
         } catch (error) {
           console.error('Failed to fetch comments:', error);
         }
@@ -73,18 +61,11 @@ const FoodDetailPage = () => {
     fetchMealsWithFood();
   }, [food_id]);
 
-  useEffect(() => {
-    if (food && meals.length > 0) {
-      const averageRating = meals.reduce((acc, meal) => acc + meal.rating, 0) / meals.length;
-      setFood({ ...food, rating: averageRating });
-    }
-  }, [meals]);
-
   if (!food) {
     return <div>Loading...</div>;
   }
 
-  return <FoodDetails data={{ ...food, comments, meals }} />;
+  return <FoodDetails food={food} meals={meals} />;
 };
 
 export default FoodDetailPage;

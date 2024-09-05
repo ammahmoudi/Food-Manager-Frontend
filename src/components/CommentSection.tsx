@@ -127,7 +127,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
 	return (
 		<div className="comment-section my-2">
-			<h3 className="text-xl font-semibold mb-2">Comments</h3>
+			{/* <h3 className="text-xl font-semibold mb-2">Comments</h3> */}
 
 			{/* Display the latest two comments */}
 			{comments.slice(0, 1).map((comment) => (

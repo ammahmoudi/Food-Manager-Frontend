@@ -34,6 +34,7 @@ import { PencilSquareIcon } from "@heroicons/react/16/solid";
 import CommentSection from "./CommentSection";
 import RateSection from "./RateSection";
 import { useUser } from "@/context/UserContext";
+import { showToast } from "@/services/showToast";
 
 interface MealFormProps {
 	initialData: Meal | null;
@@ -71,6 +72,8 @@ const MealForm: FC<MealFormProps> = ({
 				console.log(response)
 			} catch (error) {
 				setMeal(null);
+				showToast("error",<p>Failed to fetch meal data</p>);
+
 				console.error("Failed to fetch meal:", error);
 			}
 		}
@@ -121,9 +124,13 @@ const MealForm: FC<MealFormProps> = ({
 					handleOpenDeleteModal();
 				} else {
 					updatedMeal = await updateMeal(meal.id, newMeal);
+					showToast("success",<p>Meal has benn updated!</p>);
+
 				}
 			} else if (selectedFood) {
 				updatedMeal = await createMeal(newMeal);
+				showToast("success",<p>Meal has been created!</p>);
+
 			}
 			onSave(updatedMeal);
 		} catch (error) {
@@ -185,7 +192,7 @@ const MealForm: FC<MealFormProps> = ({
 					<Image
 						alt={selectedFood.name}
 						className="z-0 w-full h-full object-cover"
-						classNames={{ wrapper: "w-full h-full max-w-full max-h-full " }}
+						classNames={{ wrapper: "w-full h-full max-w-full max-h-full  aspect-square " }}
 						src={
 							(selectedFood.image as string) ?? "/images/food-placeholder.jpg"
 						}

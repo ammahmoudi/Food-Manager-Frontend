@@ -70,7 +70,7 @@ const MealDetails: FC<{ meal:Meal,}> = ({ meal}) => {
               </div>
             </div>
           ))} */}
-          <CommentSection mealId={meal.id} meal={meal}/>
+          <CommentSection mealId={meal.id} meal={meal} variant='meal'/>
         </div>
       </div>
     </div>
