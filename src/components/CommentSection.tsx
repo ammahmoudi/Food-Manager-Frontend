@@ -1,5 +1,3 @@
-// components/CommentSection.tsx
-
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -12,17 +10,19 @@ import {
 	useDisclosure,
 	ModalContent,
 } from "@nextui-org/react";
-import { Comment } from "@/interfaces/Comment"; // Assuming you have these interfaces
+import { Comment } from "@/interfaces/Comment";
 import {
 	getMealComments,
 	getLatestComments,
 	getFoodComments,
 	getUserComments,
 	submitCommentForMeal,
-} from "@/services/api"; // Assuming these API functions exist
+	deleteCommentForMeal,
+} from "@/services/api"; 
 import CommentCard from "./CommentCard";
-import CommentModal from "./CommentModal"; // Import the CommentModal component
-import { Meal } from "@/interfaces/Meal"; // Import the Meal interface
+import CommentModal from "./CommentModal";
+import { Meal } from "@/interfaces/Meal"; 
+import { toast } from "react-toastify";
 
 type CommentSectionVariant = "meal" | "food" | "user" | "latest";
 
@@ -31,7 +31,7 @@ interface CommentSectionProps {
 	mealId?: number;
 	foodId?: number;
 	userId?: number;
-	meal?: Meal; // Assuming meal data is passed as prop for "meal" variant
+	meal?: Meal; 
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({
@@ -76,6 +76,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 			}
 			if (response) setComments(response);
 		} catch (error) {
+			toast.error("Failed to fetch comments");
 			console.error("Failed to fetch comments:", error);
 		}
 	}, [variant, mealId, foodId, userId]);
@@ -84,30 +85,46 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 		fetchComments();
 	}, [fetchComments]);
 
-	const handleDeleteComment = (commentId: number) => {
-		// setComments(comments.filter((comment) => comment.id !== commentId));
+	const handleDeleteComment = async (commentId: number) => {
+		try {
+			await toast.promise(
+				deleteCommentForMeal(commentId),
+				{
+					pending: "Deleting comment...",
+					success: "Comment deleted!",
+					error: "Failed to delete comment",
+				}
+			);
+			setComments((prevComments) =>
+				prevComments.filter((comment) => comment.id !== commentId)
+			);
+		} catch (error) {
+			console.error("Failed to delete comment:", error);
+		}
 	};
 
-	const handleUpdateComment = (updatedComment: Comment) => {
-		// setComments(
-		// 	comments.map((comment) =>
-		// 		comment.id === updatedComment.id ? updatedComment : comment
-		// 	)
-		// );
+	const handleUpdateComment = async (updatedComment: Comment) => {
+		setComments((prevComments) =>
+			prevComments.map((comment) =>
+				comment.id === updatedComment.id ? updatedComment : comment
+			)
+		);
 	};
 
 	const handleAddComment = async (newComment: Comment) => {
-		// if (variant === "meal" && meal) {
-		// 	try {
-		// 		const addedComment = await submitCommentForMeal(
-		// 			meal.id,
-		// 			newComment.text
-		// 		);
-		// 		setComments([addedComment, ...comments]);
-		// 	} catch (error) {
-		// 		console.error("Failed to add comment:", error);
-		// 	}
-		// }
+		try {
+			const addedComment = await toast.promise(
+				submitCommentForMeal(meal?.id || 0, newComment.text),
+				{
+					pending: "Adding comment...",
+					success: "Comment added!",
+					error: "Failed to add comment",
+				}
+			);
+			setComments((prevComments) => [addedComment, ...prevComments]);
+		} catch (error) {
+			console.error("Failed to add comment:", error);
+		}
 	};
 
 	const openEditCommentModal = (comment: Comment) => {
@@ -127,8 +144,6 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
 	return (
 		<div className="comment-section my-2">
-			{/* <h3 className="text-xl font-semibold mb-2">Comments</h3> */}
-
 			{/* Display the latest two comments */}
 			{comments.slice(0, 1).map((comment) => (
 				<CommentCard
@@ -136,7 +151,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 					comment={comment}
 					onDelete={handleDeleteComment}
 					onUpdate={handleUpdateComment}
-					onClick={() => openEditCommentModal(comment)} // Open edit modal on click
+					onClick={() => openEditCommentModal(comment)} 
 				/>
 			))}
 
@@ -172,7 +187,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 									comment={comment}
 									onDelete={handleDeleteComment}
 									onUpdate={handleUpdateComment}
-									onClick={() => openEditCommentModal(comment)} // Open edit modal on click
+									onClick={() => openEditCommentModal(comment)} 
 								/>
 							))}
 						</div>
@@ -188,10 +203,10 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 				isOpen={isCommentModalOpen}
 				onClose={handleCloseCommentModal}
 				comment={selectedComment || undefined}
-				meal={meal||selectedComment?.meal}
+				meal={meal || selectedComment?.meal}
 				onUpdate={handleUpdateComment}
 				onDelete={handleDeleteComment}
-				onAdd={handleAddComment} // Pass handleAddComment as onAdd
+				onAdd={handleAddComment} 
 			/>
 		</div>
 	);

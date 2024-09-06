@@ -1,13 +1,14 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Button, Input, Textarea } from "@nextui-org/react";
+import { Button, Input } from "@nextui-org/react";
 import { updateMeal, getMealById } from "../../../../services/api";
 import { Meal } from "../../../../interfaces/Meal";
 import FoodSelection from "../../../../components/FoodSelection";
 import { Food } from "../../../../interfaces/Food";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { toast } from 'react-toastify';
 
 const EditMealPage = () => {
 	const { id } = useParams();
@@ -19,17 +20,21 @@ const EditMealPage = () => {
 
 	useEffect(() => {
 		const fetchMeal = async () => {
-			try {
-				const fetchedMeal = await getMealById(parseInt(id as string));
-				setMeal(fetchedMeal);
-				setSelectedFood(fetchedMeal.food);
-				setDate(fetchedMeal.date);
-				setRating(fetchedMeal.rating);
-			} catch (error) {
-				setMeal(null);
-				setRating(0);
-				setSelectedFood(null);
-				console.error("Failed to fetch meal:", error);
+			if (id) {
+				const fetchMealPromise = getMealById(parseInt(id as string));
+				try {
+					const fetchedMeal = await toast.promise(fetchMealPromise, {
+						pending: 'Fetching meal details...',
+						success: 'Meal details loaded successfully!',
+						error: 'Failed to load meal details. Please try again.',
+					});
+					setMeal(fetchedMeal);
+					setSelectedFood(fetchedMeal.food);
+					setDate(fetchedMeal.date);
+					setRating(fetchedMeal.rating);
+				} catch (error) {
+					console.error("Failed to fetch meal:", error);
+				}
 			}
 		};
 
@@ -38,14 +43,19 @@ const EditMealPage = () => {
 
 	const handleSave = async () => {
 		if (meal && selectedFood) {
+			const saveMealPromise = updateMeal(meal.id, {
+				...meal,
+				date,
+				rating,
+				food: selectedFood.id,
+			});
+			
 			try {
-				const updatedMeal = {
-					...meal,
-					date,
-					rating,
-					food: selectedFood.id,
-				};
-				await updateMeal(meal.id, updatedMeal);
+				await toast.promise(saveMealPromise, {
+					pending: 'Saving meal...',
+					success: 'Meal updated successfully!',
+					error: 'Failed to update meal. Please try again.',
+				});
 				router.push("/meals");
 			} catch (error) {
 				console.error("Failed to update meal:", error);
@@ -59,7 +69,6 @@ const EditMealPage = () => {
 
 	return (
 		<ProtectedRoute>
-			{" "}
 			<div className="max-w-4xl mx-auto px-4 py-12 md:px-6 lg:py-16">
 				<h1 className="text-3xl font-bold mb-6">Edit Meal</h1>
 				<div className="space-y-6">
@@ -72,7 +81,6 @@ const EditMealPage = () => {
 						selectedFood={selectedFood}
 						onFoodSelect={setSelectedFood}
 					/>
-
 					<Button onClick={handleSave}>Save</Button>
 				</div>
 			</div>

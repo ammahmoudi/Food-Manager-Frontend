@@ -1,11 +1,10 @@
-// components/LoginForm.tsx
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input, Button, Checkbox } from "@nextui-org/react";
 import { PhoneIcon, KeyIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
-import { login } from "@/services/api";
+import { toast } from "react-toastify";
 import { useUser } from "@/context/UserContext";
 
 export default function LoginForm() {
@@ -16,15 +15,35 @@ export default function LoginForm() {
 	const [isVisible, setIsVisible] = useState(false);
 	const [phoneError, setPhoneError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
-    const { isAuthenticated,handleLogin } = useUser();
-
+    const { isAuthenticated, handleLogin } = useUser();
 
 	const toggleVisibility = () => setIsVisible(!isVisible);
 
 	const handleLoginUser = async (e: React.FormEvent) => {
 		e.preventDefault();
+
+		// Perform validation here if necessary, e.g., validate phone number format
+		if (!phoneNumber || !password) {
+			setPhoneError(!phoneNumber ? "Phone number is required" : "");
+			setPasswordError(!password ? "Password is required" : "");
+			return;
+		}
+
 		try {
-			handleLogin(phoneNumber,password,rememberMe)
+			const loginPromise = handleLogin(phoneNumber, password, rememberMe);
+
+			await toast.promise(
+				loginPromise,
+				{
+					pending: "Logging in...",
+					success: "Logged in successfully!",
+					error: "Failed to log in. Please check your credentials.",
+				}
+			);
+
+			if (isAuthenticated) {
+				router.push("/dashboard");
+			}
 		} catch (error) {
 			console.error("Login failed:", error);
 		}

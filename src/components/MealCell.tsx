@@ -7,6 +7,7 @@ import { format, isToday } from "date-fns-jalali";
 import MealDetailModal from "./MealDetailModal";
 import { getMealByDate } from "@/services/api";
 import { formatDateToYYYYMMDD } from "@/utils/dateUtils";
+import { toast } from "react-toastify";
 
 interface MealCellProps {
     date: Date;
@@ -21,7 +22,15 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeal }) => {
 
     const fetchMeal = async () => {
         try {
-            const response = await getMealByDate(formatDateToYYYYMMDD(date));
+            const fetchPromise = getMealByDate(formatDateToYYYYMMDD(date));
+            const response = await toast.promise(
+                fetchPromise,
+                {
+                    pending: "Fetching meal details...",
+                    success: "Meal fetched successfully!",
+                    error: "Failed to fetch meal.",
+                }
+            );
             setMeal(response);
         } catch (error) {
             setMeal(null);
@@ -95,7 +104,8 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeal }) => {
                     radius="md"
                     className={`h-full w-full justify-center items-center  ${
                         isToday(date) ? "shadow-md shadow-emerald-800" : ""
-                    }`}                    isPressable
+                    }`}                    
+                    isPressable
                     onPress={handleOpenModal}
                 >
                     <div className="h-full flex items-center justify-center ">

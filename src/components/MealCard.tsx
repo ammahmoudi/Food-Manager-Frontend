@@ -6,6 +6,7 @@ import { Meal } from "../interfaces/Meal";
 import MealDetailModal from "./MealDetailModal";
 import { getMealByDate } from "@/services/api";
 import { formatDateToYYYYMMDD } from "@/utils/dateUtils";
+import { toast } from "react-toastify";
 
 interface MealCardProps {
 	date: Date;
@@ -23,7 +24,15 @@ const MealCard: React.FC<MealCardProps> = ({
 
 	const fetchMeal = async () => {
 		try {
-			const response = await getMealByDate(formatDateToYYYYMMDD(date));
+			const fetchPromise = getMealByDate(formatDateToYYYYMMDD(date));
+			const response = await toast.promise(
+				fetchPromise,
+				{
+					pending: "Fetching meal details...",
+					success: "Meal fetched successfully!",
+					error: "Failed to fetch meal details.",
+				}
+			);
 			setMeal(response);
 		} catch (error) {
 			setMeal(null);
@@ -44,8 +53,11 @@ const MealCard: React.FC<MealCardProps> = ({
 		// Optionally handle save logic
 	};
 
-	const handleDelete = (mealId: number) => {
-		onDelete(mealId);
+	const handleDelete = async (mealId: number) => {
+	
+			onDelete(mealId);
+
+		
 	};
 
 	return (
@@ -69,8 +81,8 @@ const MealCard: React.FC<MealCardProps> = ({
 									}}
 									shadow="md"
 									src={meal.food?.image as string ?? "/images/food-placeholder.jpg"} // Add a placeholder image if no picture is available
-									width={120} // Adjust width as needed
-									height={120} // Keep the height matching the content
+									width={120}
+									height={120}
 								/>
 							</div>
 

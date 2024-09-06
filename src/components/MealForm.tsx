@@ -34,7 +34,7 @@ import { PencilSquareIcon } from "@heroicons/react/16/solid";
 import CommentSection from "./CommentSection";
 import RateSection from "./RateSection";
 import { useUser } from "@/context/UserContext";
-import { showToast } from "@/services/showToast";
+import { toast } from "react-toastify"; // Importing toast
 
 interface MealFormProps {
 	initialData: Meal | null;
@@ -57,23 +57,25 @@ const MealForm: FC<MealFormProps> = ({
 	const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 	const [shouldUpdateFoods, setShouldUpdateFoods] = useState(false);
 	const [meal, setMeal] = useState<Meal | null>(initialData);
-	const { isAdmin, user } = useUser();
+	const { isAdmin } = useUser();
 
 	const fetchMeal = useCallback(async () => {
 		if (selectedDate) {
 			try {
-				const response = await getMealByDate(
-					formatDateToYYYYMMDD(selectedDate)
+				const response = await toast.promise(
+					getMealByDate(formatDateToYYYYMMDD(selectedDate)),
+					{
+						pending: "Fetching meal data...",
+						success: "Meal data loaded successfully!",
+						error: "Failed to fetch meal data",
+					}
 				);
 				setMeal(response);
 				if (!selectedFood) {
 					setSelectedFood(response.food);
 				}
-				console.log(response)
 			} catch (error) {
 				setMeal(null);
-				showToast("error",<p>Failed to fetch meal data</p>);
-
 				console.error("Failed to fetch meal:", error);
 			}
 		}
@@ -83,7 +85,7 @@ const MealForm: FC<MealFormProps> = ({
 		if (initialData && selectedDate) {
 			fetchMeal();
 		}
-	}, [selectedDate, fetchMeal, initialData]);
+	}, [initialData, selectedDate, fetchMeal]);
 
 	const handleOpenFoodModal = () => {
 		setFoodModalVisible(true);
@@ -113,40 +115,59 @@ const MealForm: FC<MealFormProps> = ({
 	};
 
 	const handleSaveMeal = async () => {
-		try {
-			const newMeal: CreateMealData = {
-				food_id: selectedFood?.id,
-				date: formatDateToYYYYMMDD(selectedDate || new Date()),
-			};
-			let updatedMeal: Meal | null = meal;
-			if (meal) {
-				if (!selectedFood) {
-					handleOpenDeleteModal();
-				} else {
-					updatedMeal = await updateMeal(meal.id, newMeal);
-					showToast("success",<p>Meal has benn updated!</p>);
-
-				}
-			} else if (selectedFood) {
-				updatedMeal = await createMeal(newMeal);
-				showToast("success",<p>Meal has been created!</p>);
-
-			}
-			onSave(updatedMeal);
-		} catch (error) {
-			console.error("Failed to save meal:", error);
+		if (!selectedFood) {
+			// If no food is selected, show the delete modal
+			handleOpenDeleteModal();
+			return;
 		}
+
+		const newMeal: CreateMealData = {
+			food_id: selectedFood?.id,
+			date: formatDateToYYYYMMDD(selectedDate || new Date()),
+		};
+
+		// Full control of toast.promise for saving the meal
+		const saveMealPromise = meal
+			? updateMeal(meal.id, newMeal)
+			: createMeal(newMeal);
+
+		const updatedMeal = await toast.promise(saveMealPromise, {
+			pending: {
+				render() {
+					return meal ? "Updating meal..." : "Creating meal...";
+				},
+				icon: false,
+			},
+			success: {
+				render() {
+					return meal
+						? "Meal has been updated successfully!"
+						: "Meal has been created successfully!";
+				},
+				icon: "🟢",
+			},
+			error: {
+				render({ data }) {
+					return `Failed to save meal: ${data?.message || "Unknown error"}`;
+				},
+			},
+		});
+
+		onSave(updatedMeal); // Pass the updated meal to onSave after toast.promise resolves
 	};
 
 	const handleDeleteMeal = async () => {
-		try {
-			if (meal) {
-				await deleteMeal(meal.id);
-				onDelete(meal.id);
-			}
-		} catch (error) {
-			console.error("Failed to delete meal:", error);
-		}
+		if (!meal) return;
+
+		const deletePromise = deleteMeal(meal.id);
+
+		await toast.promise(deletePromise, {
+			pending: "Deleting meal...",
+			success: "Meal has been deleted successfully!",
+			error: "Failed to delete meal",
+		});
+
+		onDelete(meal.id);
 	};
 
 	return (

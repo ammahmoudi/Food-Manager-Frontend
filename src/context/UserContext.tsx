@@ -1,7 +1,7 @@
-// context/UserContext.tsx
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { getCurrentUser, login, refreshToken, signup, updateUser } from "@/services/api";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 interface UserContextType {
 	user: any;
@@ -22,9 +22,7 @@ interface UserContextType {
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
-	children,
-}) => {
+export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const [user, setUser] = useState<any>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const router = useRouter();
@@ -35,32 +33,31 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 			const accessToken = localStorage.getItem("access") || sessionStorage.getItem("access");
 
 			if (!accessToken) {
-				// No token found, user is not authenticated
 				setUser(null);
 				setIsLoading(false);
 				return;
 			}
 
 			try {
-				// Try to get the current user with the existing access token
-				const userData = await getCurrentUser();
+				const userData = await toast.promise(getCurrentUser(), {
+					// pending: "Fetching user data...",
+					// success: "User authenticated!",
+					error: "Failed to authenticate user",
+				});
 				setUser(userData);
 			} catch (error) {
-				// If there is an error (like a 401), attempt to refresh the token
 				console.error("Failed to get current user:", error);
-
 				const newAccessToken = await refreshToken();
+
 				if (newAccessToken) {
 					try {
 						const userData = await getCurrentUser();
 						setUser(userData);
 					} catch (error) {
-						// Even after refreshing, if we fail, log out the user
 						console.error("Failed to get user after refreshing token:", error);
 						handleLogout();
 					}
 				} else {
-					// If refresh token also fails, log out the user
 					handleLogout();
 				}
 			} finally {
@@ -77,23 +74,32 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 		remember: boolean
 	) => {
 		try {
-			const { access, refresh } = await login(phoneNumber, password);
-			if (remember) {
-				localStorage.setItem("access", access);
-				localStorage.setItem("refresh", refresh);
-			} else {
-				sessionStorage.setItem("access", access);
-				sessionStorage.setItem("refresh", refresh);
-			}
-			const userData = await getCurrentUser();
-			setUser(userData);
-			router.push("/");
+			await toast.promise(
+				login(phoneNumber, password),
+				{
+					pending: "Logging in...",
+					success: "Login successful! 🎉",
+					error: "Login failed. Please check your credentials.",
+				}
+			).then(async ({ access, refresh }) => {
+				if (remember) {
+					localStorage.setItem("access", access);
+					localStorage.setItem("refresh", refresh);
+				} else {
+					sessionStorage.setItem("access", access);
+					sessionStorage.setItem("refresh", refresh);
+				}
+				const userData = await getCurrentUser();
+				setUser(userData);
+				router.push("/");
+			});
 		} catch (error) {
 			console.error("Login failed:", error);
 		}
 	};
 
 	const handleLogout = () => {
+		toast.info("Logging out...");
 		localStorage.removeItem("access");
 		localStorage.removeItem("refresh");
 		sessionStorage.removeItem("access");
@@ -104,10 +110,16 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	const handleSignup = async (userData: any) => {
 		try {
-			const response = await signup(userData);
-			if (response.status === 201) {
+			await toast.promise(
+				signup(userData),
+				{
+					pending: "Signing up...",
+					success: "Signup successful! 🎉",
+					error: "Signup failed. Please try again.",
+				}
+			).then(async () => {
 				await handleLogin(userData.phone_number, userData.password, true);
-			}
+			});
 		} catch (error) {
 			console.error("Signup failed:", error);
 		}
@@ -115,7 +127,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
 	const updateUserData = async (userData: any) => {
 		try {
-			const updatedUser = await updateUser(userData);
+			const updatedUser = await toast.promise(
+				updateUser(userData),
+				{
+					pending: "Updating user data...",
+					success: "User data updated! 🎉",
+					error: "Failed to update user data.",
+				}
+			);
 			setUser(updatedUser);
 		} catch (error) {
 			console.error("Failed to update user data:", error);

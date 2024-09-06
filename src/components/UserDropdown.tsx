@@ -1,6 +1,4 @@
 "use client";
-
-import { useEffect, useState } from "react";
 import {
 	Dropdown,
 	DropdownTrigger,
@@ -8,8 +6,6 @@ import {
 	DropdownMenu,
 	DropdownItem,
 } from "@nextui-org/react";
-import { getCurrentUser } from "../services/api"; // Import the API function
-import { User } from "@/interfaces/User";
 import { useUser } from "@/context/UserContext";
 
 const UserDropdown = () => {
@@ -27,7 +23,7 @@ const UserDropdown = () => {
 					isBordered
 					as="button"
 					className="transition-transform"
-					color="secondary"
+					color="primary"
 					name={user.full_name}
 					size="sm"
 					src={user.user_image as string}

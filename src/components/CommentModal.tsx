@@ -17,9 +17,9 @@ import {
 	updateCommentForMeal,
 	deleteCommentForMeal,
 } from "@/services/api";
-import { format } from "date-fns-jalali";
-import { ModalContent, user } from "@nextui-org/react";
-import momment from "moment";
+import { ModalContent } from "@nextui-org/react";
+import moment from "moment";
+import { toast } from "react-toastify";
 
 interface CommentModalProps {
 	isOpen: boolean;
@@ -28,7 +28,6 @@ interface CommentModalProps {
 	meal?: Meal; // Meal details for the comment, useful for new comments
 	onUpdate: (comment: Comment) => void; // Function to call after successful save or update
 	onAdd: (comment: Comment) => void; // Function to call after successful save or update
-
 	onDelete?: (commentId: number) => void; // Function to call after successful delete
 }
 
@@ -54,19 +53,22 @@ const CommentModal: React.FC<CommentModalProps> = ({
 
 	const handleSave = async () => {
 		setIsSubmitting(true);
+
+		const savePromise = comment
+			? updateCommentForMeal(comment.id, commentText)
+			: meal
+			? submitCommentForMeal(meal.id, commentText)
+			: Promise.reject("Invalid comment or meal");
+
+		toast.promise(savePromise, {
+			pending: "Saving comment...",
+			success: comment ? "Comment updated!" : "Comment added!",
+			error: "Failed to save comment",
+		});
+
 		try {
-			if (comment) {
-				// Update existing comment
-				const updatedComment = await updateCommentForMeal(
-					comment.id,
-					commentText
-				);
-				onUpdate(updatedComment);
-			} else if (meal) {
-				// Submit new comment
-				const newCommentData = await submitCommentForMeal(meal.id, commentText);
-				onAdd(newCommentData);
-			}
+			const savedComment = await savePromise;
+			comment ? onUpdate(savedComment) : onAdd(savedComment);
 			onClose();
 		} catch (error) {
 			console.error("Failed to save comment:", error);
@@ -74,17 +76,26 @@ const CommentModal: React.FC<CommentModalProps> = ({
 			setIsSubmitting(false);
 		}
 	};
+
 	const handleDelete = () => {
-		// Open confirmation modal
 		setIsConfirmDeleteModalOpen(true);
 	};
+
 	const handleConfirmDelete = async () => {
 		if (!comment || !onDelete) return;
 		setIsSubmitting(true);
+
+		const deletePromise = deleteCommentForMeal(comment.id);
+
+		toast.promise(deletePromise, {
+			pending: "Deleting comment...",
+			success: "Comment deleted!",
+			error: "Failed to delete comment",
+		});
+
 		try {
-			await deleteCommentForMeal(comment.id);
+			await deletePromise;
 			onDelete(comment.id);
-			setIsConfirmDeleteModalOpen(false);
 			onClose();
 		} catch (error) {
 			console.error("Failed to delete comment:", error);
@@ -92,6 +103,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
 			setIsSubmitting(false);
 		}
 	};
+
 	return (
 		<>
 			<Modal isOpen={isOpen} onClose={onClose}>
@@ -107,11 +119,11 @@ const CommentModal: React.FC<CommentModalProps> = ({
 					<ModalBody>
 						<div className="flex items-center gap-1 text-sm">
 							<UserChip user={comment?.user || user} /> on
-							<MealChip meal={comment?.meal || meal} onDelete={() => {}} />
+							<MealChip meal={comment?.meal || meal} />
 							{isAdmin &&
 								comment &&
 								comment.user.id !== user.id &&
-								momment(comment.updated_at).fromNow()}
+								moment(comment.updated_at).fromNow()}
 						</div>
 						{comment && comment.user.id !== user.id ? (
 							<p className="text-md text-wrap text-medium p-2">
@@ -126,7 +138,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
 								onChange={(e) => setCommentText(e.target.value)}
 								isRequired
 								description={
-									comment&&("Updated " + momment(comment?.updated_at).fromNow())
+									comment && "Updated " + moment(comment?.updated_at).fromNow()
 								}
 							/>
 						)}

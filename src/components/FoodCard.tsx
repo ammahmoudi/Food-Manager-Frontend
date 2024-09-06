@@ -5,10 +5,11 @@ import { Food } from "../interfaces/Food";
 import { getFoodDetails } from "@/services/api";
 import FoodModal from "./FoodModal";
 import { useUser } from "@/context/UserContext";
+import { toast } from "react-toastify";
 
 interface FoodCardProps {
 	initialFood: Food;
-	onDelete: (foodId: number) => void; // Add this prop
+	onDelete: (foodId: number) => void;
 }
 
 const FoodCard: React.FC<FoodCardProps> = ({
@@ -17,13 +18,20 @@ const FoodCard: React.FC<FoodCardProps> = ({
 }): JSX.Element => {
 	const [food, setFood] = useState<Food | null>(initialFood);
 	const [modalVisible, setModalVisible] = useState(false);
-  const {isAdmin} = useUser();
+	const { isAdmin } = useUser();
 
 	const fetchFood = async () => {
 		try {
-			const response = await getFoodDetails(food?.id!);
-			setFood(response);
-			console.log(response);
+			await toast.promise(
+				getFoodDetails(food?.id!),
+				{
+					pending: "Fetching food details...",
+					success: "Food details loaded successfully!",
+					error: "Failed to load food details",
+				}
+			).then((response) => {
+				setFood(response);
+			});
 		} catch (error) {
 			setFood(null);
 			console.error("Failed to fetch food details:", error);
@@ -41,10 +49,22 @@ const FoodCard: React.FC<FoodCardProps> = ({
 
 	const handleSave = (updatedFood: Food) => {
 		setFood(updatedFood);
+		toast.success("Food updated successfully!");
 	};
 
 	const handleDelete = async (foodId: number) => {
-		await onDelete(foodId); // Notify the parent (FoodsPage) about the deletion
+		try {
+			await toast.promise(
+				onDelete(foodId),
+				{
+					pending: "Deleting food...",
+					success: "Food deleted successfully!",
+					error: "Failed to delete food",
+				}
+			);
+		} catch (error) {
+			console.error("Failed to delete food:", error);
+		}
 	};
 
 	return (

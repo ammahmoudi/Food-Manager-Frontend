@@ -1,9 +1,9 @@
-// components/RateSection.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Slider, Button, SliderValue } from "@nextui-org/react";
+import { Slider, SliderValue } from "@nextui-org/react";
 import { getUserRateForMeal, submitRateForMeal } from "../services/api";
+import { toast } from "react-toastify";
 
 interface RateSectionProps {
 	mealId: number;
@@ -16,7 +16,14 @@ const RateSection: React.FC<RateSectionProps> = ({ mealId }) => {
 	useEffect(() => {
 		const fetchUserRate = async () => {
 			try {
-				const response = await getUserRateForMeal(mealId);
+				const response = await toast.promise(
+					getUserRateForMeal(mealId),
+					{
+						pending: "Loading your rate...",
+						success: "Rate loaded!",
+						error: "Failed to load rate.",
+					}
+				);
 				setRate(response.rate);
 			} catch (error) {
 				console.error("Failed to fetch rate:", error);
@@ -30,7 +37,14 @@ const RateSection: React.FC<RateSectionProps> = ({ mealId }) => {
 		if (rate !== null) {
 			setLoading(true);
 			try {
-				await submitRateForMeal(mealId, rate as number);
+				await toast.promise(
+					submitRateForMeal(mealId, rate as number),
+					{
+						pending: "Submitting your rate...",
+						success: "Rate submitted successfully!",
+						error: "Failed to submit rate.",
+					}
+				);
 			} catch (error) {
 				console.error("Failed to submit rate:", error);
 			} finally {
@@ -38,6 +52,7 @@ const RateSection: React.FC<RateSectionProps> = ({ mealId }) => {
 			}
 		}
 	};
+
 	const handleRateChange = (value: SliderValue) => {
 		setRate(value as number);
 	};
@@ -56,6 +71,7 @@ const RateSection: React.FC<RateSectionProps> = ({ mealId }) => {
 				onChange={handleRateChange}
 				onChangeEnd={handleRateSubmit}
 				className="max-w-md"
+				isDisabled={loading}
 			/>
 		</div>
 	);

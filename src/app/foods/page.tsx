@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -15,11 +15,12 @@ import {
 	PlusIcon,
 } from "@heroicons/react/24/outline";
 import { Food } from "@/interfaces/Food";
-import { getFoods, deleteFood } from "@/services/api"; // Ensure you import deleteFood
+import { getFoods, deleteFood } from "@/services/api";
 import FoodCard from "@/components/FoodCard";
 import FoodModal from "@/components/FoodModal";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useUser } from "@/context/UserContext";
+import { toast } from 'react-toastify';
 
 const FoodsPage = () => {
 	const [foods, setFoods] = useState<Food[]>([]);
@@ -27,11 +28,19 @@ const FoodsPage = () => {
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [sortOrder, setSortOrder] = useState<"meals" | "rating">("meals");
 	const [modalVisible, setModalVisible] = useState(false);
-	const {isAdmin}=useUser();
+	const { isAdmin } = useUser();
 
 	const fetchFoods = useCallback(async () => {
+		const fetchFoodsPromise = getFoods();
 		try {
-			const response = await getFoods();
+			const response = await toast.promise(
+				fetchFoodsPromise,
+				{
+					pending: 'Loading foods...',
+					success: 'Foods loaded successfully!',
+					error: 'Failed to load foods.',
+				}
+			);
 			setFoods(response);
 			setFilteredFoods(response);
 		} catch (error) {
@@ -77,14 +86,28 @@ const FoodsPage = () => {
 	};
 
 	const handleSave = (food: Food) => {
-		// Optionally handle the save logic
+		toast.success('Food saved successfully!');
+		fetchFoods(); // Refresh the food list after saving
 	};
 
-	const handleDelete = (foodId: number) => {
-		setFoods((prevFoods) => prevFoods.filter((food) => food.id !== foodId));
-		setFilteredFoods((prevFilteredFoods) =>
-			prevFilteredFoods.filter((food) => food.id !== foodId)
-		);
+	const handleDelete = async (foodId: number) => {
+		const deleteFoodPromise = deleteFood(foodId);
+		try {
+			await toast.promise(
+				deleteFoodPromise,
+				{
+					pending: 'Deleting food...',
+					success: 'Food deleted successfully!',
+					error: 'Failed to delete food.',
+				}
+			);
+			setFoods((prevFoods) => prevFoods.filter((food) => food.id !== foodId));
+			setFilteredFoods((prevFilteredFoods) =>
+				prevFilteredFoods.filter((food) => food.id !== foodId)
+			);
+		} catch (error) {
+			console.error("Failed to delete food:", error);
+		}
 	};
 
 	return (
@@ -99,14 +122,16 @@ const FoodsPage = () => {
 						className="w-full"
 					/>
 
-				{isAdmin&&	<Button
-						isIconOnly
-						color="success"
-						className="h-full w-auto aspect-square"
-						onPress={handleOpenModal}
-					>
-						<PlusIcon className="text-white size-6"></PlusIcon>
-					</Button>}
+					{isAdmin && (
+						<Button
+							isIconOnly
+							color="success"
+							className="h-full w-auto aspect-square"
+							onPress={handleOpenModal}
+						>
+							<PlusIcon className="text-white size-6"></PlusIcon>
+						</Button>
+					)}
 					<Dropdown>
 						<DropdownTrigger>
 							<Button variant="flat" className="px-10">

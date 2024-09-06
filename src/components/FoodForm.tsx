@@ -6,9 +6,10 @@ import { Food } from '../interfaces/Food';
 import { FoodFormData } from '../interfaces/FoodFormData';
 import { addFood, updateFood, deleteFood } from '../services/api';
 import { TrashIcon } from '@heroicons/react/24/solid';
+import { toast } from 'react-toastify';
 
 interface FoodFormProps {
-  initialData: Food|null ;
+  initialData: Food | null;
   isEditMode: boolean;
   onSave: (food: Food) => void;
   onDelete: (foodId: number) => void;
@@ -36,19 +37,25 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
   };
 
   const handleSave = async () => {
-    try {
-      const foodData: FoodFormData = {
-        name,
-        description,
-        image: image ? image : imageUrl,
-      };
+    const foodData: FoodFormData = {
+      name,
+      description,
+      image: image ? image : imageUrl,
+    };
 
-      let savedFood: Food;
-      if (isEditMode && initialData) {
-        savedFood = await updateFood(initialData.id, foodData);
-      } else {
-        savedFood = await addFood(foodData);
-      }
+    const saveFoodPromise = isEditMode && initialData
+      ? updateFood(initialData.id, foodData)
+      : addFood(foodData);
+
+    try {
+      const savedFood = await toast.promise(
+        saveFoodPromise,
+        {
+          pending: isEditMode ? 'Updating food...' : 'Creating food...',
+          success: isEditMode ? 'Food updated successfully!' : 'Food created successfully!',
+          error: 'Failed to save food.',
+        }
+      );
       onSave(savedFood);
     } catch (error) {
       console.error('Failed to save food:', error);
@@ -57,8 +64,16 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
 
   const handleDeleteFood = async () => {
     if (initialData) {
+      const deleteFoodPromise = deleteFood(initialData.id);
       try {
-        await deleteFood(initialData.id);
+        await toast.promise(
+          deleteFoodPromise,
+          {
+            pending: 'Deleting food...',
+            success: 'Food deleted successfully!',
+            error: 'Failed to delete food.',
+          }
+        );
         onDelete(initialData.id);
         closeModal();
       } catch (error) {
@@ -133,7 +148,7 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
       />
 
       <div className="flex justify-left gap-2">
-        <Button color="primary"  onPress={handleSave}>
+        <Button color="primary" onPress={handleSave}>
           {isEditMode ? 'Update Food' : 'Create Food'}
         </Button>
         {isEditMode && (

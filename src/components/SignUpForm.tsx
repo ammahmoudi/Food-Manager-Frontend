@@ -1,4 +1,3 @@
-// components/SignupForm.tsx
 "use client";
 
 import { useState } from "react";
@@ -11,9 +10,10 @@ import {
 	EyeIcon,
 	EyeSlashIcon,
 } from "@heroicons/react/24/solid";
-import { checkPhoneNumberUnique, signup, login } from "@/services/api";
+import { checkPhoneNumberUnique } from "@/services/api";
 import debounce from "@/utils/debounce";
 import { useUser } from "@/context/UserContext";
+import { toast } from "react-toastify";
 
 export default function SignupForm() {
 	const router = useRouter();
@@ -54,7 +54,6 @@ export default function SignupForm() {
 	});
 
 	const validatePassword = (value: string) => {
-		// Example password criteria: min length 8, contains a number and a special character
 		const passwordCriteria =
 			/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
 		if (!passwordCriteria.test(value)) {
@@ -103,17 +102,25 @@ export default function SignupForm() {
 
 	const handleSignupUser = async (e: React.FormEvent) => {
 		e.preventDefault();
+		if (!password || password !== confirmPassword) {
+			setPasswordError("Passwords do not match or are invalid");
+			return;
+		}
 		try {
-			if (!password || password !== confirmPassword) {
-				setPasswordError("Passwords do not match or are invalid");
-				return;
-			}
-			const response = await handleSignup({
-				phone_number: phoneNumber,
-				full_name: name,
-				password: password,
-				re_password: confirmPassword,
-			});
+			await toast.promise(
+				handleSignup({
+					phone_number: phoneNumber,
+					full_name: name,
+					password: password,
+					re_password: confirmPassword,
+				}),
+				{
+					pending: "Signing up...",
+					success: "Signup successful! 🎉",
+					error: "Signup failed. Please try again.",
+				}
+			);
+			router.push("/login"); // Redirect to login after successful signup
 		} catch (error) {
 			console.error("Signup failed:", error);
 		}

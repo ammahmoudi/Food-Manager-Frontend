@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Key, useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { getMeals, getFilteredMeals } from "@/services/api";
+import { Key, useCallback, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getMeals, getFilteredMeals, deleteMeal } from "@/services/api";
 import { Meal } from "@/interfaces/Meal";
 import MealCard from "@/components/MealCard";
 import {
@@ -25,6 +25,7 @@ import {
 import MealDetailModal from "@/components/MealDetailModal";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useUser } from "@/context/UserContext";
+import { toast } from 'react-toastify';
 
 const MealsPage = () => {
 	const [meals, setMeals] = useState<Meal[]>([]);
@@ -32,20 +33,20 @@ const MealsPage = () => {
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [sortOrder, setSortOrder] = useState<"date" | "rating">("date");
 	const [modalVisible, setModalVisible] = useState(false);
-	const {isAdmin}=useUser();
+	const { isAdmin } = useUser();
 
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const filterType = searchParams.get("filter") || "current-week"; // Default filter
 
 	const fetchMeals = useCallback(async () => {
+		const fetchMealsPromise = filterType === "all" ? getMeals() : getFilteredMeals(filterType);
 		try {
-			let response;
-			if (filterType === "all") {
-				response = await getMeals();
-			} else {
-				response = await getFilteredMeals(filterType);
-			}
+			const response = await toast.promise(fetchMealsPromise, {
+				pending: 'Fetching meals...',
+				success: 'Meals fetched successfully!',
+				error: 'Failed to fetch meals',
+			});
 			setMeals(response);
 			setFilteredMeals(response);
 		} catch (error) {
@@ -98,11 +99,21 @@ const MealsPage = () => {
 		// Optionally handle the save logic
 	};
 
-	const handleDelete = (mealId: number) => {
-		setMeals((prevMeals) => prevMeals.filter((meal) => meal.id !== mealId));
-		setFilteredMeals((prevFilteredMeals) =>
-			prevFilteredMeals.filter((meal) => meal.id !== mealId)
-		);
+	const handleDelete = async (mealId: number) => {
+		const deleteMealPromise = deleteMeal(mealId);
+		try {
+			await toast.promise(deleteMealPromise, {
+				pending: 'Deleting meal...',
+				success: 'Meal deleted successfully!',
+				error: 'Failed to delete meal',
+			});
+			setMeals((prevMeals) => prevMeals.filter((meal) => meal.id !== mealId));
+			setFilteredMeals((prevFilteredMeals) =>
+				prevFilteredMeals.filter((meal) => meal.id !== mealId)
+			);
+		} catch (error) {
+			console.error("Failed to delete meal:", error);
+		}
 	};
 
 	return (
@@ -116,14 +127,16 @@ const MealsPage = () => {
 						onChange={handleSearchChange}
 						className="w-full"
 					/>
-	{isAdmin&&				<Button
-						isIconOnly
-						color="success"
-						className="h-full w-auto aspect-square"
-						onPress={handleOpenModal}
-					>
-						<PlusIcon className="text-white size-6"></PlusIcon>
-					</Button>}
+					{isAdmin && (
+						<Button
+							isIconOnly
+							color="success"
+							className="h-full w-auto aspect-square"
+							onPress={handleOpenModal}
+						>
+							<PlusIcon className="text-white size-6"></PlusIcon>
+						</Button>
+					)}
 					<Dropdown>
 						<DropdownTrigger>
 							<Button variant="flat">

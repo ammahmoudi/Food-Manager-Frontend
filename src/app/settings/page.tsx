@@ -1,5 +1,4 @@
 "use client";
-
 import { ChangeEvent, useEffect, useState } from "react";
 import {
 	Input,
@@ -17,7 +16,6 @@ import {
 } from "@nextui-org/react";
 import {
 	updateUser,
-	getCurrentUser,
 	changePassword,
 	checkPhoneNumberUnique,
 } from "@/services/api";
@@ -25,21 +23,18 @@ import {
 	UserCircleIcon,
 	DevicePhoneMobileIcon,
 	KeyIcon,
-	PhotoIcon,
 	ShieldCheckIcon,
 	TrashIcon,
 } from "@heroicons/react/24/solid";
 import debounce from "@/utils/debounce";
-import { User } from "@/interfaces/User";
-import { init } from "next/dist/compiled/webpack/webpack";
 import { useUser } from "@/context/UserContext";
+import { toast } from "react-toastify";
 
 const SettingsPage = () => {
 	const { user, updateUserData, isLoading } = useUser(); // Destructure methods from useUser
 	const [name, setName] = useState("");
 	const [phoneNumber, setPhoneNumber] = useState("");
 	const [userImage, setUserImage] = useState<File | string | null>(null);
-	const [role, setRole] = useState("");
 	const [nameError, setNameError] = useState("");
 	const [phoneError, setPhoneError] = useState("");
 	const [currentPassword, setCurrentPassword] = useState("");
@@ -59,7 +54,6 @@ const SettingsPage = () => {
 			setName(user.full_name || "");
 			setPhoneNumber(user.phone_number || "");
 			setUserImage(user.user_image || null);
-			setRole(user.role || "");
 		}
 	}, [user]);
 
@@ -67,13 +61,11 @@ const SettingsPage = () => {
 		const file = e.target.files?.[0];
 		if (file) {
 			setUserImage(file);
-			// setUserImageUrl(URL.createObjectURL(file));
 		}
 	};
 
 	const handleDeleteImage = () => {
 		setUserImage(null);
-		// setUserImageUrl("");
 	};
 
 	const validateName = (value: string) => {
@@ -98,35 +90,51 @@ const SettingsPage = () => {
 	};
 
 	const debounceValidatePhoneNumber = debounce(async (value: string) => {
-		if (value !== user.phone_number) {
+		if (value !== user?.phone_number) {
 			setPhoneError(await validatePhoneNumber(value));
 		}
 	});
+
 	const handleSave = async () => {
+		// Create a new object to store the updated user data
+		const userData: any = {
+			full_name: name,
+			phone_number: phoneNumber,
+			remove_image: userImage === null ? true : false,
+		};
+
+		// Only add the image if it's a File
+		if (userImage instanceof File) {
+			userData.user_image = userImage;
+		}
+
+		const saveUserPromise = updateUserData(userData);
+
 		try {
-			if (!nameError && !phoneError) {
-				await updateUserData({
-					full_name: name,
-					phone_number: phoneNumber,
-					user_image: userImage,
-					remove_image: userImage === null ? true : false,
-				});
-				// setUserImage(null);
-				// setUserImageUrl(user?.user_image);
-			}
+			await toast.promise(saveUserPromise, {
+				pending: 'Saving changes...',
+				success: 'User data updated successfully!',
+				error: 'Failed to update user data',
+			});
 		} catch (error) {
 			console.error("Failed to save user data:", error);
 		}
 	};
 
 	const handlePasswordChange = async () => {
-		try {
-			if (newPassword !== confirmPassword) {
-				setPasswordError("Passwords do not match");
-				return;
-			}
+		if (newPassword !== confirmPassword) {
+			setPasswordError("Passwords do not match");
+			return;
+		}
 
-			await changePassword(currentPassword, newPassword, confirmPassword);
+		const changePasswordPromise = changePassword(currentPassword, newPassword, confirmPassword);
+
+		try {
+			await toast.promise(changePasswordPromise, {
+				pending: 'Changing password...',
+				success: 'Password changed successfully!',
+				error: 'Failed to change password',
+			});
 			closePasswordModal();
 			setCurrentPassword("");
 			setNewPassword("");
@@ -154,7 +162,7 @@ const SettingsPage = () => {
 										alt="User Image"
 										className="z-0 w-full h-full object-cover"
 										classNames={{ wrapper: "w-full h-full aspect-square " }}
-										src={userImage instanceof File?URL.createObjectURL(userImage as File):userImage}
+										src={userImage instanceof File ? URL.createObjectURL(userImage as File) : userImage}
 									/>
 									<CardFooter className="absolute bottom-0 z-10">
 										<div className="flex items-center">
@@ -227,7 +235,7 @@ const SettingsPage = () => {
 									<ShieldCheckIcon className="h-5 w-5 text-gray-500" />
 								}
 								fullWidth
-								value={user.role}
+								value={user?.role}
 								readOnly
 								disabled
 							/>

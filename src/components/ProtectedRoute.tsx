@@ -2,6 +2,7 @@
 import { useRouter } from "next/navigation";
 import { useUser } from "../context/UserContext";
 import { useEffect } from "react";
+import { Spinner } from "@nextui-org/react";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 	children,
@@ -16,7 +17,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 	}, [isAuthenticated, isLoading, router]);
 
 	if (isLoading || !isAuthenticated) {
-		return <div>Loading...</div>;
+		return <div className="container mx-auto p-4 w-screen h-screen flex justify-center items-center">      <Spinner size="lg" color="primary"/>
+</div>;
 	}
 
 	return <>{children}</>;

@@ -1,4 +1,3 @@
-// components/CommentCard.tsx
 import React, { useState } from "react";
 import {
 	Card,
@@ -9,21 +8,18 @@ import {
 	ModalFooter,
 	ModalHeader,
 	Textarea,
+	Link,
 } from "@nextui-org/react";
 import { format } from "date-fns-jalali";
 import UserChip from "@/components/UserChip";
 import MealChip from "@/components/MealChip";
 import { Comment } from "@/interfaces/Comment";
-import { Meal } from "@/interfaces/Meal";
-import { User } from "@/interfaces/User";
-import { Food } from "@/interfaces/Food";
 import { useUser } from "../context/UserContext";
-
 import { deleteCommentForMeal, updateCommentForMeal } from "@/services/api";
 import { CardHeader } from "@nextui-org/react";
-import UserProfile from "./UserProfile";
 import UserAvatar from "./UserAvatar";
-import momment from "moment";
+import moment from "moment";
+import { toast } from "react-toastify";
 
 interface CommentCardProps {
 	comment: Comment;
@@ -51,8 +47,16 @@ const CommentCard: React.FC<CommentCardProps> = ({
 	};
 
 	const handleUpdateComment = async () => {
+		const updatePromise = updateCommentForMeal(comment.id, editedText);
+
+		toast.promise(updatePromise, {
+			pending: 'Updating comment...',
+			success: 'Comment updated successfully!',
+			error: 'Failed to update comment.',
+		});
+
 		try {
-			const updatedComment = await updateCommentForMeal(comment.id, editedText);
+			const updatedComment = await updatePromise;
 			onUpdate(updatedComment);
 			setEditModalVisible(false);
 		} catch (error) {
@@ -61,8 +65,16 @@ const CommentCard: React.FC<CommentCardProps> = ({
 	};
 
 	const handleConfirmDelete = async () => {
+		const deletePromise = deleteCommentForMeal(comment.id);
+
+		toast.promise(deletePromise, {
+			pending: 'Deleting comment...',
+			success: 'Comment deleted successfully!',
+			error: 'Failed to delete comment.',
+		});
+
 		try {
-			await deleteCommentForMeal(comment.id);
+			await deletePromise;
 			onDelete(comment.id);
 			setDeleteModalVisible(false);
 		} catch (error) {
@@ -76,6 +88,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
 				key={comment.id}
 				className="mb-2 w-full"
 				isPressable
+				as={Link}
 				onPress={onClick}
 			>
 				<CardBody>
@@ -91,12 +104,12 @@ const CommentCard: React.FC<CommentCardProps> = ({
 							<span className="inline-flex text-sm align-middle  flex-wrap items-baseline w-full gap-1">
 								on
 								<MealChip
-											meal={comment.meal}
+									meal={comment.meal}
 									onDelete={() => {}}
 								/>
 								<span className="text-right absolute right-5 text-xs text-gray-700">
 									{comment.created_at
-										? momment(comment.updated_at).fromNow()
+										? moment(comment.updated_at).fromNow()
 										: "unknown time"}
 								</span>
 							</span>

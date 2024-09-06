@@ -1,35 +1,38 @@
 import React from "react";
-import { Avatar, Button, Card, CardBody, CardFooter, CardHeader } from "@nextui-org/react";
+import { Avatar, Button, Card, CardBody, CardFooter, CardHeader, Link } from "@nextui-org/react";
 import { Meal } from "@/interfaces/Meal";
 import { format } from "date-fns-jalali";
+import { formatDateToYYYYMMDD } from "@/utils/dateUtils";
 
 interface MealDetailCardProps {
   meal:Meal
-  onDelete: (mealId: number) => void;
 }
 
 export const MealDetailCard: React.FC<MealDetailCardProps> = ({
  meal,
-  onDelete,
 }) => {
   return (
     <Card shadow="none" className="max-w-[300px] border-none bg-transparent">
       <CardHeader className="justify-between">
+       
         <div className="flex gap-3">
           <Avatar isBordered radius="full" size="md" src={(meal?.food?.image as string) ?? "images/food-placeholder.jpg"} />
           <div className="flex flex-col items-start justify-center">
             <h4 className="text-small font-semibold leading-none text-default-600">{meal.food?.name}</h4>
-            <h5 className="text-small tracking-tight text-default-500">{format(meal.date,'YYYY/mm/dd')}</h5>
+            <h5 className="text-small tracking-tight text-default-500">{format(meal.date,'y/MM/d')}</h5>
           </div>
-        </div>
-        <Button
-          color="danger"
+          <Button
+          color="primary"
           radius="full"
           size="sm"
-          onPress={() => onDelete(0)}
-        >
-          Delete
+          as={Link}
+          href={`meals/${meal.date}`}
+          isExternal
+                  >
+          More
         </Button>
+        </div>
+      
       </CardHeader>
       <CardBody className="px-3 py-0">
         <p className="text-small pl-px text-default-500">{meal.food?.description}</p>
@@ -51,7 +54,7 @@ export const MealDetailCard: React.FC<MealDetailCardProps> = ({
       </CardBody>
       <CardFooter className="gap-3">
         <div className="flex gap-1">
-          <p className="text-default-500 text-small">Meal Date: {format(meal.date,'YYYY/mm/dd')}</p>
+          <p className="text-default-500 text-small">Meal Date: {format(meal.date,'yyyy/mm/dd')}</p>
         </div>
       </CardFooter>
     </Card>
