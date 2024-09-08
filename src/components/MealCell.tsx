@@ -8,6 +8,7 @@ import MealDetailModal from "./MealDetailModal";
 import { getMealByDate } from "@/services/api";
 import { formatDateToYYYYMMDD } from "@/utils/dateUtils";
 import { toast } from "react-toastify";
+import { useUser } from "@/context/UserContext";
 
 interface MealCellProps {
     date: Date;
@@ -19,7 +20,7 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeal }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [showFooter, setShowFooter] = useState(true);
     const cardRef = useRef<HTMLDivElement>(null);
-
+    const {isAdmin}=useUser();
     const fetchMeal = async () => {
         try {
             const fetchPromise = getMealByDate(formatDateToYYYYMMDD(date));
@@ -106,7 +107,7 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeal }) => {
                         isToday(date) ? "shadow-md shadow-emerald-800" : ""
                     }`}                    
                     isPressable
-                    onPress={handleOpenModal}
+                    onPress={isAdmin?handleOpenModal:()=>{}}
                 >
                     <div className="h-full flex items-center justify-center ">
                         <p className="text-medium text-black/60 uppercase font-bold text-center">

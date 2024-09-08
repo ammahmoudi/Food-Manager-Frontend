@@ -1,7 +1,6 @@
 "use client";
-
 import { useCallback, useEffect, useState } from "react";
-import { getLatestComments, getCurrentDayMeal } from "@/services/api";
+import { getCurrentDayMeal } from "@/services/api";
 import { Meal } from "@/interfaces/Meal";
 import MealCard from "@/components/MealCard";
 import Calendar from "@/components/Calendar";
@@ -20,41 +19,39 @@ import { toast } from "react-toastify";
 const HomePage = () => {
 	const [currentDayMeal, setCurrentDayMeal] = useState<Meal | null>(null);
 	const [loadingMeal, setLoadingMeal] = useState(true); // Loading state for meal
-	const [loadingComments, setLoadingComments] = useState(true); // Loading state for comments
 	const { isAdmin } = useUser();
 
 	const fetchCurrentDayMeal = useCallback(async () => {
-		setLoadingMeal(true); // Show skeleton while loading
+		console.log("fetching current day meal");
+		setLoadingMeal(true);
 		const fetchMealPromise = getCurrentDayMeal();
-
 		try {
 			const meal = await toast.promise(fetchMealPromise, {
 				pending: "Fetching today's meal...",
 				success: "Today's meal loaded successfully!",
 				error: "Failed to load today's meal.",
-			});
+			},);
 			setCurrentDayMeal(meal);
 		} catch (error) {
-
 			console.error("Failed to fetch current day meal:", error);
 		} finally {
-			setLoadingMeal(false); // Hide skeleton after loading
+			setLoadingMeal(false);
 		}
-	}, []);
+	}, []); // Add empty dependency array to ensure it doesn't change
 
 	const handleDeleteMeal = (mealId: number) => {
 		setCurrentDayMeal(null);
 		toast.success("Meal deleted successfully.");
 	};
 
-	useEffect(() => {
-		fetchCurrentDayMeal();
-		setLoadingComments(false); // Hide comments skeleton after loading
-	}, [fetchCurrentDayMeal, isAdmin]);
 
 	const currentDate = startOfToday();
 	let currentYear = Number(format(currentDate, "yyyy"));
 	let currentMonth = Number(format(currentDate, "MM"));
+	
+	useEffect(() => {
+		fetchCurrentDayMeal();
+	}, []);
 
 	return (
 		<ProtectedRoute>
@@ -87,11 +84,8 @@ const HomePage = () => {
 											<ChatBubbleLeftRightIcon className="w-5 h-5 mr-2" />
 											Latest Comments
 										</h3>
-										{loadingComments ? (
-											<Skeleton className="h-32 w-full" /> // Skeleton for comments
-										) : (
-											<CommentSection variant="latest" />
-										)}
+
+										<CommentSection variant="latest" />
 									</CardBody>
 								</Card>
 
@@ -102,7 +96,7 @@ const HomePage = () => {
 											<TrophyIcon className="w-5 h-5 mr-2" />
 											Top Rated Foods
 										</h3>
-											<TopRatedFoodsChart />
+										<TopRatedFoodsChart />
 									</CardBody>
 								</Card>
 							</div>
@@ -111,9 +105,8 @@ const HomePage = () => {
 
 					{/* Calendar Component */}
 					<div className="flex-1 lg:basis-1/2 lg:w-1/2">
-						<h2 className="text-2xl font-semibold mb-4">Calendar</h2>					<div className="w-full h-auto">
+						<h2 className="text-2xl font-semibold mb-4">Calendar</h2>
 						<div className="w-full h-auto">
-
 							<Calendar
 								year={currentYear}
 								month={currentMonth}
@@ -121,13 +114,10 @@ const HomePage = () => {
 									currentYear = year;
 									currentMonth = month;
 								}}
-														/>
-															</div>
-
+							/>
+						</div>
 					</div>
 				</div>
-			</div>
-
 			</div>
 		</ProtectedRoute>
 	);

@@ -10,7 +10,7 @@ const LogoutPage = () => {
 
   useEffect(() => {
     handleLogout();
-  }, [handleLogout]);
+  }, []);
 
   return <div>Logging out...</div>;
 };

@@ -83,72 +83,33 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-	(response) => response,
-	async (error) => {
-		const originalRequest = error.config;
-		// console.log('API call error:', error);
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
 
-		if (
-			error.response &&
-			error.response.status === 401 &&
-			!originalRequest._retry
-		) {
-			originalRequest._retry = true;
-			const newToken = await refreshToken();
-			if (newToken) {
-				originalRequest.headers.Authorization = `Bearer ${newToken}`;
-				return api(originalRequest);
-			}
-		}
+            // Avoid infinite loop by checking if the request is a refresh attempt
+            if (originalRequest.url.includes("/auth/jwt/refresh/") || originalRequest.url.includes("/users/me/")) {
+                clearTokens();
+                window.location.href = "/login";
+                return Promise.reject(error);
+            }
 
-		if (error.response && error.response.status === 401) {
-			clearTokens();
-			window.location.href = "/login"; // Redirect to login page
-		}
+            const newToken = await refreshToken();
+            if (newToken) {
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                return api(originalRequest);
+            } else {
+                clearTokens();
+                window.location.href = "/login";
+            }
+        }
 
-		return Promise.reject(error);
-	}
+        return Promise.reject(error);
+    }
 );
 
-api.interceptors.response.use(
-	(response) => response,
-	async (error) => {
-		const originalRequest = error.config;
-		if (
-			error.response &&
-			error.response.status === 401 &&
-			!originalRequest._retry
-		) {
-			originalRequest._retry = true;
-
-			// Avoid infinite loop by checking if the request is a refresh attempt
-			if (
-				originalRequest.url.includes("/auth/jwt/refresh/") ||
-				originalRequest.url.includes("/users/me/")
-			) {
-				clearTokens();
-				window.location.href = "/login";
-				return Promise.reject(error);
-			}
-
-			const newToken = await refreshToken();
-			if (newToken) {
-				originalRequest.headers.Authorization = `Bearer ${newToken}`;
-				return api(originalRequest);
-			} else {
-				clearTokens();
-				window.location.href = "/login";
-			}
-		}
-
-		if (error.response && error.response.status === 401) {
-			clearTokens();
-			window.location.href = "/login";
-		}
-
-		return Promise.reject(error);
-	}
-);
 
 //User Apis
 
@@ -221,27 +182,27 @@ export const getFoodDetails = async (foodId: number) => {
 	const response = await api.get(`foods/${foodId}/`);
 	return response.data;
 };
-const createFoodFormData = (food: Partial<FoodFormData>) => {
-	const formData = new FormData();
+// const createFoodFormData = (food: Partial<FoodFormData>) => {
+// 	const formData = new FormData();
 
-	if (food.name) formData.append("name", food.name);
-	if (food.description) formData.append("description", food.description);
+// 	if (food.name) formData.append("name", food.name);
+// 	if (food.description) formData.append("description", food.description);
 
-	// Handle image field
-	if (food.image === "") {
-		// If the image is an empty string, indicate that the image should be removed
-		formData.append("remove_picture", "true");
-	} else if (food.image && typeof food.image !== "string") {
-		// Only append the file if it's not a string (i.e., it's a File)
-		formData.append("image", food.image as File);
-	}
+// 	// Handle image field
+// 	if (food.image === "") {
+// 		// If the image is an empty string, indicate that the image should be removed
+// 		formData.append("remove_picture", "true");
+// 	} else if (food.image && typeof food.image !== "string") {
+// 		// Only append the file if it's not a string (i.e., it's a File)
+// 		formData.append("image", food.image as File);
+// 	}
 
-	return formData;
-};
+// 	return formData;
+// };
 
 export const addFood = async (food: FoodFormData) => {
-	const formData = createFoodFormData(food);
-	const response = await api.post("foods/", formData, {
+	// const formData = createFoodFormData(food);
+	const response = await api.post("foods/", food, {
 		headers: {
 			"Content-Type": "multipart/form-data",
 		},
@@ -250,9 +211,9 @@ export const addFood = async (food: FoodFormData) => {
 	return response.data;
 };
 
-export const updateFood = async (id: number, food: Partial<FoodFormData>) => {
-	const formData = createFoodFormData(food);
-	const response = await api.put(`foods/${id}/`, formData, {
+export const updateFood = async (id: number, food: FoodFormData) => {
+	// const formData = createFoodFormData(food);
+	const response = await api.put(`foods/${id}/`, food, {
 		headers: {
 			"Content-Type": "multipart/form-data",
 		},

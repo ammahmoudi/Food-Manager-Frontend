@@ -75,7 +75,7 @@ const MealCard: React.FC<MealCardProps> = ({
 							<div className="relative flex-shrink-0 aspect-square">
 								<Image
 									alt={meal.food?.name}
-									className="z-0 w-full h-full object-cover"
+									className="z-0 w-full h-full object-cover aspect-square"
 									classNames={{
 										wrapper: "w-full h-full max-w-full max-h-full ",
 									}}
@@ -111,14 +111,6 @@ const MealCard: React.FC<MealCardProps> = ({
 							</div>
 						</div>
 					</CardBody>
-					<MealDetailModal
-						visible={modalVisible}
-						onClose={handleCloseModal}
-						date={date}
-						onSave={handleSave}
-						initialData={meal}
-						onDelete={handleDelete}
-					/>
 				</Card>
 			) : (
 				<Card

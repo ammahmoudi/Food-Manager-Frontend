@@ -29,6 +29,7 @@ import {
 import debounce from "@/utils/debounce";
 import { useUser } from "@/context/UserContext";
 import { toast } from "react-toastify";
+import ImageCropModal from "@/components/ImageCropModal";
 
 const SettingsPage = () => {
 	const { user, updateUserData, isLoading } = useUser(); // Destructure methods from useUser
@@ -47,6 +48,11 @@ const SettingsPage = () => {
 		onOpen: openPasswordModal,
 		onClose: closePasswordModal,
 	} = useDisclosure();
+	const {
+		isOpen: isCropModalOpen,
+		onOpen: openCropModal,
+		onClose: closeCropModal,
+	} = useDisclosure();
 
 	// useEffect to set initial state from user context
 	useEffect(() => {
@@ -60,8 +66,14 @@ const SettingsPage = () => {
 	const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (file) {
-			setUserImage(file);
+			const imageUrl = URL.createObjectURL(file);
+			setUserImage(imageUrl);
+			openCropModal(); // Open the crop modal after selecting the image
 		}
+	};
+	const handleCropComplete = (croppedImage: File) => {
+		setUserImage(croppedImage); // Set the cropped image as the selected image
+		closeCropModal();
 	};
 
 	const handleDeleteImage = () => {
@@ -112,9 +124,9 @@ const SettingsPage = () => {
 
 		try {
 			await toast.promise(saveUserPromise, {
-				pending: 'Saving changes...',
-				success: 'User data updated successfully!',
-				error: 'Failed to update user data',
+				pending: "Saving changes...",
+				success: "User data updated successfully!",
+				error: "Failed to update user data",
 			});
 		} catch (error) {
 			console.error("Failed to save user data:", error);
@@ -127,13 +139,17 @@ const SettingsPage = () => {
 			return;
 		}
 
-		const changePasswordPromise = changePassword(currentPassword, newPassword, confirmPassword);
+		const changePasswordPromise = changePassword(
+			currentPassword,
+			newPassword,
+			confirmPassword
+		);
 
 		try {
 			await toast.promise(changePasswordPromise, {
-				pending: 'Changing password...',
-				success: 'Password changed successfully!',
-				error: 'Failed to change password',
+				pending: "Changing password...",
+				success: "Password changed successfully!",
+				error: "Failed to change password",
 			});
 			closePasswordModal();
 			setCurrentPassword("");
@@ -162,7 +178,11 @@ const SettingsPage = () => {
 										alt="User Image"
 										className="z-0 w-full h-full object-cover"
 										classNames={{ wrapper: "w-full h-full aspect-square " }}
-										src={userImage instanceof File ? URL.createObjectURL(userImage as File) : userImage}
+										src={
+											userImage instanceof File
+												? URL.createObjectURL(userImage as File)
+												: userImage
+										}
 									/>
 									<CardFooter className="absolute bottom-0 z-10">
 										<div className="flex items-center">
@@ -248,7 +268,7 @@ const SettingsPage = () => {
 									user &&
 									name === user.full_name &&
 									phoneNumber === user.phone_number &&
-									(userImage === user.user_image)
+									userImage === user.user_image
 								}
 								color="primary"
 								onPress={handleSave}
@@ -309,6 +329,12 @@ const SettingsPage = () => {
 						</ModalFooter>
 					</ModalContent>
 				</Modal>
+				<ImageCropModal
+					isOpen={isCropModalOpen}
+					onClose={closeCropModal}
+					imageSrc={userImage as string} // Send the image URL to the crop modal
+					onCropComplete={handleCropComplete}
+				/>
 			</div>
 		)
 	);

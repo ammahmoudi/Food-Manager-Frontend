@@ -37,7 +37,8 @@ export default function ToastProvider({ children }: ToastProviderProps) {
 				draggable
 				pauseOnHover
 				theme="light"
-                stacked
+                
+
 			/>
 		</>
 	);

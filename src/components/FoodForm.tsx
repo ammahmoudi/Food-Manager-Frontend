@@ -1,5 +1,3 @@
-'use client';
-
 import { FC, useState, ChangeEvent } from 'react';
 import { Input, Button, Card, CardFooter, Image, useDisclosure, Modal, ModalBody, ModalFooter, ModalHeader, ModalContent } from '@nextui-org/react';
 import { Food } from '../interfaces/Food';
@@ -7,6 +5,7 @@ import { FoodFormData } from '../interfaces/FoodFormData';
 import { addFood, updateFood, deleteFood } from '../services/api';
 import { TrashIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-toastify';
+import ImageCropModal from './ImageCropModal'; // Import ImageCropModal
 
 interface FoodFormProps {
   initialData: Food | null;
@@ -18,31 +17,36 @@ interface FoodFormProps {
 const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, onDelete }) => {
   const [name, setName] = useState(initialData?.name || '');
   const [description, setDescription] = useState(initialData?.description || '');
-  const [image, setImage] = useState<File | null>(null);
-  const [imageUrl, setImageUrl] = useState(initialData?.image || '');
+  const [image, setImage] = useState<File | string | null>(initialData?.image || null);
 
-  const { isOpen: isModalOpen, onOpen: openModal, onClose: closeModal } = useDisclosure();
+  const { isOpen: isDeleteModalOpen, onOpen: openDeleteModal, onClose: closeDeleteModal } = useDisclosure();
+  const { isOpen: isCropModalOpen, onOpen: openCropModal, onClose: closeCropModal } = useDisclosure();
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setImage(file);
-      setImageUrl(URL.createObjectURL(file));
+      const imageUrl = URL.createObjectURL(file);
+      setImage(imageUrl); // Temporarily set image URL to show a preview
+      openCropModal(); // Open the crop modal after selecting the image
     }
+  };
+
+  const handleCropComplete = (croppedImage: File) => {
+    
+    setImage(croppedImage); // Set the cropped image as the selected image
+    closeCropModal();
   };
 
   const handleDeleteImage = () => {
     setImage(null);
-    setImageUrl('');
   };
 
   const handleSave = async () => {
     const foodData: FoodFormData = {
       name,
       description,
-      image: image ? image : imageUrl,
+      image
     };
-
     const saveFoodPromise = isEditMode && initialData
       ? updateFood(initialData.id, foodData)
       : addFood(foodData);
@@ -75,7 +79,7 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
           }
         );
         onDelete(initialData.id);
-        closeModal();
+        closeDeleteModal();
       } catch (error) {
         console.error('Failed to delete food:', error);
       }
@@ -90,13 +94,13 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
           onClick={() => document.getElementById('food-image-input')?.click()}
           className="w-full aspect-square"
         >
-          {imageUrl ? (
+          {image ? (
             <>
               <Image
-                removeWrapper
                 alt="Food Image"
                 className="z-0 w-full h-full object-cover"
-                src={imageUrl as string}
+                classNames={{ wrapper: "w-full h-full aspect-square " }}
+                src={image instanceof File ? URL.createObjectURL(image as File) : image}
               />
               <CardFooter className="absolute bottom-0 z-10">
                 <div className="flex items-center">
@@ -137,6 +141,7 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
         placeholder="Enter food name"
         fullWidth
         value={name}
+        isRequired
         onChange={(e) => setName(e.target.value)}
       />
       <Input
@@ -148,17 +153,22 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
       />
 
       <div className="flex justify-left gap-2">
-        <Button color="primary" onPress={handleSave}>
+        <Button
+          isDisabled={name === "" || (isEditMode && (name === initialData?.name && description === initialData.description && image === initialData.image))}
+          color="primary"
+          onPress={handleSave}
+        >
           {isEditMode ? 'Update Food' : 'Create Food'}
         </Button>
         {isEditMode && (
-          <Button color="danger" variant="light" onClick={openModal}>
+          <Button color="danger" variant="light" onClick={openDeleteModal}>
             Delete Food
           </Button>
         )}
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
         <ModalContent>
           <ModalHeader>Delete Food</ModalHeader>
           <ModalBody>Are you sure you want to delete this food item?</ModalBody>
@@ -166,12 +176,20 @@ const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, o
             <Button color="danger" onClick={handleDeleteFood}>
               Delete
             </Button>
-            <Button variant="light" onClick={closeModal}>
+            <Button variant="light" onClick={closeDeleteModal}>
               Cancel
             </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {/* Image Crop Modal */}
+      <ImageCropModal
+        isOpen={isCropModalOpen}
+        onClose={closeCropModal}
+        imageSrc={image as string} // Send the image URL to the crop modal
+        onCropComplete={handleCropComplete}
+      />
     </div>
   );
 };

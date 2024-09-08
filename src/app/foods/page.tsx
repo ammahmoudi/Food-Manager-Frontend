@@ -36,8 +36,8 @@ const FoodsPage = () => {
 			const response = await toast.promise(
 				fetchFoodsPromise,
 				{
-					pending: 'Loading foods...',
-					success: 'Foods loaded successfully!',
+					// pending: 'Loading foods...',
+					// success: 'Foods loaded successfully!',
 					error: 'Failed to load foods.',
 				}
 			);
@@ -86,28 +86,16 @@ const FoodsPage = () => {
 	};
 
 	const handleSave = (food: Food) => {
-		toast.success('Food saved successfully!');
-		fetchFoods(); // Refresh the food list after saving
+		// fetchFoods(); // Refresh the food list after saving
 	};
 
 	const handleDelete = async (foodId: number) => {
-		const deleteFoodPromise = deleteFood(foodId);
-		try {
-			await toast.promise(
-				deleteFoodPromise,
-				{
-					pending: 'Deleting food...',
-					success: 'Food deleted successfully!',
-					error: 'Failed to delete food.',
-				}
-			);
+
 			setFoods((prevFoods) => prevFoods.filter((food) => food.id !== foodId));
 			setFilteredFoods((prevFilteredFoods) =>
 				prevFilteredFoods.filter((food) => food.id !== foodId)
 			);
-		} catch (error) {
-			console.error("Failed to delete food:", error);
-		}
+		
 	};
 
 	return (

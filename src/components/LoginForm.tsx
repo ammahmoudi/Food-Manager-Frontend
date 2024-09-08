@@ -35,9 +35,9 @@ export default function LoginForm() {
 			await toast.promise(
 				loginPromise,
 				{
-					pending: "Logging in...",
-					success: "Logged in successfully!",
-					error: "Failed to log in. Please check your credentials.",
+					// pending: "Logging in...",
+					// success: "Logged in successfully!",
+					// error: "Failed to log in. Please check your credentials.",
 				}
 			);
 

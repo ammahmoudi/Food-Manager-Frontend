@@ -65,8 +65,8 @@ const MealForm: FC<MealFormProps> = ({
 				const response = await toast.promise(
 					getMealByDate(formatDateToYYYYMMDD(selectedDate)),
 					{
-						pending: "Fetching meal data...",
-						success: "Meal data loaded successfully!",
+						// pending: "Fetching meal data...",
+						// success: "Meal data loaded successfully!",
 						error: "Failed to fetch meal data",
 					}
 				);
@@ -85,7 +85,7 @@ const MealForm: FC<MealFormProps> = ({
 		if (initialData && selectedDate) {
 			fetchMeal();
 		}
-	}, [initialData, selectedDate, fetchMeal]);
+	}, []);
 
 	const handleOpenFoodModal = () => {
 		setFoodModalVisible(true);
@@ -97,12 +97,12 @@ const MealForm: FC<MealFormProps> = ({
 	};
 
 	const handleFoodSave = (food: Food) => {
-		fetchMeal();
+		// fetchMeal();
 		setSelectedFood(food);
 	};
 
 	const handleFoodDelete = (foodId: number) => {
-		fetchMeal();
+		// fetchMeal();
 		setSelectedFood(null);
 	};
 
@@ -144,7 +144,6 @@ const MealForm: FC<MealFormProps> = ({
 						? "Meal has been updated successfully!"
 						: "Meal has been created successfully!";
 				},
-				icon: "🟢",
 			},
 			error: {
 				render({ data }) {

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import { getFoods } from "@/services/api";
 import { Avatar, Popover, PopoverTrigger, PopoverContent, Skeleton } from '@nextui-org/react';
-import { getThemeColorFromImage, getLighterColorBasedOnRating, getReadableTextColor } from "@/utils/ColorUtils";
+import { getThemeColorFromImage, getLighterColorBasedOnRating, getReadableTextColor } from "@/utils/colorUtils";
 import { FoodDetailCard } from "./FoodDetailCard"; 
 import { toast } from "react-toastify"; // Import toast
 

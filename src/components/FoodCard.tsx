@@ -22,16 +22,15 @@ const FoodCard: React.FC<FoodCardProps> = ({
 
 	const fetchFood = async () => {
 		try {
-			await toast.promise(
-				getFoodDetails(food?.id!),
-				{
+			await toast
+				.promise(getFoodDetails(food?.id!), {
 					pending: "Fetching food details...",
 					success: "Food details loaded successfully!",
 					error: "Failed to load food details",
-				}
-			).then((response) => {
-				setFood(response);
-			});
+				})
+				.then((response) => {
+					setFood(response);
+				});
 		} catch (error) {
 			setFood(null);
 			console.error("Failed to fetch food details:", error);
@@ -43,28 +42,15 @@ const FoodCard: React.FC<FoodCardProps> = ({
 	};
 
 	const handleCloseModal = () => {
-		fetchFood();
 		setModalVisible(false);
 	};
 
 	const handleSave = (updatedFood: Food) => {
 		setFood(updatedFood);
-		toast.success("Food updated successfully!");
 	};
 
 	const handleDelete = async (foodId: number) => {
-		try {
-			await toast.promise(
-				onDelete(foodId),
-				{
-					pending: "Deleting food...",
-					success: "Food deleted successfully!",
-					error: "Failed to delete food",
-				}
-			);
-		} catch (error) {
-			console.error("Failed to delete food:", error);
-		}
+		onDelete(foodId);
 	};
 
 	return (
@@ -84,14 +70,15 @@ const FoodCard: React.FC<FoodCardProps> = ({
 							<div className="relative flex-shrink-0 aspect-square">
 								<Image
 									alt={food.name}
-									className="z-0 w-full h-full object-cover"
+									className="z-0 w-full h-full object-cover aspect-square"
 									classNames={{
 										wrapper: "w-full h-full max-w-full max-h-full",
 									}}
 									shadow="md"
-									src={(food.image as string) ?? "/images/food-placeholder.jpg"}
-									width={120}
 									height={120}
+									width={120}
+									src={(food.image as string) ?? "/images/food-placeholder.jpg"}
+									
 								/>
 							</div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { startOfToday, format } from "date-fns-jalali";
 import Calendar from "@/components/Calendar";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -9,37 +10,44 @@ export default function CalendarPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    // Get year and month from URL or use the current year and month as default
-    const yearParam = searchParams.get("year");
-    const monthParam = searchParams.get("month");
+    const [year, setYear] = useState<number | null>(null);
+    const [month, setMonth] = useState<number | null>(null);
 
-    let year = parseInt(yearParam || "");
-    let month = parseInt(monthParam || "");
+    useEffect(() => {
+        const yearParam = searchParams.get("year");
+        const monthParam = searchParams.get("month");
 
-    if (isNaN(year) || isNaN(month)) {
-        // Get the current date
-        const today = startOfToday();
-        year = parseInt(format(today, "yyyy"), 10);
-        month = parseInt(format(today, "MM"), 10);
+        let year = parseInt(yearParam || "");
+        let month = parseInt(monthParam || "");
 
-        // Redirect to the current year/month if not provided
-        router.push(`/calendar?year=${year}&month=${month}`, undefined);
-        return null; // Return nothing while the redirect happens
-    }
+        if (isNaN(year) || isNaN(month)) {
+            const today = startOfToday();
+            year = parseInt(format(today, "yyyy"), 10);
+            month = parseInt(format(today, "MM"), 10);
+            router.push(`/calendar?year=${year}&month=${month}`, undefined);
+        } else {
+            setYear(year);
+            setMonth(month);
+        }
+    }, [searchParams, router]);
 
     const handleMonthChange = (newYear: number, newMonth: number) => {
         router.push(`/calendar?year=${newYear}&month=${newMonth}`, undefined);
     };
 
+    if (year === null || month === null) {
+        return null; // Return nothing while the redirect happens
+    }
+
     return (
-     <ProtectedRoute>
-           <div className="container xl:w-1/2 mx-auto">
-            <Calendar
-                year={year}
-                month={month}
-                onMonthChange={handleMonthChange}
-            />
-        </div>
-     </ProtectedRoute>
+        <ProtectedRoute>
+            <div className="container xl:w-1/2 mx-auto">
+                <Calendar
+                    year={year}
+                    month={month}
+                    onMonthChange={handleMonthChange}
+                />
+            </div>
+        </ProtectedRoute>
     );
 }

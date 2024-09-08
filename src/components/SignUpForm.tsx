@@ -115,9 +115,9 @@ export default function SignupForm() {
 					re_password: confirmPassword,
 				}),
 				{
-					pending: "Signing up...",
-					success: "Signup successful! 🎉",
-					error: "Signup failed. Please try again.",
+					// pending: "Signing up...",
+					// success: "Signup successful! 🎉",
+					// error: "Signup failed. Please try again.",
 				}
 			);
 			router.push("/login"); // Redirect to login after successful signup

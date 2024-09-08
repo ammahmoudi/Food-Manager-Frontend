@@ -1,26 +1,17 @@
 // app/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card, CardBody, user } from "@nextui-org/react";
-import { getMeals } from "../services/api";
-import {useRouter} from "next/navigation";
-import ProtectedRoute from "@/components/ProtectedRoute";
-
-interface Meal {
-	id: number;
-	food: {
-		name: string;
-		description: string;
-	};
-	date: string;
-}
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const Home = () => {
-	const router=useRouter();
-	router.push('/home')
-	return('')
-};
+	const router = useRouter();
 
+	useEffect(() => {
+		router.push("/home");
+	}, [router]);
+
+	return null;
+};
 
 export default Home;
