@@ -38,7 +38,7 @@ const GlobalNavbar = () => {
 	// Define the button styles based on the active state
 	const getButtonProps = (path: string) => ({
 		underline: isActive(path) ? "always" : "hover",
-		className: isActive(path) ? "text-primary font-bold" : "text-gray",
+		className: 'my-0 p-2 w-fit min-w-0 '+(isActive(path) ? "text-primary font-bold" : "text-gray"),
 	});
 
 	// Icons based on the active state
@@ -46,15 +46,15 @@ const GlobalNavbar = () => {
 		isActive(path) ? <SolidIcon className="w-5 h-5" /> : <OutlineIcon className="w-5 h-5" />;
 
 	return (
-		<Navbar className={showNavbar ? "" : "hidden"} isBordered>
+		<Navbar className={('w-screen')+showNavbar ? "" : "hidden"} isBordered>
 			<NavbarBrand>
-				<p className="font-bold text-inherit">Berchi</p>
+				<p className="font-bold text-inherit overflow-clip">Berchi</p>
 			</NavbarBrand>
 			<NavbarContent>
 				<Button
 					as={Link}
 					href="/home"
-					variant="solid"
+					variant="light"
 					startContent={getIcon("/home", HomeIconSolid, HomeIconOutline)}
 					{...getButtonProps("/home")}
 				>
@@ -88,7 +88,7 @@ const GlobalNavbar = () => {
 					<span className="hidden sm:inline">Foods</span>
 				</Button>
 			</NavbarContent>
-			<NavbarContent as="div" justify="end">
+			<NavbarContent as="div"  justify="end">
 				{isAuthenticated ? (
 					<UserDropdown />
 				) : (
