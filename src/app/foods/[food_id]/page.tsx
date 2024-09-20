@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { getFoodDetails, getFoodComments, getMealsWithFood } from '../../../services/api';
+import { getFoodDetails, getMealsWithFood } from '../../../services/api';
 import FoodDetails from '../../../components/FoodDetails';
-import { Comment } from '../../../interfaces/Comment';
 import { Meal } from '../../../interfaces/Meal';
 import { Food } from '@/interfaces/Food';
 import { toast } from 'react-toastify';
@@ -12,7 +11,6 @@ import { toast } from 'react-toastify';
 const FoodDetailPage = () => {
   const { food_id } = useParams();
   const [food, setFood] = useState<Food>();
-  const [comments, setComments] = useState<Comment[]>([]);
   const [meals, setMeals] = useState<Meal[]>([]);
 
   useEffect(() => {
@@ -39,29 +37,6 @@ const FoodDetailPage = () => {
     fetchFood();
   }, [food_id]);
 
-  useEffect(() => {
-    const fetchComments = async () => {
-      if (food_id) {
-        const fetchCommentsPromise = getFoodComments(parseInt(food_id as string));
-
-        try {
-          const fetchedComments = await toast.promise(
-            fetchCommentsPromise,
-            {
-              pending: 'Loading comments...',
-              success: 'Comments loaded successfully!',
-              error: 'Failed to load comments.',
-            }
-          );
-          setComments(fetchedComments);
-        } catch (error) {
-          console.error('Failed to fetch comments:', error);
-        }
-      }
-    };
-
-    fetchComments();
-  }, [food_id]);
 
   useEffect(() => {
     const fetchMealsWithFood = async () => {

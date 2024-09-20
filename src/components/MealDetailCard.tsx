@@ -1,25 +1,36 @@
+"use client";
+
 import React from "react";
-import { Avatar, Button, Card, CardBody, CardFooter, CardHeader, Link } from "@nextui-org/react";
+import {
+	Avatar,
+	Button,
+	Card,
+	CardHeader,
+	Link,
+} from "@nextui-org/react";
 import { Meal } from "@/interfaces/Meal";
 import { format } from "date-fns-jalali";
-import { formatDateToYYYYMMDD } from "@/utils/dateUtils";
 
 interface MealDetailCardProps {
-  meal:Meal
+	meal: Meal;
 }
 
-export const MealDetailCard: React.FC<MealDetailCardProps> = ({
- meal,
-}) => {
-  return (
-    <Card shadow="none" className="max-w-[300px] border-none bg-transparent">
-      <CardHeader className="justify-between">
-       
-        <div className="flex gap-3">
-          <Avatar isBordered radius="full" size="md" src={(meal?.food?.image as string) ?? "images/food-placeholder.jpg"} />
-          <div className="flex flex-col items-start justify-center">
-            <h4 className="text-small font-semibold leading-none text-default-600">{meal.food?.name}</h4>
-            {/* <div className="flex items-center gap-0.5 mt-1">
+export const MealDetailCard: React.FC<MealDetailCardProps> = ({ meal }) => {
+	return (
+		<Card shadow="none" className="max-w-[300px] border-none bg-transparent">
+			<CardHeader className="justify-between">
+				<div className="flex gap-3">
+					<Avatar
+						isBordered
+						radius="full"
+						size="md"
+						src={(meal?.food?.image as string) ?? "images/food-placeholder.jpg"}
+					/>
+					<div className="flex flex-col items-start justify-center">
+						<h4 className="text-small font-semibold leading-none text-default-600">
+							{meal.food?.name}
+						</h4>
+						{/* <div className="flex items-center gap-0.5 mt-1">
           {[...Array(5)].map((_, i) => (
             <svg
               key={i}
@@ -34,30 +45,31 @@ export const MealDetailCard: React.FC<MealDetailCardProps> = ({
             </svg>
           ))}
         </div> */}
-            <h5 className="text-small tracking-tight text-default-500">{format(meal.date,'y/MM/d')}</h5>
-          </div>
-          <Button
-          color="primary"
-          radius="full"
-          size="sm"
-          as={Link}
-          href={`meals/${meal.date}`}
-          isExternal
-                  >
-          More
-        </Button>
-        </div>
-      
-      </CardHeader>
-      {/* <CardBody className="px-3 py-0">
+						<h5 className="text-small tracking-tight text-default-500">
+							{format(meal.date, "y/MM/d")}
+						</h5>
+					</div>
+					<Button
+						color="primary"
+						radius="full"
+						size="sm"
+						as={Link}
+						href={`meals/${meal.date}`}
+						isExternal
+					>
+						More
+					</Button>
+				</div>
+			</CardHeader>
+			{/* <CardBody className="px-3 py-0">
         <p className="text-small pl-px text-default-500">{meal.food?.description}</p>
 
       </CardBody> */}
-      {/* <CardFooter className="gap-3"> */}
-        {/* <div className="flex gap-1">
+			{/* <CardFooter className="gap-3"> */}
+			{/* <div className="flex gap-1">
           <p className="text-default-500 text-small">Meal Date: {format(meal.date,'yyyy/mm/dd')}</p>
         </div> */}
-      {/* </CardFooter> */}
-    </Card>
-  );
+			{/* </CardFooter> */}
+		</Card>
+	);
 };

@@ -1,15 +1,21 @@
-// components/LogoutButton.tsx
+// app/logout/page.tsx
 'use client';
 
-import { Button } from '@nextui-org/react';
-import Link from 'next/link';
+import { useEffect } from 'react';
+import { useUser } from '@/context/UserContext';
 
-const LogoutButton = () => {
-  return (
-    <Link href="/logout">
-      <Button>Logout</Button>
-    </Link>
-  );
+export const getServerSideProps = async () => {
+  return { props: {} };  // Prevent static generation
 };
 
-export default LogoutButton;
+const LogoutPage = () => {
+  const { handleLogout } = useUser();
+
+  useEffect(() => {
+    handleLogout();
+  }, []);
+
+  return <div>Logging out...</div>;
+};
+
+export default LogoutPage;

@@ -1,10 +1,9 @@
 "use client";
-
-import { UserProvider } from "@/context/UserContext";
 import { NextUIProvider } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { Router } from "next/router";
 import ToastProvider from "./ToastProvider";
+import { UserProvider } from "@/context/UserContext";
+
 
 type Props = {
 	children: React.ReactNode;
@@ -13,12 +12,12 @@ type Props = {
 export default function Providers({ children }: Props) {
 	const router = useRouter();
 	return (
-		<ToastProvider>
 		<UserProvider>
+		<ToastProvider>
 			<NextUIProvider navigate={router.push}>
 				{children}
 			</NextUIProvider>
-		</UserProvider>
 		</ToastProvider>
+		</UserProvider>
 	);
 }

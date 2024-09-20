@@ -8,5 +8,4 @@ export interface MealDetailsData {
   rating: number;
   datePosted: Date;
   comments: Comment[];
-  [key: string]: any; // Allows for additional properties
 }

@@ -21,8 +21,6 @@ import MealCell from "./MealCell";
 import { CalendarProps, MealCellData } from "@/interfaces/Calendar";
 import { Food } from "@/interfaces/Food";
 import { convertPersianMonthToEnglish } from "@/utils/dateUtils";
-import { toast } from "react-toastify";
-import { showToast } from "@/services/showToast";
 
 const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
 	const [currentYear, setCurrentYear] = useState(year);
@@ -131,11 +129,11 @@ const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
 						return loading ? (
 							<Skeleton
 								className="meal-cell aspect-square h-full w-full p-0.5 rounded-md"
-								key={j}
+								key={i+j}
 							/>
 						) : (
 							<div
-								key={j}
+								key={i+j}
 								className="flex flex-col items-center justify-start aspect-square"
 							>
 								{isSameMonth(day, currentMonthDate) ? (

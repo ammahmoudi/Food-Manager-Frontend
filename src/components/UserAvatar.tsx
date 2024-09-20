@@ -1,9 +1,10 @@
+'use client';
+
 import React from "react";
 import {
 	Popover,
 	PopoverTrigger,
 	PopoverContent,
-	Chip,
 	Avatar,
 } from "@nextui-org/react";
 import { UserTwitterCard } from "./UserTwitterCard";

@@ -1,7 +1,9 @@
+'use client';
+
 import { FC } from 'react';
 
-import { Avatar,Image,Link } from '@nextui-org/react';
-import { MealDetailsData } from '../interfaces/MealDetailsData';
+import {Image,Link } from '@nextui-org/react';
+
 import { format } from 'date-fns-jalali';
 import { Meal } from '@/interfaces/Meal';
 import CommentSection from './CommentSection';

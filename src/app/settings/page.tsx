@@ -15,7 +15,6 @@ import {
 	CardBody,
 } from "@nextui-org/react";
 import {
-	updateUser,
 	changePassword,
 	checkPhoneNumberUnique,
 } from "@/services/api";
@@ -30,6 +29,7 @@ import debounce from "@/utils/debounce";
 import { useUser } from "@/context/UserContext";
 import { toast } from "react-toastify";
 import ImageCropModal from "@/components/ImageCropModal";
+import { UpdateUserData } from "@/interfaces/UpdateUserData";
 
 const SettingsPage = () => {
 	const { user, updateUserData, isLoading } = useUser(); // Destructure methods from useUser
@@ -95,7 +95,8 @@ const SettingsPage = () => {
 				return "Phone number already in use";
 			}
 		} catch (error) {
-			return "Error validating phone number";
+			console.error("Error validating phone number",error)
+			return ("Error validating phone number");
 		}
 
 		return "";
@@ -109,7 +110,7 @@ const SettingsPage = () => {
 
 	const handleSave = async () => {
 		// Create a new object to store the updated user data
-		const userData: any = {
+		const userData: UpdateUserData = {
 			full_name: name,
 			phone_number: phoneNumber,
 			remove_image: userImage === null ? true : false,
@@ -265,10 +266,10 @@ const SettingsPage = () => {
 						<div className="flex justify-between gap-2">
 							<Button
 								isDisabled={
-									user &&
+									(user &&
 									name === user.full_name &&
 									phoneNumber === user.phone_number &&
-									userImage === user.user_image
+									userImage === user.user_image)||undefined
 								}
 								color="primary"
 								onPress={handleSave}

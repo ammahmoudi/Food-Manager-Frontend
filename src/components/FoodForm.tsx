@@ -1,3 +1,5 @@
+'use client';
+
 import { FC, useState, ChangeEvent } from 'react';
 import { Input, Button, Card, CardFooter, Image, useDisclosure, Modal, ModalBody, ModalFooter, ModalHeader, ModalContent } from '@nextui-org/react';
 import { Food } from '../interfaces/Food';

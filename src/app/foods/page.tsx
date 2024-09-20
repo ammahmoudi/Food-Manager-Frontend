@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -15,12 +15,12 @@ import {
 	PlusIcon,
 } from "@heroicons/react/24/outline";
 import { Food } from "@/interfaces/Food";
-import { getFoods, deleteFood } from "@/services/api";
+import { getFoods } from "@/services/api";
 import FoodCard from "@/components/FoodCard";
 import FoodModal from "@/components/FoodModal";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useUser } from "@/context/UserContext";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 const FoodsPage = () => {
 	const [foods, setFoods] = useState<Food[]>([]);
@@ -33,14 +33,11 @@ const FoodsPage = () => {
 	const fetchFoods = useCallback(async () => {
 		const fetchFoodsPromise = getFoods();
 		try {
-			const response = await toast.promise(
-				fetchFoodsPromise,
-				{
-					// pending: 'Loading foods...',
-					// success: 'Foods loaded successfully!',
-					error: 'Failed to load foods.',
-				}
-			);
+			const response = await toast.promise(fetchFoodsPromise, {
+				// pending: 'Loading foods...',
+				// success: 'Foods loaded successfully!',
+				error: "Failed to load foods.",
+			});
 			setFoods(response);
 			setFilteredFoods(response);
 		} catch (error) {
@@ -86,16 +83,15 @@ const FoodsPage = () => {
 	};
 
 	const handleSave = (food: Food) => {
+		console.log(food);
 		// fetchFoods(); // Refresh the food list after saving
 	};
 
 	const handleDelete = async (foodId: number) => {
-
-			setFoods((prevFoods) => prevFoods.filter((food) => food.id !== foodId));
-			setFilteredFoods((prevFilteredFoods) =>
-				prevFilteredFoods.filter((food) => food.id !== foodId)
-			);
-		
+		setFoods((prevFoods) => prevFoods.filter((food) => food.id !== foodId));
+		setFilteredFoods((prevFilteredFoods) =>
+			prevFilteredFoods.filter((food) => food.id !== foodId)
+		);
 	};
 
 	return (

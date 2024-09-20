@@ -1,6 +1,11 @@
+"use client";
+
 import axios from "axios";
 import { FoodFormData } from "@/interfaces/FoodFormData";
-import { jwtDecode } from "jwt-decode"; // To decode JWT and check expiration
+import { jwtDecode, JwtPayload } from "jwt-decode"; // To decode JWT and check expiration
+import { UpdateUserData } from "@/interfaces/UpdateUserData";
+import { SignUpData } from "@/interfaces/SignUpData";
+import { CreateMealData } from "@/interfaces/CreateMealData";
 
 const API_BASE_URL = "http://localhost:8000/api/";
 
@@ -8,7 +13,7 @@ const api = axios.create({
 	baseURL: API_BASE_URL,
 });
 
-//Auth Apis 
+//Auth Apis
 
 const getToken = () => {
 	return localStorage.getItem("access") || sessionStorage.getItem("access");
@@ -37,10 +42,15 @@ const clearTokens = () => {
 
 const isTokenValid = (token: string) => {
 	try {
-		const decoded: any = jwtDecode(token);
+		const decoded = jwtDecode<JwtPayload>(token);
 		const currentTime = Date.now() / 1000; // Current time in seconds
-		return decoded.exp > currentTime;
+		if (decoded.exp) {
+			return decoded.exp > currentTime;
+		} else {
+			return false;
+		}
 	} catch (error) {
+		console.error('error in token validation',error);
 		return false;
 	}
 };
@@ -60,12 +70,12 @@ export const refreshToken = async () => {
 		} catch (error) {
 			console.error("Failed to refresh token:", error);
 			clearTokens();
-			window.location.href = "/login"; // Redirect to login page if refresh fails
+			// window.location.href = "/login"; // Redirect to login page if refresh fails
 			return null;
 		}
 	}
 	clearTokens();
-	window.location.href = "/login"; // Redirect to login page if no valid refresh token
+	// window.location.href = "/login"; // Redirect to login page if no valid refresh token
 	return null;
 };
 
@@ -83,33 +93,39 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        const originalRequest = error.config;
-        if (error.response && error.response.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
+	(response) => response,
+	async (error) => {
+		const originalRequest = error.config;
+		if (
+			error.response &&
+			error.response.status === 401 &&
+			!originalRequest._retry
+		) {
+			originalRequest._retry = true;
 
-            // Avoid infinite loop by checking if the request is a refresh attempt
-            if (originalRequest.url.includes("/auth/jwt/refresh/") || originalRequest.url.includes("/users/me/")) {
-                clearTokens();
-                window.location.href = "/login";
-                return Promise.reject(error);
-            }
+			// Avoid infinite loop by checking if the request is a refresh attempt
+			if (
+				originalRequest.url.includes("/auth/jwt/refresh/") ||
+				originalRequest.url.includes("/users/me/")
+			) {
+				clearTokens();
+				// window.location.href = "/login";
+				return Promise.reject(error);
+			}
 
-            const newToken = await refreshToken();
-            if (newToken) {
-                originalRequest.headers.Authorization = `Bearer ${newToken}`;
-                return api(originalRequest);
-            } else {
-                clearTokens();
-                window.location.href = "/login";
-            }
-        }
+			const newToken = await refreshToken();
+			if (newToken) {
+				originalRequest.headers.Authorization = `Bearer ${newToken}`;
+				return api(originalRequest);
+			} else {
+				clearTokens();
+				// window.location.href = "/login";
+			}
+		}
 
-        return Promise.reject(error);
-    }
+		return Promise.reject(error);
+	}
 );
-
 
 //User Apis
 
@@ -128,7 +144,7 @@ export const getCurrentUser = async () => {
 };
 
 // Update current user data
-export const updateUser = async (userData: any) => {
+export const updateUser = async (userData: UpdateUserData) => {
 	const formData = new FormData();
 	formData.append("full_name", userData.full_name);
 	formData.append("phone_number", userData.phone_number);
@@ -168,7 +184,7 @@ export const checkPhoneNumberUnique = async (phoneNumber: string) => {
 	});
 	return response.data;
 };
-export const signup = async (data: any) => {
+export const signup = async (data: SignUpData) => {
 	const response = await api.post("/auth/users/", data);
 	return response;
 };
@@ -228,11 +244,11 @@ export const deleteFood = async (id: number) => {
 
 //Meal Apis
 
-export const updateMeal = async (id: number, meal: any) => {
+export const updateMeal = async (id: number, meal: CreateMealData) => {
 	const response = await api.put(`meals/${id}/`, meal);
 	return response.data;
 };
-export const createMeal = async (data: any) => {
+export const createMeal = async (data: CreateMealData) => {
 	const response = await api.post("meals/", data);
 	return response.data;
 };

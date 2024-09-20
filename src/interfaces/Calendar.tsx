@@ -1,5 +1,4 @@
 import { Meal } from "@/interfaces/Meal";
-import { Food } from "@/interfaces/Food";
 
 export interface MealCellData {
 	date: Date;

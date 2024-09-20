@@ -1,210 +1,231 @@
-import React, { useEffect, useRef, useState } from "react";
-import Chart from "chart.js/auto";
-import { getFoods } from "@/services/api";
-import { Avatar, Popover, PopoverTrigger, PopoverContent, Skeleton } from '@nextui-org/react';
-import { getThemeColorFromImage, getLighterColorBasedOnRating, getReadableTextColor } from "@/utils/colorUtils";
-import { FoodDetailCard } from "./FoodDetailCard"; 
-import { toast } from "react-toastify"; // Import toast
+'use client';
 
-interface Food {
-	id: number;
-	name: string;
-	image: string;
-	avg_rate: number;
-	description: string;
-}
+import React, { useEffect, useRef, useState } from "react";
+import Chart, { ScriptableContext } from "chart.js/auto";
+import { getFoods } from "@/services/api";
+import {
+	Avatar,
+	Popover,
+	PopoverTrigger,
+	PopoverContent,
+	Skeleton,
+} from "@nextui-org/react";
+import {
+	getThemeColorFromImage,
+	getLighterColorBasedOnRating,
+	getReadableTextColor,
+} from "@/utils/colorUtils";
+import { FoodDetailCard } from "./FoodDetailCard";
+import { toast } from "react-toastify"; // Import toast
+import { Food } from "@/interfaces/Food";
+
+
+interface AvatarPosition {
+	x: number;
+	y: number;
+	food: Food;
+  }
+  
 
 const TopRatedFoodsChartJS = () => {
 	const chartRef = useRef<HTMLCanvasElement>(null);
 	const [foods, setFoods] = useState<Food[]>([]);
-	const [avatarPositions, setAvatarPositions] = useState<any[]>([]);
+	const [avatarPositions, setAvatarPositions] = useState<AvatarPosition[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		const fetchTopFoods = async () => {
 			try {
 				setLoading(true);
-				await toast.promise(
-					getFoods(), 
-					{
+				await toast
+					.promise(getFoods(), {
 						// pending: "Loading top-rated foods...",
 						// success: "Top-rated foods loaded! 🎉",
-						error: "Failed to load foods."
-					}
-				).then(response => {
-					const filteredFoods = response.filter((food: Food) => food.avg_rate !== 0);
-					const sortedFoods = filteredFoods
-						.sort((a: Food, b: Food) => b.avg_rate - a.avg_rate)
-						.slice(0, 5);
-	
-					setFoods(sortedFoods);
-					setLoading(false);
-				});
+						error: "Failed to load foods.",
+					})
+					.then((response) => {
+						const filteredFoods = response.filter(
+							(food: Food) => food.avg_rate !== 0
+						);
+						const sortedFoods = filteredFoods
+							.sort((a: Food, b: Food) => b.avg_rate - a.avg_rate)
+							.slice(0, 5);
+
+						setFoods(sortedFoods);
+						setLoading(false);
+					});
 			} catch (error) {
 				console.error("Error fetching top-rated foods:", error);
 			}
 		};
-	
+
 		fetchTopFoods();
 	}, []);
-	
 
 	useEffect(() => {
 		if (!chartRef.current || foods.length === 0) return;
 
 		const ctx = chartRef.current.getContext("2d");
-
-		const chart = new Chart(ctx, {
-			type: "bar",
-			data: {
-				labels: foods.map((food) => food.name),
-				datasets: [
+		if (ctx) {
+			const chart = new Chart(ctx, {
+				type: "bar",
+				data: {
+					labels: foods.map((food) => food.name),
+					datasets: [
+						{
+							label: "Rating",
+							data: foods.map((food) => food.avg_rate),
+							backgroundColor: (context: ScriptableContext<'bar'>) => {
+								const food = foods[context.dataIndex];
+								const baseColor = getThemeColorFromImage(food.image as string);
+								return getLighterColorBasedOnRating(
+									baseColor,
+									food.avg_rate / 5.0
+								);
+							},
+							borderWidth: 0,
+							borderRadius: {
+								topRight: 10,
+								bottomRight: 10,
+								topLeft: 0,
+								bottomLeft: 0,
+							},
+							barThickness: 50,
+						},
+					],
+				},
+				options: {
+					indexAxis: "y",
+					scales: {
+						x: {
+							display: false,
+							grid: {
+								display: false,
+							},
+						},
+						y: {
+							display: false,
+							grid: {
+								display: false,
+							},
+						},
+					},
+					plugins: {
+						legend: {
+							display: false,
+						},
+						tooltip: {
+							enabled: false,
+						},
+					},
+					maintainAspectRatio: false,
+				},
+				plugins: [
 					{
-						label: "Rating",
-						data: foods.map((food) => food.avg_rate),
-						backgroundColor: (context: any) => {
-							const food = foods[context.dataIndex];
-							const baseColor = getThemeColorFromImage(food.image);
-							return getLighterColorBasedOnRating(baseColor, food.avg_rate / 5.0);
+						id: "customAvatarPosition",
+						afterDraw: (chartInstance) => {
+							const { scales } = chartInstance;
+							const newAvatarPositions: React.SetStateAction<AvatarPosition[]> = [];
+
+							foods.forEach((food, index) => {
+								const yPosition = scales.y.getPixelForValue(index);
+								let xPosition = scales.x.getPixelForValue(food.avg_rate);
+
+								if (xPosition < 60) xPosition = 60;
+
+								newAvatarPositions.push({
+									x: xPosition - 30,
+									y: yPosition,
+									food,
+								});
+							});
+
+							setAvatarPositions(newAvatarPositions);
 						},
-						borderWidth: 0,
-						borderRadius: {
-							topRight: 10,
-							bottomRight: 10,
-							topLeft: 0,
-							bottomLeft: 0,
+					},
+					{
+						id: "customLabelInsideBars",
+						afterDatasetsDraw: (chart) => {
+							const ctx = chart.ctx;
+							chart.data.datasets.forEach((dataset, i) => {
+								const meta = chart.getDatasetMeta(i);
+								meta.data.forEach((bar, index) => {
+									const food = foods[index];
+									const { x, y } = bar.tooltipPosition(false);
+									const maxLabelWidth = x - 60;
+									let labelText = `${food.name} (${food.avg_rate})`;
+
+									ctx.font = "bold 14px Arial";
+									let textWidth = ctx.measureText(labelText).width;
+									if (textWidth > maxLabelWidth) {
+										while (textWidth > maxLabelWidth && labelText.length > 3) {
+											labelText = labelText.slice(0, -4) + "...";
+											textWidth = ctx.measureText(labelText).width;
+										}
+									}
+
+									const baseColor = getThemeColorFromImage(food.image as string);
+									const barColor = getLighterColorBasedOnRating(
+										baseColor,
+										food.avg_rate / 5.0
+									);
+									const textColor = getReadableTextColor(barColor);
+
+									ctx.fillStyle = textColor;
+									ctx.textBaseline = "middle";
+									ctx.fillText(labelText, 10, y);
+								});
+							});
 						},
-						barThickness: 50, 
 					},
 				],
-			},
-			options: {
-				indexAxis: "y",
-				scales: {
-					x: {
-						display: false,
-						grid: {
-							display: false,
-						},
-					},
-					y: {
-						display: false,
-						grid: {
-							display: false,
-						},
-					},
-				},
-				plugins: {
-					legend: {
-						display: false,
-					},
-					tooltip: {
-						enabled: false,
-					},
-				},
-				maintainAspectRatio: false,
-			},
-			plugins: [
-				{
-					id: "customAvatarPosition",
-					afterDraw: (chartInstance) => {
-						const { scales } = chartInstance;
-						const newAvatarPositions: React.SetStateAction<any[]> = [];
+			});
 
-						foods.forEach((food, index) => {
-							const yPosition = scales.y.getPixelForValue(index);
-							let xPosition = scales.x.getPixelForValue(food.avg_rate);
+			const canvas = chartRef.current;
+			if (canvas) {
+				canvas.height = foods.length * 60;
+			}
 
-							if (xPosition < 60) xPosition = 60;
-
-							newAvatarPositions.push({
-								x: xPosition - 30,
-								y: yPosition,
-								food,
-							});
-						});
-
-						setAvatarPositions(newAvatarPositions);
-					},
-				},
-				{
-					id: "customLabelInsideBars",
-					afterDatasetsDraw: (chart) => {
-						const ctx = chart.ctx;
-						chart.data.datasets.forEach((dataset, i) => {
-							const meta = chart.getDatasetMeta(i);
-							meta.data.forEach((bar, index) => {
-								const food = foods[index];
-								const { x, y } = bar.tooltipPosition(false);
-								const maxLabelWidth = x - 60;
-								let labelText = `${food.name} (${food.avg_rate})`;
-
-								ctx.font = "bold 14px Arial";
-								let textWidth = ctx.measureText(labelText).width;
-								if (textWidth > maxLabelWidth) {
-									while (textWidth > maxLabelWidth && labelText.length > 3) {
-										labelText = labelText.slice(0, -4) + "...";
-										textWidth = ctx.measureText(labelText).width;
-									}
-								}
-
-								const baseColor = getThemeColorFromImage(food.image);
-								const barColor = getLighterColorBasedOnRating(baseColor, food.avg_rate / 5.0);
-								const textColor = getReadableTextColor(barColor);
-
-								ctx.fillStyle = textColor;
-								ctx.textBaseline = "middle";
-								ctx.fillText(labelText, 10, y);
-							});
-						});
-					},
-				},
-			],
-		});
-
-		const canvas = chartRef.current;
-		if (canvas) {
-			canvas.height = foods.length * 60;
+			return () => {
+				chart.destroy();
+			};
 		}
-
-		return () => {
-			chart.destroy();
-		};
 	}, [foods]);
 
 	return (
-<div>
-{loading?(<Skeleton className="rounded-lg h-64"/>
-	):
-	(
-		<div style={{ position: "relative", height: `${foods.length * 60}px` }}>
-		<canvas ref={chartRef} />
-		{avatarPositions.map((position, index) => (
-			<Popover key={index} showArrow placement="top">
-				<PopoverTrigger>
-					<div
-						style={{
-							position: "absolute",
-							left: position.x,
-							top: position.y,
-							transform: "translate(-50%, -50%)",
-							cursor: "pointer",
-						}}
-					>
-						<Avatar src={position.food.image} size="md" alt={position.food.name} />
-					</div>
-				</PopoverTrigger>
-				<PopoverContent className="p-1">
-					<FoodDetailCard food={position.food} />
-				</PopoverContent>
-			</Popover>
-		))}
-	</div>
-	)}
-
-</div>
-
-
+		<div>
+			{loading ? (
+				<Skeleton className="rounded-lg h-64" />
+			) : (
+				<div style={{ position: "relative", height: `${foods.length * 60}px` }}>
+					<canvas ref={chartRef} />
+					{avatarPositions.map((position, index) => (
+						<Popover key={index} showArrow placement="top">
+							<PopoverTrigger>
+								<div
+									style={{
+										position: "absolute",
+										left: position.x,
+										top: position.y,
+										transform: "translate(-50%, -50%)",
+										cursor: "pointer",
+									}}
+								>
+									<Avatar
+										src={position.food.image as string}
+										size="md"
+										alt={position.food.name}
+									/>
+								</div>
+							</PopoverTrigger>
+							<PopoverContent className="p-1">
+								<FoodDetailCard food={position.food} />
+							</PopoverContent>
+						</Popover>
+					))}
+				</div>
+			)}
+		</div>
 	);
 };
 

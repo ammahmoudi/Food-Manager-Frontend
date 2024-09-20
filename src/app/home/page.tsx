@@ -30,7 +30,7 @@ const HomePage = () => {
 				pending: "Fetching today's meal...",
 				success: "Today's meal loaded successfully!",
 				error: "Failed to load today's meal.",
-			},);
+			});
 			setCurrentDayMeal(meal);
 		} catch (error) {
 			console.error("Failed to fetch current day meal:", error);
@@ -40,15 +40,15 @@ const HomePage = () => {
 	}, []); // Add empty dependency array to ensure it doesn't change
 
 	const handleDeleteMeal = (mealId: number) => {
+		console.log("meal", mealId, "deleted");
 		setCurrentDayMeal(null);
 		toast.success("Meal deleted successfully.");
 	};
 
-
 	const currentDate = startOfToday();
 	let currentYear = Number(format(currentDate, "yyyy"));
 	let currentMonth = Number(format(currentDate, "MM"));
-	
+
 	useEffect(() => {
 		fetchCurrentDayMeal();
 	}, []);
@@ -63,7 +63,7 @@ const HomePage = () => {
 							<Skeleton className="h-48 w-full mb-4" /> // Skeleton for meal card
 						) : currentDayMeal ? (
 							<div>
-								<h2 className="text-2xl font-semibold mb-4">Today's Meal</h2>
+								<h2 className="text-2xl font-semibold mb-4">Today Meal</h2>
 								<MealCard
 									date={new Date(currentDayMeal.date)}
 									initialMeal={currentDayMeal}

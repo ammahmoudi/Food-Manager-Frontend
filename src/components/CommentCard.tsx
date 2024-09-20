@@ -1,3 +1,5 @@
+
+'use client';
 import React, { useState } from "react";
 import {
 	Card,
@@ -10,13 +12,9 @@ import {
 	Textarea,
 	Link,
 } from "@nextui-org/react";
-import { format } from "date-fns-jalali";
-import UserChip from "@/components/UserChip";
 import MealChip from "@/components/MealChip";
 import { Comment } from "@/interfaces/Comment";
-import { useUser } from "../context/UserContext";
 import { deleteCommentForMeal, updateCommentForMeal } from "@/services/api";
-import { CardHeader } from "@nextui-org/react";
 import UserAvatar from "./UserAvatar";
 import moment from "moment";
 import { toast } from "react-toastify";
@@ -34,17 +32,10 @@ const CommentCard: React.FC<CommentCardProps> = ({
 	onUpdate,
 	onClick,
 }) => {
-	const { isAdmin, user } = useUser();
 	const [editModalVisible, setEditModalVisible] = useState(false);
 	const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 	const [editedText, setEditedText] = useState(comment.text);
-	const handleEdit = () => {
-		setEditModalVisible(true);
-	};
 
-	const handleDelete = () => {
-		setDeleteModalVisible(true);
-	};
 
 	const handleUpdateComment = async () => {
 		const updatePromise = updateCommentForMeal(comment.id, editedText);
@@ -105,7 +96,6 @@ const CommentCard: React.FC<CommentCardProps> = ({
 								on
 								<MealChip
 									meal={comment.meal}
-									onDelete={() => {}}
 								/>
 								<span className="text-right absolute right-5 text-xs text-gray-700">
 									{comment.created_at

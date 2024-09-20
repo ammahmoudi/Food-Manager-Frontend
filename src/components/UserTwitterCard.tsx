@@ -1,5 +1,7 @@
+'use client';
+
 import React from "react";
-import { Avatar, Button, Card, CardBody, CardFooter, CardHeader } from "@nextui-org/react";
+import { Avatar,Card, CardHeader } from "@nextui-org/react";
 import { User } from "@/interfaces/User";
 
 interface UserTwitterCardProps {
@@ -9,7 +11,6 @@ user:User
 export const UserTwitterCard: React.FC<UserTwitterCardProps> = ({
 user
 }) => {
-  const [isFollowed, setIsFollowed] = React.useState(false);
 
   return (
     <Card shadow="none" className="max-w-[300px] border-none bg-transparent">

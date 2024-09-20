@@ -1,4 +1,5 @@
 // components/AdminRoute.tsx
+'use client';
 import { useRouter } from "next/router";
 import { useUser } from "../context/UserContext";
 import { useEffect } from "react";

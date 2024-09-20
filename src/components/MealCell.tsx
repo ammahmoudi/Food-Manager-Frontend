@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useState, useEffect, useCallback, useRef } from "react";
+import { FC, useState, useEffect, useRef } from "react";
 import { Card, CardFooter, CardHeader, Image } from "@nextui-org/react";
 import { Meal } from "../interfaces/Meal";
 import { format, isToday } from "date-fns-jalali";

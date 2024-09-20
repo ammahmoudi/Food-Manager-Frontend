@@ -9,7 +9,7 @@ import {
 import { useUser } from "@/context/UserContext";
 
 const UserDropdown = () => {
-    const { isAuthenticated,user } = useUser();
+    const {user } = useUser();
 
 
 	if (!user) {

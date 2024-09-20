@@ -7,8 +7,6 @@ import {
 	UserCircleIcon,
 	DevicePhoneMobileIcon,
 	KeyIcon,
-	EyeIcon,
-	EyeSlashIcon,
 } from "@heroicons/react/24/solid";
 import { checkPhoneNumberUnique } from "@/services/api";
 import debounce from "@/utils/debounce";
@@ -25,7 +23,6 @@ export default function SignupForm() {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [passwordError, setPasswordError] = useState("");
 	const [confirmPasswordError, setConfirmPasswordError] = useState("");
-	const [isVisible, setIsVisible] = useState(false);
 	const { handleSignup } = useUser();
 
 	const validateName = (value: string) => {
@@ -36,14 +33,13 @@ export default function SignupForm() {
 		if (!/^\+?\d{10,15}$/.test(value)) {
 			return "Please enter a valid phone number";
 		}
-
 		try {
 			const response = await checkPhoneNumberUnique(value);
 			if (!response.is_unique) {
 				return "Phone number already in use";
 			}
 		} catch (error) {
-			return "Error validating phone number";
+			return "Error validating phone number"+error;
 		}
 
 		return "";
@@ -156,7 +152,7 @@ export default function SignupForm() {
 				isRequired
 				label="Password"
 				placeholder="Enter your password"
-				type={isVisible ? "text" : "password"}
+				// type={isVisible ? "text" : "password"}
 				startContent={<KeyIcon className="h-5 w-5 text-gray-500" />}
 				value={password}
 				isInvalid={!!passwordError}
@@ -167,7 +163,7 @@ export default function SignupForm() {
 				isRequired
 				label="Confirm Password"
 				placeholder="Confirm your password"
-				type={isVisible ? "text" : "password"}
+				// type={isVisible ? "text" : "password"}
 				startContent={<KeyIcon className="h-5 w-5 text-gray-500" />}
 				value={confirmPassword}
 				isInvalid={!!confirmPasswordError}

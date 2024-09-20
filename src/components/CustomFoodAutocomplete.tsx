@@ -7,7 +7,6 @@ import {
 	Avatar,
 	Button,
 	Link,
-	useDisclosure,
 } from "@nextui-org/react";
 import { getFoods, addFood } from "../services/api";
 import { Food } from "../interfaces/Food";

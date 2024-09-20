@@ -1,13 +1,11 @@
 "use client";
 
-import { FC, useState, useEffect } from "react";
+import { FC } from "react";
 import {
 	Modal,
 	ModalContent,
 	ModalHeader,
 	ModalBody,
-	ModalFooter,
-	Button,
 } from "@nextui-org/react";
 import MealForm from "./MealForm";
 import { format } from "date-fns-jalali";

@@ -11,5 +11,4 @@ export interface FoodDetailsData {
   comments: Comment[];
   meals: MealWithFood[];
 
-  [key: string]: any; // Allows for additional properties
 }

@@ -5,12 +5,9 @@ import {
 	NavbarBrand,
 	Button,
 	NavbarContent,
-	Avatar,
-	Dropdown,
-	useDisclosure,
+
 	Link,
 } from "@nextui-org/react";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
 	HomeIcon as HomeIconSolid,
@@ -28,8 +25,9 @@ import UserDropdown from "./UserDropdown";
 import { useUser } from "@/context/UserContext";
 
 const GlobalNavbar = () => {
-	const { isAdmin, isLoading, isAuthenticated } = useUser();
-	const [showNavbar, setShowNavbar] = useState(true);
+	const { isLoading, isAuthenticated } = useUser();
+	// const [showNavbar, setShowNavbar] = useState(true);
+	// setShowNavbar(true);
 	const pathName = usePathname();
 
 	// Helper to determine if the current page matches the path
@@ -42,11 +40,11 @@ const GlobalNavbar = () => {
 	});
 
 	// Icons based on the active state
-	const getIcon = (path: string, SolidIcon: any, OutlineIcon: any) =>
+	const getIcon = (path: string, SolidIcon:React.ForwardRefExoticComponent<React.PropsWithoutRef<React.SVGProps<SVGSVGElement>> & { title?: string, titleId?: string } & React.RefAttributes<SVGSVGElement>>, OutlineIcon: React.ForwardRefExoticComponent<React.PropsWithoutRef<React.SVGProps<SVGSVGElement>> & { title?: string, titleId?: string } & React.RefAttributes<SVGSVGElement>>) =>
 		isActive(path) ? <SolidIcon className="w-5 h-5" /> : <OutlineIcon className="w-5 h-5" />;
 
 	return (
-		<Navbar className={('w-screen')+showNavbar ? "" : "hidden"} isBordered>
+		<Navbar  isBordered>
 			<NavbarBrand>
 				<p className="font-bold text-inherit overflow-clip">Berchi</p>
 			</NavbarBrand>

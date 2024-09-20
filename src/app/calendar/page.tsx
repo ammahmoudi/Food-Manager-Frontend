@@ -7,47 +7,45 @@ import Calendar from "@/components/Calendar";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function CalendarPage() {
-    const searchParams = useSearchParams();
-    const router = useRouter();
+	const searchParams = useSearchParams();
+	const router = useRouter();
 
-    const [year, setYear] = useState<number | null>(null);
-    const [month, setMonth] = useState<number | null>(null);
+	const [year, setYear] = useState<number | null>(null);
+	const [month, setMonth] = useState<number | null>(null);
 
-    useEffect(() => {
-        const yearParam = searchParams.get("year");
-        const monthParam = searchParams.get("month");
+	useEffect(() => {
+		if (!searchParams) return;
 
-        let year = parseInt(yearParam || "");
-        let month = parseInt(monthParam || "");
+		const yearParam = searchParams.get("year");
+		const monthParam = searchParams.get("month");
 
-        if (isNaN(year) || isNaN(month)) {
-            const today = startOfToday();
-            year = parseInt(format(today, "yyyy"), 10);
-            month = parseInt(format(today, "MM"), 10);
-            router.push(`/calendar?year=${year}&month=${month}`, undefined);
-        } else {
-            setYear(year);
-            setMonth(month);
-        }
-    }, [searchParams, router]);
+		let year = parseInt(yearParam || "");
+		let month = parseInt(monthParam || "");
 
-    const handleMonthChange = (newYear: number, newMonth: number) => {
-        router.push(`/calendar?year=${newYear}&month=${newMonth}`, undefined);
-    };
+		if (isNaN(year) || isNaN(month)) {
+			const today = startOfToday();
+			year = parseInt(format(today, "yyyy"), 10);
+			month = parseInt(format(today, "MM"), 10);
+			router.push(`/calendar?year=${year}&month=${month}`);
+		} else {
+			setYear(year);
+			setMonth(month);
+		}
+	}, [searchParams, router]);
 
-    if (year === null || month === null) {
-        return null; // Return nothing while the redirect happens
-    }
+	const handleMonthChange = (newYear: number, newMonth: number) => {
+		router.push(`/calendar?year=${newYear}&month=${newMonth}`);
+	};
 
-    return (
-        <ProtectedRoute>
-            <div className="container xl:w-1/2 mx-auto">
-                <Calendar
-                    year={year}
-                    month={month}
-                    onMonthChange={handleMonthChange}
-                />
-            </div>
-        </ProtectedRoute>
-    );
+	if (year === null || month === null) {
+		return null; // Return nothing while redirect happens
+	}
+
+	return (
+		<ProtectedRoute>
+			<div className="container xl:w-1/2 mx-auto">
+				<Calendar year={year} month={month} onMonthChange={handleMonthChange} />
+			</div>
+		</ProtectedRoute>
+	);
 }

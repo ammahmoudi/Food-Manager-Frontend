@@ -6,8 +6,7 @@ import {
 	ModalContent,
 	ModalHeader,
 	ModalBody,
-	ModalFooter,
-	Button,
+
 } from "@nextui-org/react";
 import { Food } from "../interfaces/Food";
 import FoodForm from "./FoodForm";

@@ -18,10 +18,10 @@ import {
 	getUserComments,
 	submitCommentForMeal,
 	deleteCommentForMeal,
-} from "@/services/api"; 
+} from "@/services/api";
 import CommentCard from "./CommentCard";
 import CommentModal from "./CommentModal";
-import { Meal } from "@/interfaces/Meal"; 
+import { Meal } from "@/interfaces/Meal";
 import { toast } from "react-toastify";
 
 type CommentSectionVariant = "meal" | "food" | "user" | "latest";
@@ -31,7 +31,7 @@ interface CommentSectionProps {
 	mealId?: number;
 	foodId?: number;
 	userId?: number;
-	meal?: Meal; 
+	meal?: Meal;
 }
 
 const CommentSection: React.FC<CommentSectionProps> = ({
@@ -87,14 +87,11 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
 	const handleDeleteComment = async (commentId: number) => {
 		try {
-			await toast.promise(
-				deleteCommentForMeal(commentId),
-				{
-					pending: "Deleting comment...",
-					success: "Comment deleted!",
-					error: "Failed to delete comment",
-				}
-			);
+			await toast.promise(deleteCommentForMeal(commentId), {
+				pending: "Deleting comment...",
+				success: "Comment deleted!",
+				error: "Failed to delete comment",
+			});
 			setComments((prevComments) =>
 				prevComments.filter((comment) => comment.id !== commentId)
 			);
@@ -151,7 +148,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 					comment={comment}
 					onDelete={handleDeleteComment}
 					onUpdate={handleUpdateComment}
-					onClick={() => openEditCommentModal(comment)} 
+					onClick={() => openEditCommentModal(comment)}
 				/>
 			))}
 
@@ -187,7 +184,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 									comment={comment}
 									onDelete={handleDeleteComment}
 									onUpdate={handleUpdateComment}
-									onClick={() => openEditCommentModal(comment)} 
+									onClick={() => openEditCommentModal(comment)}
 								/>
 							))}
 						</div>
@@ -206,7 +203,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 				meal={meal || selectedComment?.meal}
 				onUpdate={handleUpdateComment}
 				onDelete={handleDeleteComment}
-				onAdd={handleAddComment} 
+				onAdd={handleAddComment}
 			/>
 		</div>
 	);

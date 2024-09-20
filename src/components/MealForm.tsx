@@ -4,7 +4,7 @@ import React, { FC, useState, useEffect, useCallback } from "react";
 import {
 	Button,
 	Card,
-	CardBody,
+	
 	CardFooter,
 	CardHeader,
 	Image,
@@ -14,7 +14,6 @@ import {
 	ModalContent,
 	ModalFooter,
 	ModalHeader,
-	useDisclosure,
 } from "@nextui-org/react";
 import { DatePicker } from "@nextui-org/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
@@ -102,6 +101,7 @@ const MealForm: FC<MealFormProps> = ({
 	};
 
 	const handleFoodDelete = (foodId: number) => {
+		console.log(foodId);
 		// fetchMeal();
 		setSelectedFood(null);
 	};
@@ -147,7 +147,7 @@ const MealForm: FC<MealFormProps> = ({
 			},
 			error: {
 				render({ data }) {
-					return `Failed to save meal: ${data?.message || "Unknown error"}`;
+					return `Failed to save meal: ${data || "Unknown error"}`;
 				},
 			},
 		});

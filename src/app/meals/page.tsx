@@ -1,6 +1,6 @@
 'use client';
 
-import { Key, useCallback, useEffect, useState } from 'react';
+import { Key, Suspense, useCallback, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getMeals, getFilteredMeals, deleteMeal } from "@/services/api";
 import { Meal } from "@/interfaces/Meal";
@@ -96,6 +96,7 @@ const MealsPage = () => {
 	};
 
 	const handleSave = (meal: Meal | null) => {
+		console.log('meal',meal,'saved')
 		// Optionally handle the save logic
 	};
 
@@ -118,6 +119,8 @@ const MealsPage = () => {
 
 	return (
 		<ProtectedRoute>
+			                <Suspense fallback={<div>Loading...</div>}>
+
 			<div className="container xl:w-1/2 mx-auto p-2 items-center">
 				<div className="flex justify-between items-center mb-4 gap-2">
 					<Input
@@ -227,6 +230,7 @@ const MealsPage = () => {
 					onDelete={handleDelete}
 				/>
 			</div>
+			</Suspense>
 		</ProtectedRoute>
 	);
 };

@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import {
 	Modal,
@@ -68,7 +69,12 @@ const CommentModal: React.FC<CommentModalProps> = ({
 
 		try {
 			const savedComment = await savePromise;
-			comment ? onUpdate(savedComment) : onAdd(savedComment);
+			if (comment) {
+				onUpdate(savedComment);
+			} else {
+				onAdd(savedComment);
+			}
+
 			onClose();
 		} catch (error) {
 			console.error("Failed to save comment:", error);
@@ -110,7 +116,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
 				<ModalContent>
 					<ModalHeader>
 						{comment
-							? isAdmin && comment.user.id !== user.id
+							? isAdmin && comment.user.id !== user?.id
 								? "Comment"
 								: "Edit Comment"
 							: "Add Comment"}
@@ -122,10 +128,10 @@ const CommentModal: React.FC<CommentModalProps> = ({
 							<MealChip meal={comment?.meal || meal} />
 							{isAdmin &&
 								comment &&
-								comment.user.id !== user.id &&
+								comment.user.id !== user?.id &&
 								moment(comment.updated_at).fromNow()}
 						</div>
-						{comment && comment.user.id !== user.id ? (
+						{comment && comment.user.id !== user?.id ? (
 							<p className="text-md text-wrap text-medium p-2">
 								{comment.text}
 							</p>
@@ -145,7 +151,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
 					</ModalBody>
 					<ModalFooter>
 						<div className="flex flex-auto justify-left gap-2">
-							{!(comment && comment.user.id !== user.id) && (
+							{!(comment && comment.user.id !== user?.id) && (
 								<>
 									<Button
 										color="primary"
@@ -156,7 +162,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
 									</Button>
 								</>
 							)}
-							{comment && (isAdmin || comment.user.id === user.id) && (
+							{comment && (isAdmin || comment.user.id === user?.id) && (
 								<>
 									<Button
 										color="danger"

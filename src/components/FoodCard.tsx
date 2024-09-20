@@ -1,11 +1,11 @@
+"use client";
+
 import React, { useState } from "react";
 import { Card, CardBody, Image, Link } from "@nextui-org/react";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { Food } from "../interfaces/Food";
-import { getFoodDetails } from "@/services/api";
 import FoodModal from "./FoodModal";
 import { useUser } from "@/context/UserContext";
-import { toast } from "react-toastify";
 
 interface FoodCardProps {
 	initialFood: Food;
@@ -19,23 +19,6 @@ const FoodCard: React.FC<FoodCardProps> = ({
 	const [food, setFood] = useState<Food | null>(initialFood);
 	const [modalVisible, setModalVisible] = useState(false);
 	const { isAdmin } = useUser();
-
-	const fetchFood = async () => {
-		try {
-			await toast
-				.promise(getFoodDetails(food?.id!), {
-					pending: "Fetching food details...",
-					success: "Food details loaded successfully!",
-					error: "Failed to load food details",
-				})
-				.then((response) => {
-					setFood(response);
-				});
-		} catch (error) {
-			setFood(null);
-			console.error("Failed to fetch food details:", error);
-		}
-	};
 
 	const handleOpenModal = () => {
 		setModalVisible(true);
@@ -78,7 +61,6 @@ const FoodCard: React.FC<FoodCardProps> = ({
 									height={120}
 									width={120}
 									src={(food.image as string) ?? "/images/food-placeholder.jpg"}
-									
 								/>
 							</div>
 

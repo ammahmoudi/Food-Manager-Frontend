@@ -1,11 +1,16 @@
+'use client';
+
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { getCurrentUser, login, refreshToken, signup, updateUser } from "@/services/api";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { User } from "../interfaces/User";
+import { SignUpData } from "../interfaces/SignUpData";
+import { UpdateUserData } from "../interfaces/UpdateUserData";
 
 interface UserContextType {
-	user: any;
-	setUser: React.Dispatch<React.SetStateAction<any>>;
+	user: User|null;
+	setUser: React.Dispatch<React.SetStateAction<User|null>>;
 	isLoading: boolean;
 	setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 	isAuthenticated: boolean;
@@ -16,57 +21,17 @@ interface UserContextType {
 		remember: boolean
 	) => Promise<void>;
 	handleLogout: () => void;
-	handleSignup: (userData: any) => Promise<void>;
-	updateUserData: (userData: any) => Promise<void>;
+	handleSignup: (userData: SignUpData) => Promise<void>;
+	updateUserData: (userData:UpdateUserData) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const [user, setUser] = useState<any>(null);
+	const [user, setUser] = useState<User|null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const router = useRouter();
 
-	useEffect(() => {
-		const fetchUser = async () => {
-			setIsLoading(true);
-			const accessToken = localStorage.getItem("access") || sessionStorage.getItem("access");
-
-			if (!accessToken) {
-				setUser(null);
-				setIsLoading(false);
-				return;
-			}
-
-			try {
-				const userData = await toast.promise(getCurrentUser(), {
-					// pending: "Fetching user data...",
-					// success: "User authenticated!",
-					error: "Failed to authenticate user",
-				});
-				setUser(userData);
-			} catch (error) {
-				console.error("Failed to get current user:", error);
-				const newAccessToken = await refreshToken();
-
-				if (newAccessToken) {
-					try {
-						const userData = await getCurrentUser();
-						setUser(userData);
-					} catch (error) {
-						console.error("Failed to get user after refreshing token:", error);
-						handleLogout();
-					}
-				} else {
-					handleLogout();
-				}
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		fetchUser();
-	}, []);
 
 	const handleLogin = async (
 		phoneNumber: string,
@@ -108,7 +73,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		router.push("/login");
 	};
 
-	const handleSignup = async (userData: any) => {
+	const handleSignup = async (userData: SignUpData) => {
 		try {
 			await toast.promise(
 				signup(userData),
@@ -125,7 +90,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		}
 	};
 
-	const updateUserData = async (userData: any) => {
+	const updateUserData = async (userData: UpdateUserData) => {
 		try {
 			const updatedUser = await toast.promise(
 				updateUser(userData),
@@ -143,6 +108,46 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 	const isAuthenticated = !!user;
 	const isAdmin = user?.role === "admin";
+	useEffect(() => {
+		const fetchUser = async () => {
+			setIsLoading(true);
+			const accessToken = localStorage.getItem("access") || sessionStorage.getItem("access");
+
+			if (!accessToken) {
+				setUser(null);
+				setIsLoading(false);
+				return;
+			}
+
+			try {
+				const userData = await toast.promise(getCurrentUser(), {
+					// pending: "Fetching user data...",
+					// success: "User authenticated!",
+					error: "Failed to authenticate user",
+				});
+				setUser(userData);
+			} catch (error) {
+				console.error("Failed to get current user:", error);
+				const newAccessToken = await refreshToken();
+
+				if (newAccessToken) {
+					try {
+						const userData = await getCurrentUser();
+						setUser(userData);
+					} catch (error) {
+						console.error("Failed to get user after refreshing token:", error);
+						handleLogout();
+					}
+				} else {
+					handleLogout();
+				}
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		fetchUser();
+	}, []);
 
 	return (
 		<UserContext.Provider

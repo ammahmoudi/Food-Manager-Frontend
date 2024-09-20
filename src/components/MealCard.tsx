@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from "react";
 import { Card, CardBody, Image } from "@nextui-org/react";
 import { format } from "date-fns-jalali";
@@ -50,6 +52,7 @@ const MealCard: React.FC<MealCardProps> = ({
 	};
 
 	const handleSave = (meal: Meal | null) => {
+		console.log(meal)
 		// Optionally handle save logic
 	};
 

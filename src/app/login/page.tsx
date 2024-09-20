@@ -1,32 +1,19 @@
-// pages/auth.tsx
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, Key } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, Tab, Card, CardBody, Link } from "@nextui-org/react";
 import SignupForm from "@/components/SignUpForm";
-import LoginForm from "../../components/LoginForm";
-import { useUser } from "@/context/UserContext";
-
+import LoginForm from "@/components/LoginForm";
 
 export default function AuthPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const initialTab = searchParams.get("tab") || "login";
-	const [selected, setSelected] = useState<any>(initialTab);
-  // const { isAuthenticated,isLoading  } = useUser();
-
+	const [selected, setSelected] = useState<Key>(initialTab);
 
 	useEffect(() => {
 		router.push(`?tab=${selected}`);
 	}, [selected, router]);
-
-
-	// useEffect(() => {
-	// 	if (!isLoading && isAuthenticated) {  // Ensure isLoading is false before redirect
-	// 		router.push("/home");
-	// 	}
-	// }, [router, isAuthenticated, isLoading]); // Add isLoading to dependencies
 
 	return (
 		<div className="h-screen flex">
@@ -49,11 +36,10 @@ export default function AuthPage() {
 							fullWidth
 							size="md"
 							aria-label="Tabs form"
-							selectedKey={selected}
 							onSelectionChange={setSelected}
 						>
 							<Tab key="login" title="Login">
-								<LoginForm/>
+								<LoginForm />
 								<p className="text-center text-small">
 									Need to create an account?{" "}
 									<Link size="sm" onPress={() => setSelected("sign-up")}>

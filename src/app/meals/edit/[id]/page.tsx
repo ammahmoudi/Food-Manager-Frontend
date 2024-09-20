@@ -1,21 +1,19 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button, Input } from "@nextui-org/react";
 import { updateMeal, getMealById } from "../../../../services/api";
 import { Meal } from "../../../../interfaces/Meal";
-import FoodSelection from "../../../../components/FoodSelection";
 import { Food } from "../../../../interfaces/Food";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 const EditMealPage = () => {
 	const { id } = useParams();
 	const [meal, setMeal] = useState<Meal | null>(null);
 	const [selectedFood, setSelectedFood] = useState<Food | null>(null);
 	const [date, setDate] = useState<string>("");
-	const [rating, setRating] = useState<number>(0);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -24,14 +22,13 @@ const EditMealPage = () => {
 				const fetchMealPromise = getMealById(parseInt(id as string));
 				try {
 					const fetchedMeal = await toast.promise(fetchMealPromise, {
-						pending: 'Fetching meal details...',
-						success: 'Meal details loaded successfully!',
-						error: 'Failed to load meal details. Please try again.',
+						pending: "Fetching meal details...",
+						success: "Meal details loaded successfully!",
+						error: "Failed to load meal details. Please try again.",
 					});
 					setMeal(fetchedMeal);
 					setSelectedFood(fetchedMeal.food);
 					setDate(fetchedMeal.date);
-					setRating(fetchedMeal.rating);
 				} catch (error) {
 					console.error("Failed to fetch meal:", error);
 				}
@@ -46,15 +43,14 @@ const EditMealPage = () => {
 			const saveMealPromise = updateMeal(meal.id, {
 				...meal,
 				date,
-				rating,
-				food: selectedFood.id,
+				food_id: selectedFood.id,
 			});
-			
+
 			try {
 				await toast.promise(saveMealPromise, {
-					pending: 'Saving meal...',
-					success: 'Meal updated successfully!',
-					error: 'Failed to update meal. Please try again.',
+					pending: "Saving meal...",
+					success: "Meal updated successfully!",
+					error: "Failed to update meal. Please try again.",
 				});
 				router.push("/meals");
 			} catch (error) {
@@ -77,10 +73,7 @@ const EditMealPage = () => {
 						value={date}
 						onChange={(e) => setDate(e.target.value)}
 					/>
-					<FoodSelection
-						selectedFood={selectedFood}
-						onFoodSelect={setSelectedFood}
-					/>
+
 					<Button onClick={handleSave}>Save</Button>
 				</div>
 			</div>
