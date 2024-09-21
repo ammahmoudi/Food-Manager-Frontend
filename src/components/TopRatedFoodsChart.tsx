@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import Chart, { ScriptableContext } from "chart.js/auto";
@@ -19,13 +19,11 @@ import { FoodDetailCard } from "./FoodDetailCard";
 import { toast } from "react-toastify"; // Import toast
 import { Food } from "@/interfaces/Food";
 
-
 interface AvatarPosition {
 	x: number;
 	y: number;
 	food: Food;
-  }
-  
+}
 
 const TopRatedFoodsChartJS = () => {
 	const chartRef = useRef<HTMLCanvasElement>(null);
@@ -75,7 +73,7 @@ const TopRatedFoodsChartJS = () => {
 						{
 							label: "Rating",
 							data: foods.map((food) => food.avg_rate),
-							backgroundColor: (context: ScriptableContext<'bar'>) => {
+							backgroundColor: (context: ScriptableContext<"bar">) => {
 								const food = foods[context.dataIndex];
 								const baseColor = getThemeColorFromImage(food.image as string);
 								return getLighterColorBasedOnRating(
@@ -125,7 +123,8 @@ const TopRatedFoodsChartJS = () => {
 						id: "customAvatarPosition",
 						afterDraw: (chartInstance) => {
 							const { scales } = chartInstance;
-							const newAvatarPositions: React.SetStateAction<AvatarPosition[]> = [];
+							const newAvatarPositions: React.SetStateAction<AvatarPosition[]> =
+								[];
 
 							foods.forEach((food, index) => {
 								const yPosition = scales.y.getPixelForValue(index);
@@ -164,7 +163,9 @@ const TopRatedFoodsChartJS = () => {
 										}
 									}
 
-									const baseColor = getThemeColorFromImage(food.image as string);
+									const baseColor = getThemeColorFromImage(
+										food.image as string
+									);
 									const barColor = getLighterColorBasedOnRating(
 										baseColor,
 										food.avg_rate / 5.0
