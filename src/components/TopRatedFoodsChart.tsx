@@ -10,14 +10,11 @@ import {
 	PopoverContent,
 	Skeleton,
 } from "@nextui-org/react";
-import {
-	getThemeColorFromImage,
-	getLighterColorBasedOnRating,
-	getReadableTextColor,
-} from "@/utils/colorUtils";
+
 import { FoodDetailCard } from "./FoodDetailCard";
 import { toast } from "react-toastify"; // Import toast
 import { Food } from "@/interfaces/Food";
+import { getThemeColorFromImage, getLighterColorBasedOnRating, getReadableTextColor } from "@/utils/colorUtils";
 
 interface AvatarPosition {
 	x: number;
