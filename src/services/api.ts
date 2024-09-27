@@ -50,7 +50,7 @@ const isTokenValid = (token: string) => {
 			return false;
 		}
 	} catch (error) {
-		console.error('error in token validation',error);
+		console.error("error in token validation", error);
 		return false;
 	}
 };
@@ -140,6 +140,11 @@ export const login = async (phone_number: string, password: string) => {
 // Fetch current user data
 export const getCurrentUser = async () => {
 	const response = await api.get("/auth/users/me/");
+	return response.data;
+};
+
+export const getAllUsers = async () => {
+	const response = await api.get("/auth/users/");
 	return response.data;
 };
 
@@ -345,6 +350,76 @@ export const getUserRateForMeal = async (mealId: number) => {
 export const submitRateForMeal = async (mealId: number, rate: number) => {
 	const response = await api.post(`/meals/${mealId}/rate/`, { rate });
 	return response.data;
+};
+
+// push notification mode
+// Function to subscribe a user
+export const subscribeUser = async (token: string) => {
+	if (!token) throw new Error("Token is required");
+
+	try {
+		const response = await api.post("/users/subscribe-push/", { token });
+		console.log("Subscription successful", response);
+		return response.data;
+	} catch (error) {
+		console.error("Subscription failed:", error);
+		throw error;
+	}
+};
+
+// Function to unsubscribe a user
+export const unsubscribeUser = async (token: string) => {
+	if (!token) throw new Error("Token is required");
+
+	try {
+		const response = await api.post("/users/unsubscribe-push/", { token });
+		console.log("Unsubscription successful", response);
+		return response.data;
+	} catch (error) {
+		console.error("Unsubscription failed:", error);
+		throw error;
+	}
+};
+
+// Function to send a notification
+export const sendNotification = async (
+	title: string,
+	message: string,
+	userIdsToSend: number[],
+	image?: File,
+	link?: string
+) => {
+	if (!title || !message) throw new Error("Title and message are required");
+
+	// Create FormData to handle file uploads
+	const formData = new FormData();
+	formData.append("title", title);
+	formData.append("message", message);
+
+	// Append each user ID individually
+	userIdsToSend.forEach((userId) => {
+		formData.append("user_ids", userId.toString()); // Add each user ID separately
+	});
+
+	if (link) {
+		formData.append("link", link);
+	}
+	if (image) {
+		formData.append("image", image); // Append the image file
+	}
+
+	try {
+		const response = await api.post("/push-notifications/send/", formData, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		});
+		console.log("Notification sent successfully:", response);
+		return response.data;
+	} catch (error) {
+		console.error("Error sending notification:", error);
+		throw error;
+	}
 };
 
 export default api;

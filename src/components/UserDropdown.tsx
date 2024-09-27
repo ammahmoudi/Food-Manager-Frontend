@@ -9,8 +9,7 @@ import {
 import { useUser } from "@/context/UserContext";
 
 const UserDropdown = () => {
-    const {user } = useUser();
-
+	const { user } = useUser();
 
 	if (!user) {
 		return <div>Loading...</div>;
@@ -30,13 +29,27 @@ const UserDropdown = () => {
 				/>
 			</DropdownTrigger>
 			<DropdownMenu aria-label="Profile Actions" variant="flat">
-				<DropdownItem textValue={user.full_name} key="profile" className="h-14 gap-2">
+				<DropdownItem
+					textValue={user.full_name}
+					key="profile"
+					className="h-14 gap-2"
+				>
 					<p className="font-semibold">Signed in as</p>
 					<p className="font-semibold">{user.full_name}</p>
 				</DropdownItem>
+
+				<DropdownItem
+					textValue="Push Notifications"
+					key="pushNotifications"
+					href="/admin/notification"
+				>
+					My Settings
+				</DropdownItem>
+
 				<DropdownItem textValue="log out" key="settings" href="/settings">
 					My Settings
 				</DropdownItem>
+
 				<DropdownItem key="logout" color="danger" href="/logout">
 					Log Out
 				</DropdownItem>

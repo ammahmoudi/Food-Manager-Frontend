@@ -5,7 +5,6 @@ import {
 	NavbarBrand,
 	Button,
 	NavbarContent,
-
 	Link,
 } from "@nextui-org/react";
 import { usePathname } from "next/navigation";
@@ -36,19 +35,42 @@ const GlobalNavbar = () => {
 	// Define the button styles based on the active state
 	const getButtonProps = (path: string) => ({
 		underline: isActive(path) ? "always" : "hover",
-		className: 'my-0 p-2 w-fit min-w-0 '+(isActive(path) ? "text-primary font-bold" : "text-gray"),
+		className:
+			"my-0 p-2 w-fit min-w-0 " +
+			(isActive(path) ? "text-primary font-bold" : "text-gray"),
 	});
 
 	// Icons based on the active state
-	const getIcon = (path: string, SolidIcon:React.ForwardRefExoticComponent<React.PropsWithoutRef<React.SVGProps<SVGSVGElement>> & { title?: string, titleId?: string } & React.RefAttributes<SVGSVGElement>>, OutlineIcon: React.ForwardRefExoticComponent<React.PropsWithoutRef<React.SVGProps<SVGSVGElement>> & { title?: string, titleId?: string } & React.RefAttributes<SVGSVGElement>>) =>
-		isActive(path) ? <SolidIcon className="w-5 h-5" /> : <OutlineIcon className="w-5 h-5" />;
+	const getIcon = (
+		path: string,
+		SolidIcon: React.ForwardRefExoticComponent<
+			React.PropsWithoutRef<React.SVGProps<SVGSVGElement>> & {
+				title?: string;
+				titleId?: string;
+			} & React.RefAttributes<SVGSVGElement>
+		>,
+		OutlineIcon: React.ForwardRefExoticComponent<
+			React.PropsWithoutRef<React.SVGProps<SVGSVGElement>> & {
+				title?: string;
+				titleId?: string;
+			} & React.RefAttributes<SVGSVGElement>
+		>
+	) =>
+		isActive(path) ? (
+			<SolidIcon className="w-5 h-5" />
+		) : (
+			<OutlineIcon className="w-5 h-5" />
+		);
 
 	return (
-		<Navbar  isBordered>
+		<Navbar isBordered>
 			<NavbarBrand>
 				<p className="font-bold text-inherit overflow-clip">Berchi</p>
 			</NavbarBrand>
+
 			<NavbarContent>
+			{isAuthenticated ? (
+				<>
 				<Button
 					as={Link}
 					href="/home"
@@ -62,7 +84,11 @@ const GlobalNavbar = () => {
 					as={Link}
 					href="/calendar"
 					variant="light"
-					startContent={getIcon("/calendar", CalendarIconSolid, CalendarIconOutline)}
+					startContent={getIcon(
+						"/calendar",
+						CalendarIconSolid,
+						CalendarIconOutline
+					)}
 					{...getButtonProps("/calendar")}
 				>
 					<span className="hidden sm:inline">Calendar</span>
@@ -85,12 +111,17 @@ const GlobalNavbar = () => {
 				>
 					<span className="hidden sm:inline">Foods</span>
 				</Button>
+				</>):
+				(
+					'Master the Legends'
+
+				)}
 			</NavbarContent>
-			<NavbarContent as="div"  justify="end">
+			<NavbarContent as="div" justify="end">
 				{isAuthenticated ? (
 					<UserDropdown />
 				) : (
-					<Button isLoading={isLoading} href="/login" variant="ghost">
+					<Button as={Link} isLoading={isLoading} href="/login" variant="ghost">
 						Sign In
 					</Button>
 				)}

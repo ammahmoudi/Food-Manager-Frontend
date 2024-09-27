@@ -215,6 +215,8 @@ const SettingsPage = () => {
 							accept="image/*"
 							className="hidden"
 							onChange={handleImageChange}
+							title="user image"
+
 						/>
 						<div className="flex flex-grow flex-col justify-between gap-3 w-full">
 							<Input
