@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { startOfToday, format } from "date-fns-jalali";
 import Calendar from "@/components/Calendar";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -41,11 +41,12 @@ export default function CalendarPage() {
 		return null; // Return nothing while redirect happens
 	}
 
-	return (
+	return (	<Suspense>
 		<ProtectedRoute>
 			<div className="container xl:w-1/2 mx-auto">
 				<Calendar year={year} month={month} onMonthChange={handleMonthChange} />
 			</div>
 		</ProtectedRoute>
+		</Suspense>
 	);
 }

@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
-import withPWAInit from "next-pwa";
+import withSerwistInit from "@serwist/next";
+const revision = crypto.randomUUID();
+
 const nextConfig = {
 	reactStrictMode: false, // Enable React strict mode for improved error handling
 	swcMinify: true, // Enable SWC minification for improved performance
@@ -8,18 +10,20 @@ const nextConfig = {
 	},
 };
 
-//   Configuration object tells the next-pwa plugin
-const withPWA = withPWAInit({
-	dest: "public", // Destination directory for the PWA files
-	disable: false,
-	//  process.env.NODE_ENV === "development", // Disable PWA in development mode
-	register: true, // Register the PWA service worker
-	reloadOnOnline: true, // Enable refresh when the app is online again
-    swSrc: 'service-worker.js',
 
-	skipWaiting: true, // Skip waiting for service worker activation
+const withSerwist = withSerwistInit({
+  // Note: This is only an example. If you use Pages Router,
+  // use something else that works, such as "service-worker/index.ts".
+  swSrc: "src/app/sw.ts",
+  swDest: "public/sw.js",
+  cacheOnNavigation: true,
+  reloadOnOnline: true,
+  disable:true,
+  additionalPrecacheEntries: [{ url: "/fallback", revision }],
+
+  
+
+
 });
 
-//   Export the combined configuration for Next.js with PWA support
-export default withPWA(nextConfig);
-//   export default nextConfig;
+export default withSerwist(nextConfig);
