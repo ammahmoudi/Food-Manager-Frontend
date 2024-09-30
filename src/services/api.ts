@@ -7,8 +7,6 @@ import { UpdateUserData } from "@/interfaces/UpdateUserData";
 import { SignUpData } from "@/interfaces/SignUpData";
 import { CreateMealData } from "@/interfaces/CreateMealData";
 import { input } from "@nextui-org/react";
-import { cache } from "react";
-import { error } from "console";
 
 const API_BASE_URL = "http://192.168.40.39:8000/api/";
 
@@ -468,9 +466,9 @@ export const submitWorkflowInputs = async (inputs: any) => {
 
 
 // Function to submit prompt to backend
-export const sendPromptToBackend = async (promptData: { prompt_text: string }) => {
+export const sendPromptToBackend = async (promptData: { prompt: string }) => {
 	try {
-	  const response = await api.post(`/cui/specialized-workflows/characters/prompt/`, promptData);
+	  const response = await api.post(`/cui/workflow-runners/characters/prompt/`, promptData);
 	  console.log("Prompt submitted:", promptData);
 	  return response.data; // Expecting { jobID: "some-job-id" }
 	} catch (error) {

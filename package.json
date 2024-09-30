@@ -11,7 +11,6 @@
   "dependencies": {
     "@heroicons/react": "^2.1.5",
     "@nextui-org/react": "^2.4.8",
-    "@serwist/next": "^9.0.8",
     "@types/serviceworker": "^0.0.95",
     "axios": "^1.7.7",
     "chart.js": "^4.4.4",
@@ -26,9 +25,12 @@
     "react-advanced-cropper": "^0.20.0",
     "react-dom": "^18",
     "react-toastify": "^10.0.5",
+    "rollup": "^4.22.5",
     "web-push": "^3.6.7"
   },
   "devDependencies": {
+    "@serwist/build": "^9.0.8",
+    "@serwist/next": "^9.0.8",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

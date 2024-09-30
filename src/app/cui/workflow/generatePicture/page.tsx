@@ -1,5 +1,5 @@
 "use client";
-import { useState, ChangeEvent } from "react";
+import { useState } from "react";
 import {
 	Button,
 	Card,
@@ -7,21 +7,52 @@ import {
 	Image,
 	CardBody,
 	Textarea,
+	Spinner,
 } from "@nextui-org/react";
-import { sendPromptToBackend, getImagesByJobID, submitFinalData } from "@/services/api"; // Assuming these API functions exist
+import { sendPromptToBackend, getJobStatus, submitFinalData } from "@/services/api"; // Assuming these API functions exist
 import { toast } from "react-toastify";
 import { TrashIcon } from "@heroicons/react/24/solid";
-import { useRouter } from "next/navigation";
-import ImageCropModal from '@/components/ImageCropModal'; // Assuming you have an image crop modal
+import ImageCropModal from "@/components/ImageCropModal"; // Assuming you have an image crop modal
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>(""); // State for prompt text
 	const [resultImage, setResultImage] = useState<File | string | null>(null); // Store result image from backend or upload
-	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false); // Loading state for prompt submission
+	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false); // Loading state for prompt submission	const [isSubmittingFinal, setIsSubmittingFinal] = useState<boolean>(false); // Loading state for final submission
 	const [isSubmittingFinal, setIsSubmittingFinal] = useState<boolean>(false); // Loading state for final submission
+
 	const [jobID, setJobID] = useState<string | null>(null); // Store JobID for fetching images
+	const [jobStatus, setJobStatus] = useState<string>(""); // Track job status
+	const [polling, setPolling] = useState<boolean>(false); // Track if polling is in progress
 	const [isCropModalOpen, setCropModalOpen] = useState(false); // State to manage the crop modal
-	const router = useRouter(); // To redirect to result page
+
+	// Poll the job status using the jobID
+	const pollJobStatus = async (jobId: string) => {
+		const intervalId = setInterval(async () => {
+			try {
+				const jobData = await getJobStatus(jobId);
+				setJobStatus(jobData.status);
+
+				if (jobData.status === "completed") {
+					clearInterval(intervalId);
+					setPolling(false);
+
+					if (jobData.result_data && jobData.result_data.image_urls && jobData.result_data.image_urls.length > 0) {
+						setResultImage(jobData.result_data.image_urls[0]); // Display the first image
+					} else {
+						toast.error("No images returned from the backend.");
+					}
+				} else if (jobData.status === "failed") {
+					clearInterval(intervalId);
+					setPolling(false);
+					toast.error("Job failed to complete.");
+				}
+			} catch (error) {
+				clearInterval(intervalId);
+				setPolling(false);
+				toast.error("Error fetching job status.");
+			}
+		}, 5000); // Poll every 5 seconds
+	};
 
 	// Handle prompt submission to backend
 	const handleSubmitPrompt = async () => {
@@ -32,23 +63,20 @@ const PromptPage = () => {
 
 		try {
 			setIsSubmittingPrompt(true);
+			setResultImage(null); // Clear the result image initially
 
 			// Send prompt text to backend in specified format
-			const response = await sendPromptToBackend({ prompt_text: prompt });
+			const response = await sendPromptToBackend({ prompt: prompt });
 			toast.success("Prompt submitted successfully!");
 
 			// Assuming the response contains a jobID
-			if (response.jobID) {
-				setJobID(response.jobID); // Set the jobID
+			if (response.job_id) {
+				setJobID(response.job_id); // Set the jobID
+				setJobStatus("pending"); // Set the job status to pending
+				setPolling(true); // Start polling
 
-				// Fetch images using jobID
-				const imageResponse = await getImagesByJobID(response.jobID);
-
-				if (imageResponse.image_urls && imageResponse.image_urls.length > 0) {
-					setResultImage(imageResponse.image_urls[0]); // Display the first image
-				} else {
-					toast.error("No images returned from the backend.");
-				}
+				// Start polling for job status
+				pollJobStatus(response.job_id);
 			} else {
 				toast.error("Failed to retrieve jobID.");
 			}
@@ -59,7 +87,6 @@ const PromptPage = () => {
 			setIsSubmittingPrompt(false);
 		}
 	};
-
 	// Handle final submission of data
 	const handleFinalSubmit = async () => {
 		if (!resultImage) {
@@ -121,7 +148,7 @@ const PromptPage = () => {
 						onClick={() =>
 							document.getElementById("user-image-input")?.click()
 						}
-						className="w-[500px] aspect-square bg-pink-500"
+						className="w-[500px] aspect-square bg-pink-500 relative"
 					>
 						{resultImage ? (
 							<>
@@ -153,6 +180,11 @@ const PromptPage = () => {
 									</div>
 								</CardFooter>
 							</>
+						) : jobStatus === "pending" || jobStatus === "running" ? (
+							<div className="flex justify-center items-center w-full h-full bg-gray-200">
+								<Spinner  color="primary" size="lg" />
+								<p className="text-gray-500 ml-4">{jobStatus}</p>
+							</div>
 						) : (
 							<div className="flex flex-col items-center justify-center w-full h-full bg-gray-200">
 								<p className="text-gray-500">Click to upload an image</p>
@@ -165,6 +197,7 @@ const PromptPage = () => {
 						accept="image/*"
 						className="hidden"
 						onChange={handleImageChange}
+
 					/>
 
 					{/* Prompt Input Field and Submit Button */}
@@ -195,8 +228,8 @@ const PromptPage = () => {
 						<Button
 							color="secondary"
 							className="w-[280px]"
+							isDisabled={!resultImage || polling|| isSubmittingFinal} // Disable if no image is available or if polling is active
 							onPress={handleFinalSubmit}
-							isDisabled={!resultImage || isSubmittingFinal} // Disable if no image is available or if submitting
 							isLoading={isSubmittingFinal}
 						>
 							Final Submit
@@ -217,6 +250,7 @@ const PromptPage = () => {
 						: ""
 				} // Send the image URL to the crop modal
 				onCropComplete={handleCropComplete}
+
 			/>
 		</div>
 	);

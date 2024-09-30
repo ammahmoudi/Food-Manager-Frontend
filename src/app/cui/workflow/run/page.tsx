@@ -58,6 +58,7 @@ const WorkflowPage = () => {
 		if (!selectedWorkflow) return;
 
 		try {
+			console.log(inputValues)
 			const response = await runWorkflow(selectedWorkflow, inputValues);
 			console.log(response);
 			const jobId = response.job_id;
@@ -76,7 +77,7 @@ const WorkflowPage = () => {
 					setPolling(false);
 
 					// Check if the result contains image URLs and set them
-					if (jobData.result_data.image_urls && jobData.result_data.image_urls.length > 0) {
+					if (jobData.result_data&&jobData.result_data.image_urls && jobData.result_data.image_urls.length > 0) {
 						setResultImages(jobData.result_data.image_urls); // Set the result as an array of image URLs
 					}
 				}
@@ -122,7 +123,7 @@ const WorkflowPage = () => {
 							{Object.entries(inputFields[nodeId]).map(([inputName, inputType]) => (
 								<div className="mb-4" key={inputName}>
 									<label>{inputName}</label>
-									{inputType.type.startsWith("image") ? (
+									{inputType.startsWith("image") ? (
 										<input
 											type="file"
 											onChange={(e) =>
@@ -137,10 +138,11 @@ const WorkflowPage = () => {
 										/>
 									) : (
 										<Input
-											onChange={(e) =>
-												handleInputChange(nodeId, inputName, e.target.value)
-											}
-										/>
+										value={inputValues[nodeId]?.[inputName] || ""} // Ensure the input value is set from inputValues state
+										onChange={(e) =>
+										  handleInputChange(nodeId, inputName, e.target.value)
+										}
+									  />
 									)}
 								</div>
 							))}
