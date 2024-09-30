@@ -11,8 +11,8 @@ import {
 import { sendPromptToBackend, getImagesByJobID, submitFinalData } from "@/services/api"; // Assuming these API functions exist
 import { toast } from "react-toastify";
 import { TrashIcon } from "@heroicons/react/24/solid";
-import { useRouter } from "next/router";
-import ImageCropModal from './ImageCropModal'; // Assuming you have an image crop modal
+import { useRouter } from "next/navigation";
+import ImageCropModal from '@/components/ImageCropModal'; // Assuming you have an image crop modal
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>(""); // State for prompt text
@@ -71,7 +71,9 @@ const PromptPage = () => {
 			setIsSubmittingFinal(true);
 
 			// Assuming the final submission sends the image URL to the backend
-			const response = await submitFinalData(resultImage instanceof File ? URL.createObjectURL(resultImage) : resultImage);
+			const response = await submitFinalData(
+				typeof resultImage === "string" ? resultImage : URL.createObjectURL(resultImage as File)
+			);
 
 			if (response.jobID) {
 				toast.success("Final submission successful!");
@@ -93,8 +95,7 @@ const PromptPage = () => {
 	const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (file) {
-			const imageUrl = URL.createObjectURL(file);
-			setResultImage(imageUrl); // Temporarily set the image URL
+			setResultImage(file); // Set the file directly
 			setCropModalOpen(true); // Open crop modal
 		}
 	};
@@ -128,7 +129,11 @@ const PromptPage = () => {
 									alt="Result Image"
 									className="z-0 w-full h-full object-cover"
 									classNames={{ wrapper: "w-full h-full aspect-square" }}
-									src={resultImage instanceof File ? URL.createObjectURL(resultImage) : resultImage}
+									src={
+										typeof resultImage === "string"
+											? resultImage
+											: URL.createObjectURL(resultImage)
+									} // Handle both file and URL
 								/>
 								<CardFooter className="absolute bottom-0 z-10">
 									<div className="flex items-center">
@@ -204,7 +209,13 @@ const PromptPage = () => {
 			<ImageCropModal
 				isOpen={isCropModalOpen}
 				onClose={() => setCropModalOpen(false)}
-				imageSrc={resultImage as string} // Send the image URL to the crop modal
+				imageSrc={
+					resultImage && typeof resultImage === "string"
+						? resultImage
+						: resultImage
+						? URL.createObjectURL(resultImage as File)
+						: ""
+				} // Send the image URL to the crop modal
 				onCropComplete={handleCropComplete}
 			/>
 		</div>

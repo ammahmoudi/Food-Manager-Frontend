@@ -6,8 +6,11 @@ import { jwtDecode, JwtPayload } from "jwt-decode"; // To decode JWT and check e
 import { UpdateUserData } from "@/interfaces/UpdateUserData";
 import { SignUpData } from "@/interfaces/SignUpData";
 import { CreateMealData } from "@/interfaces/CreateMealData";
+import { input } from "@nextui-org/react";
+import { cache } from "react";
+import { error } from "console";
 
-const API_BASE_URL = "http://localhost:8000/api/";
+const API_BASE_URL = "http://192.168.40.39:8000/api/";
 
 const api = axios.create({
 	baseURL: API_BASE_URL,
@@ -203,23 +206,6 @@ export const getFoodDetails = async (foodId: number) => {
 	const response = await api.get(`foods/${foodId}/`);
 	return response.data;
 };
-// const createFoodFormData = (food: Partial<FoodFormData>) => {
-// 	const formData = new FormData();
-
-// 	if (food.name) formData.append("name", food.name);
-// 	if (food.description) formData.append("description", food.description);
-
-// 	// Handle image field
-// 	if (food.image === "") {
-// 		// If the image is an empty string, indicate that the image should be removed
-// 		formData.append("remove_picture", "true");
-// 	} else if (food.image && typeof food.image !== "string") {
-// 		// Only append the file if it's not a string (i.e., it's a File)
-// 		formData.append("image", food.image as File);
-// 	}
-
-// 	return formData;
-// };
 
 export const addFood = async (food: FoodFormData) => {
 	// const formData = createFoodFormData(food);
@@ -398,14 +384,14 @@ export const sendNotification = async (
 
 	// Append each user ID individually
 	userIdsToSend.forEach((userId) => {
-		formData.append("user_ids", userId.toString()); // Add each user ID separately
+		formData.append("user_ids", userId.toString()); 
 	});
 
 	if (link) {
 		formData.append("link", link);
 	}
 	if (image) {
-		formData.append("image", image); // Append the image file
+		formData.append("image", image); 
 	}
 
 	try {
@@ -421,5 +407,112 @@ export const sendNotification = async (
 		throw error;
 	}
 };
+
+
+// Fetch the list of available workflows
+export const getWorkflows = async () => {
+  try {
+    const response = await api.get("/cui/workflows");
+    return response.data; 
+  } catch (error) {
+	console.error("Error sending notification:", error);
+	throw error;
+  }
+};
+
+// Run a workflow with the provided inputs
+export const runWorkflow = async (workflowId: number, inputs: any) => {
+  try {
+    const response = await api.post(`/cui/workflows/${workflowId}/run/`, {
+      inputs,
+	  
+    });
+    return response.data; // Assuming the response contains the job ID
+  } catch (error) {
+	console.error("Error sending notification:", error);
+	throw error;
+  }
+};
+
+// Poll the job status by job ID
+export const getJobStatus = async (jobId: number) => {
+  try {
+    const response = await api.get(`/cui/jobs/${jobId}`);
+    return response.data; // Assuming the response contains the job status and result
+  } catch (error) {
+	console.error("Error sending notification:", error);
+	throw error;
+  }
+};
+
+// Sample API function for fetching nodes with POST request
+export const fetchNodesFromJson = async (jsonData: string) => {
+	const response = await api.post(`/cui/workflows/nodes/`, {
+		json_data: jsonData,
+	});
+	return response.data;
+};
+
+// Function to submit workflow inputs
+export const submitWorkflowInputs = async (inputs: any) => {
+	try{
+		const response = await api.post(`/cui/workflows/`,  inputs );
+		console.log(input)
+		return response.data;
+	}catch(error){
+		console.error("Submit failed:", error);
+		throw error;
+	}
+	
+};
+
+
+// Function to submit prompt to backend
+export const sendPromptToBackend = async (promptData: { prompt_text: string }) => {
+	try {
+	  const response = await api.post(`/cui/specialized-workflows/characters/prompt/`, promptData);
+	  console.log("Prompt submitted:", promptData);
+	  return response.data; // Expecting { jobID: "some-job-id" }
+	} catch (error) {
+	  console.error("Failed to submit prompt:", error);
+	  throw error;
+	}
+  };
+  
+  // Function to get images by JobID
+  export const getImagesByJobID = async (jobId: string) => {
+	try {
+	  const response = await api.get(`/cui/jobs/${jobId}`);
+	  console.log("Images fetched for jobID:", jobId);
+	  return response.data; // Expecting { image_urls: ["url1", "url2", ...] }
+	} catch (error) {
+	  console.error("Failed to fetch images by JobID:", error);
+	  throw error;
+	}
+  };
+  
+  // Function to submit final image data
+  // Submit an image file to get results (URLs)
+export const submitFinalData = async (imageFile: File) => {
+	try {
+	  // Prepare FormData to handle file upload
+	  const formData = new FormData();
+	  formData.append("image", imageFile); // Add the image file to the form data
+  
+	  // Send the image as part of the request
+	  const response = await api.post(`/cui/specialized-workflows/characters/dataSet/`, formData, {
+		headers: {
+		  "Content-Type": "multipart/form-data", // Ensure the request is sent as form data
+		},
+	  });
+  
+	  return response.data; // Assuming the response contains the image URLs
+	} catch (error) {
+	  console.error("Error submitting image for results:", error);
+	  throw error;
+	}
+  };
+
+
 
 export default api;

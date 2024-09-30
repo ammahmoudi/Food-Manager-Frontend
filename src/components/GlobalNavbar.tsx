@@ -13,15 +13,20 @@ import {
 	CalendarIcon as CalendarIconSolid,
 	InboxIcon as InboxIconSolid,
 	CakeIcon as CakeIconSolid,
+	PhotoIcon as PhotoIconSolid,
 } from "@heroicons/react/24/solid";
 import {
 	HomeIcon as HomeIconOutline,
 	CalendarIcon as CalendarIconOutline,
 	InboxIcon as InboxIconOutline,
 	CakeIcon as CakeIconOutline,
+	PhotoIcon as PhotoIconOutline,
 } from "@heroicons/react/24/outline";
+
+
 import UserDropdown from "./UserDropdown";
 import { useUser } from "@/context/UserContext";
+import CuiDropdown from "./CuiDropdown";
 
 const GlobalNavbar = () => {
 	const { isLoading, isAuthenticated } = useUser();
@@ -80,7 +85,10 @@ const GlobalNavbar = () => {
 				>
 					<span className="hidden sm:inline">Home</span>
 				</Button>
-				<Button
+				<CuiDropdown/>
+
+
+			<Button
 					as={Link}
 					href="/calendar"
 					variant="light"
