@@ -57,7 +57,7 @@ const UserDropdown = () => {
 				<DropdownItem
 					textValue="Generate Picture"
 					key="generatePicture"
-					href="/cui/workflow/generatePicture/"
+					href="/cui/generatePicture/"
 				>
 					Generate Picture 
 				</DropdownItem>

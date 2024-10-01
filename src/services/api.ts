@@ -464,18 +464,6 @@ export const submitWorkflowInputs = async (inputs: any) => {
 	
 };
 
-
-// Function to submit prompt to backend
-export const sendPromptToBackend = async (promptData: { prompt: string }) => {
-	try {
-	  const response = await api.post(`/cui/workflow-runners/characters/prompt/`, promptData);
-	  console.log("Prompt submitted:", promptData);
-	  return response.data; // Expecting { jobID: "some-job-id" }
-	} catch (error) {
-	  console.error("Failed to submit prompt:", error);
-	  throw error;
-	}
-  };
   
   // Function to get images by JobID
   export const getImagesByJobID = async (jobId: string) => {
@@ -488,28 +476,42 @@ export const sendPromptToBackend = async (promptData: { prompt: string }) => {
 	  throw error;
 	}
   };
-  
-  // Function to submit final image data
-  // Submit an image file to get results (URLs)
-export const submitFinalData = async (imageFile: File) => {
+
+  // Function to send the prompt to the backend and get the job ID
+export const sendPromptToBackend = async (data: { prompt: string }) => {
 	try {
-	  // Prepare FormData to handle file upload
-	  const formData = new FormData();
-	  formData.append("image", imageFile); // Add the image file to the form data
-  
-	  // Send the image as part of the request
-	  const response = await api.post(`/cui/specialized-workflows/characters/dataSet/`, formData, {
-		headers: {
-		  "Content-Type": "multipart/form-data", // Ensure the request is sent as form data
-		},
-	  });
-  
-	  return response.data; // Assuming the response contains the image URLs
+		const response = await api.post("/cui/workflow-runners/characters/prompt/", data); // Replace with the correct API endpoint
+		return response.data;
 	} catch (error) {
-	  console.error("Error submitting image for results:", error);
-	  throw error;
+		console.error("Error submitting prompt:", error);
+		throw error;
 	}
-  };
+};
+
+
+// Function to submit the final data (using job ID) and get dataset ID
+export const submitFinalData = async (imageId: string) => {
+	try {
+		const response = await api.post(`/cui/workflow-runners/characters/generate-character-samples/`, { dataset_image_id: imageId });
+		console.log(response.data)
+		return response.data;
+	} catch (error) {
+		console.error("Error submitting final data:", error);
+		throw error;
+	}
+};
+
+// Function to get a dataset by its ID
+export const getDataset = async (datasetId: string) => {
+	try {
+		const response = await api.get(`/cui/datasets/${datasetId}/`); // Replace with the correct API endpoint
+		console.log(response.data)
+		return response.data;
+	} catch (error) {
+		console.error(`Error fetching dataset ${datasetId}:`, error);
+		throw error;
+	}
+};
 
 
 
