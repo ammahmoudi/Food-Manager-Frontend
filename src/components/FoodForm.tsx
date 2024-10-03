@@ -1,214 +1,199 @@
-"use client";
-import { useState, ChangeEvent } from "react";
-import {
-	Button,
-	Card,
-	CardFooter,
-	Image,
-	CardBody,
-	Textarea,
-} from "@nextui-org/react";
-import { sendPromptToBackend, getImagesByJobID, submitFinalData } from "@/services/api"; // Assuming these API functions exist
-import { toast } from "react-toastify";
-import { TrashIcon } from "@heroicons/react/24/solid";
-import { useRouter } from "next/router";
-import ImageCropModal from './ImageCropModal'; // Assuming you have an image crop modal
+'use client';
 
-const PromptPage = () => {
-	const [prompt, setPrompt] = useState<string>(""); // State for prompt text
-	const [resultImage, setResultImage] = useState<File | string | null>(null); // Store result image from backend or upload
-	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false); // Loading state for prompt submission
-	const [isSubmittingFinal, setIsSubmittingFinal] = useState<boolean>(false); // Loading state for final submission
-	const [jobID, setJobID] = useState<string | null>(null); // Store JobID for fetching images
-	const [isCropModalOpen, setCropModalOpen] = useState(false); // State to manage the crop modal
-	const router = useRouter(); // To redirect to result page
+import { FC, useState, ChangeEvent } from 'react';
+import { Input, Button, Card, CardFooter, Image, useDisclosure, Modal, ModalBody, ModalFooter, ModalHeader, ModalContent } from '@nextui-org/react';
+import { Food } from '../interfaces/Food';
+import { FoodFormData } from '../interfaces/FoodFormData';
+import { addFood, updateFood, deleteFood } from '../services/api';
+import { TrashIcon } from '@heroicons/react/24/solid';
+import { toast } from 'react-toastify';
+import ImageCropModal from './ImageCropModal'; // Import ImageCropModal
 
-	// Handle prompt submission to backend
-	const handleSubmitPrompt = async () => {
-		if (!prompt.trim()) {
-			toast.error("Prompt cannot be empty!");
-			return;
-		}
+interface FoodFormProps {
+  initialData: Food | null;
+  isEditMode: boolean;
+  onSave: (food: Food) => void;
+  onDelete: (foodId: number) => void;
+}
 
-		try {
-			setIsSubmittingPrompt(true);
+const FoodForm: FC<FoodFormProps> = ({ initialData = null, isEditMode, onSave, onDelete }) => {
+  const [name, setName] = useState(initialData?.name || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [image, setImage] = useState<File | string | null>(initialData?.image || null);
 
-			// Send prompt text to backend in specified format
-			const response = await sendPromptToBackend({ prompt_text: prompt });
-			toast.success("Prompt submitted successfully!");
+  const { isOpen: isDeleteModalOpen, onOpen: openDeleteModal, onClose: closeDeleteModal } = useDisclosure();
+  const { isOpen: isCropModalOpen, onOpen: openCropModal, onClose: closeCropModal } = useDisclosure();
 
-			// Assuming the response contains a jobID
-			if (response.jobID) {
-				setJobID(response.jobID); // Set the jobID
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setImage(imageUrl); // Temporarily set image URL to show a preview
+      openCropModal(); // Open the crop modal after selecting the image
+    }
+  };
 
-				// Fetch images using jobID
-				const imageResponse = await getImagesByJobID(response.jobID);
+  const handleCropComplete = (croppedImage: File) => {
+    
+    setImage(croppedImage); // Set the cropped image as the selected image
+    closeCropModal();
+  };
 
-				if (imageResponse.image_urls && imageResponse.image_urls.length > 0) {
-					setResultImage(imageResponse.image_urls[0]); // Display the first image
-				} else {
-					toast.error("No images returned from the backend.");
-				}
-			} else {
-				toast.error("Failed to retrieve jobID.");
-			}
-		} catch (error) {
-			toast.error("Error submitting the prompt.");
-			console.error("Error submitting prompt:", error);
-		} finally {
-			setIsSubmittingPrompt(false);
-		}
-	};
+  const handleDeleteImage = () => {
+    setImage(null);
+  };
 
-	// Handle final submission of data
-	const handleFinalSubmit = async () => {
-		if (!resultImage) {
-			toast.error("No image available to submit.");
-			return;
-		}
+  const handleSave = async () => {
+    const foodData: FoodFormData = {
+      name,
+      description,
+      image
+    };
+    const saveFoodPromise = isEditMode && initialData
+      ? updateFood(initialData.id, foodData)
+      : addFood(foodData);
 
-		try {
-			setIsSubmittingFinal(true);
+    try {
+      const savedFood = await toast.promise(
+        saveFoodPromise,
+        {
+          pending: isEditMode ? 'Updating food...' : 'Creating food...',
+          success: isEditMode ? 'Food updated successfully!' : 'Food created successfully!',
+          error: 'Failed to save food.',
+        }
+      );
+      onSave(savedFood);
+    } catch (error) {
+      console.error('Failed to save food:', error);
+    }
+  };
 
-			// Assuming the final submission sends the image URL to the backend
-			const response = await submitFinalData(resultImage instanceof File ? URL.createObjectURL(resultImage) : resultImage);
+  const handleDeleteFood = async () => {
+    if (initialData) {
+      const deleteFoodPromise = deleteFood(initialData.id);
+      try {
+        await toast.promise(
+          deleteFoodPromise,
+          {
+            pending: 'Deleting food...',
+            success: 'Food deleted successfully!',
+            error: 'Failed to delete food.',
+          }
+        );
+        onDelete(initialData.id);
+        closeDeleteModal();
+      } catch (error) {
+        console.error('Failed to delete food:', error);
+      }
+    }
+  };
 
-			if (response.jobID) {
-				toast.success("Final submission successful!");
+  return (
+    <div className="food-form space-y-4">
+      <div>
+        <Card
+          isPressable
+          onClick={() => document.getElementById('food-image-input')?.click()}
+          className="w-full aspect-square"
+        >
+          {image ? (
+            <>
+              <Image
+                alt="Food Image"
+                className="z-0 w-full h-full object-cover"
+                classNames={{ wrapper: "w-full h-full aspect-square " }}
+                src={image instanceof File ? URL.createObjectURL(image as File) : image}
+              />
+              <CardFooter className="absolute bottom-0 z-10">
+                <div className="flex items-center">
+                  <div className="flex flex-col">
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteImage();
+                      }}
+                      radius="full"
+                      size="sm"
+                      className="w-full h-full aspect-square bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
+                    >
+                      <TrashIcon className="h-5 w-5" />
+                    </Button>
+                  </div>
+                </div>
+              </CardFooter>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center w-full h-full bg-gray-200">
+              <p className="text-gray-500">Click to upload an image</p>
+            </div>
+          )}
+        </Card>
+        <input
+          type="file"
+          id="food-image-input"
+          accept="image/*"
+          className="hidden"
+          onChange={handleImageChange}
+          title="Food Image"
+          placeholder="Select an image"
+        />
+      </div>
+      <Input
+        label="Name"
+        placeholder="Enter food name"
+        fullWidth
+        value={name}
+        isRequired
+        onChange={(e) => setName(e.target.value)}
+      />
+      <Input
+        label="Description"
+        placeholder="Enter food description"
+        fullWidth
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+      />
 
-				// Fetch images using the jobID and redirect to the result page
-				router.push(`/result?jobID=${response.jobID}`); // Assuming this navigates to a result page
-			} else {
-				toast.error("Failed to submit the image.");
-			}
-		} catch (error) {
-			toast.error("Failed to submit final data.");
-			console.error("Final submission error:", error);
-		} finally {
-			setIsSubmittingFinal(false);
-		}
-	};
+      <div className="flex justify-left gap-2">
+        <Button
+          isDisabled={name === "" || (isEditMode && (name === initialData?.name && description === initialData.description && image === initialData.image))}
+          color="primary"
+          onPress={handleSave}
+        >
+          {isEditMode ? 'Update Food' : 'Create Food'}
+        </Button>
+        {isEditMode && (
+          <Button color="danger" variant="light" onClick={openDeleteModal}>
+            Delete Food
+          </Button>
+        )}
+      </div>
 
-	// Handle image upload and open crop modal
-	const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (file) {
-			const imageUrl = URL.createObjectURL(file);
-			setResultImage(imageUrl); // Temporarily set the image URL
-			setCropModalOpen(true); // Open crop modal
-		}
-	};
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={isDeleteModalOpen} onClose={closeDeleteModal}>
+        <ModalContent>
+          <ModalHeader>Delete Food</ModalHeader>
+          <ModalBody>Are you sure you want to delete this food item?</ModalBody>
+          <ModalFooter>
+            <Button color="danger" onClick={handleDeleteFood}>
+              Delete
+            </Button>
+            <Button variant="light" onClick={closeDeleteModal}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
-	// Handle crop complete and set the cropped image
-	const handleCropComplete = (croppedImage: File) => {
-		setResultImage(croppedImage); // Set the cropped image
-		setCropModalOpen(false); // Close crop modal
-	};
-
-	// Handle image deletion
-	const handleDeleteImage = () => {
-		setResultImage(null);
-	};
-
-	return (
-		<div className="flex justify-center items-center min-h-screen bg-gray-100">
-			<Card className="w-[700px] h-auto gap-1">
-				<CardBody className="flex flex-col md:flex md:flex-row gap-2">
-					{/* Image Section */}
-					<Card
-						isPressable
-						onClick={() =>
-							document.getElementById("user-image-input")?.click()
-						}
-						className="w-[500px] aspect-square bg-pink-500"
-					>
-						{resultImage ? (
-							<>
-								<Image
-									alt="Result Image"
-									className="z-0 w-full h-full object-cover"
-									classNames={{ wrapper: "w-full h-full aspect-square" }}
-									src={resultImage instanceof File ? URL.createObjectURL(resultImage) : resultImage}
-								/>
-								<CardFooter className="absolute bottom-0 z-10">
-									<div className="flex items-center">
-										<div className="flex flex-col">
-											<Button
-												onClick={(e) => {
-													e.stopPropagation();
-													handleDeleteImage();
-												}}
-												radius="full"
-												size="sm"
-												className="w-full h-full aspect-square bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
-											>
-												<TrashIcon className="h-5 w-5" />
-											</Button>
-										</div>
-									</div>
-								</CardFooter>
-							</>
-						) : (
-							<div className="flex flex-col items-center justify-center w-full h-full bg-gray-200">
-								<p className="text-gray-500">Click to upload an image</p>
-							</div>
-						)}
-					</Card>
-					<input
-						type="file"
-						id="user-image-input"
-						accept="image/*"
-						className="hidden"
-						onChange={handleImageChange}
-					/>
-
-					{/* Prompt Input Field and Submit Button */}
-					<div className="flex flex-col w-full h-full">
-						<Textarea
-							label="Prompt"
-							className="h-[110px]"
-							placeholder="Enter your prompt"
-							fullWidth
-							value={prompt}
-							onChange={(e) => setPrompt(e.target.value)}
-						/>
-						<div className="flex w-full">
-							<Button
-								color="primary"
-								className="w-[390px]"
-								onPress={handleSubmitPrompt}
-								isLoading={isSubmittingPrompt}
-								isDisabled={isSubmittingPrompt}
-							>
-								Submit Prompt
-							</Button>
-						</div>
-					</div>
-				</CardBody>
-				<CardFooter>
-					<div className="flex justify-center">
-						<Button
-							color="secondary"
-							className="w-[280px]"
-							onPress={handleFinalSubmit}
-							isDisabled={!resultImage || isSubmittingFinal} // Disable if no image is available or if submitting
-							isLoading={isSubmittingFinal}
-						>
-							Final Submit
-						</Button>
-					</div>
-				</CardFooter>
-			</Card>
-
-			{/* Image Crop Modal */}
-			<ImageCropModal
-				isOpen={isCropModalOpen}
-				onClose={() => setCropModalOpen(false)}
-				imageSrc={resultImage as string} // Send the image URL to the crop modal
-				onCropComplete={handleCropComplete}
-			/>
-		</div>
-	);
+      {/* Image Crop Modal */}
+      <ImageCropModal
+        isOpen={isCropModalOpen}
+        onClose={closeCropModal}
+        imageSrc={image as string} // Send the image URL to the crop modal
+        onCropComplete={handleCropComplete}
+      />
+    </div>
+  );
 };
 
-export default PromptPage;
+export default FoodForm;
