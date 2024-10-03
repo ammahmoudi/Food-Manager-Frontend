@@ -18,7 +18,7 @@ const withSerwist = withSerwistInit({
   swDest: "public/sw.js",
   cacheOnNavigation: true,
   reloadOnOnline: true,
-  disable:false,
+  disable:true,
   additionalPrecacheEntries: [{ url: "/fallback", revision }],
 
   

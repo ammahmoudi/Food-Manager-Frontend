@@ -27,6 +27,7 @@ import {
 import UserDropdown from "./UserDropdown";
 import { useUser } from "@/context/UserContext";
 import CuiDropdown from "./CuiDropdown";
+import React from "react";
 
 const GlobalNavbar = () => {
 	const { isLoading, isAuthenticated } = useUser();
@@ -103,19 +104,19 @@ const GlobalNavbar = () => {
 				</Button>
 				<Button
 					as={Link}
-					href="/meals"
+					href="/berchi/meals"
 					variant="light"
-					startContent={getIcon("/meals", InboxIconSolid, InboxIconOutline)}
-					{...getButtonProps("/meals")}
+					startContent={getIcon("/berchi/meals", InboxIconSolid, InboxIconOutline)}
+					{...getButtonProps("/berchi/meals")}
 				>
 					<span className="hidden sm:inline">Meals</span>
 				</Button>
 				<Button
 					as={Link}
-					href="/foods"
+					href="/berchi/foods"
 					variant="light"
-					startContent={getIcon("/foods", CakeIconSolid, CakeIconOutline)}
-					{...getButtonProps("/foods")}
+					startContent={getIcon("/berchi/foods", CakeIconSolid, CakeIconOutline)}
+					{...getButtonProps("/berchi/foods")}
 				>
 					<span className="hidden sm:inline">Foods</span>
 				</Button>

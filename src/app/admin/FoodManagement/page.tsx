@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Button } from '@nextui-org/react';
 import { Food } from '@/interfaces/Food';
 import FoodModal from '@/components/FoodModal';
-import { getFoods, addFood, updateFood, deleteFood } from '@/services/api';
+import { getFoods, addFood, updateFood, deleteFood } from "@/app/berchi/services/berchiApi";
 
 const FoodManagement = () => {
   const [foods, setFoods] = useState<Food[]>([]);

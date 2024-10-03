@@ -41,7 +41,7 @@ const UserDropdown = () => {
 				<DropdownItem
 					textValue="New Workflow"
 					key="newWorkflow"
-					href="/cui/workflow/new/"
+					href="/ai/workflows/new/"
 				>
 					New workflow
 				</DropdownItem>
@@ -49,7 +49,7 @@ const UserDropdown = () => {
 				<DropdownItem
 					textValue="Run Workflow"
 					key="runWorkflow"
-					href="/cui/workflow/run/"
+					href="/ai/workflows/run/"
 				>
 					Run workflow
 				</DropdownItem>
@@ -57,7 +57,7 @@ const UserDropdown = () => {
 				<DropdownItem
 					textValue="Generate Picture"
 					key="generatePictureNew"
-					href="/cui/generatePicture/new/"
+					href="/ai/generatePicture/new/"
 				>
 					Generate picture 
 				</DropdownItem>
@@ -66,7 +66,7 @@ const UserDropdown = () => {
 				<DropdownItem
 					textValue="Generate Picture"
 					key="generatePicture"
-					href="/cui/generatePicture/fromCharacter/"
+					href="/ai/generatePicture/fromCharacter/"
 				>
 					Generate picture from character
 				</DropdownItem>

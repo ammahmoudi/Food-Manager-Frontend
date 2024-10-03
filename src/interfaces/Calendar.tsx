@@ -1,4 +1,4 @@
-import { Meal } from "@/interfaces/Meal";
+import { Meal } from "@/app/berchi/interfaces/Meal";
 
 export interface MealCellData {
 	date: Date;

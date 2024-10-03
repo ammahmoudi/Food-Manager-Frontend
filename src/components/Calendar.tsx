@@ -16,11 +16,11 @@ import {
 	subMonths,
 } from "date-fns-jalali";
 import { FC, useEffect, useState } from "react";
-import { getMealsForCurrentMonth } from "@/services/api";
-import MealCell from "./MealCell";
+import { getMealsForCurrentMonth } from "@/app/berchi/services/berchiApi";
 import { CalendarProps, MealCellData } from "@/interfaces/Calendar";
-import { Food } from "@/interfaces/Food";
 import { convertPersianMonthToEnglish } from "@/utils/dateUtils";
+import MealCell from "@/app/berchi/components/MealCell";
+import { Food } from "@/app/berchi/interfaces/Food";
 
 const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
 	const [currentYear, setCurrentYear] = useState(year);

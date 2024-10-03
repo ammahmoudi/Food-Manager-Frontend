@@ -1,8 +1,6 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
-import { getCurrentDayMeal } from "@/services/api";
-import { Meal } from "@/interfaces/Meal";
-import MealCard from "@/components/MealCard";
+import { getCurrentDayMeal } from "@/app/berchi/services/berchiApi";
 import Calendar from "@/components/Calendar";
 import { Card, CardBody, Skeleton } from "@nextui-org/react";
 import {
@@ -11,10 +9,12 @@ import {
 } from "@heroicons/react/24/outline";
 import { format, startOfToday } from "date-fns-jalali";
 import { useUser } from "@/context/UserContext";
-import CommentSection from "@/components/CommentSection";
-import TopRatedFoodsChart from "@/components/TopRatedFoodsChart";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { toast } from "react-toastify";
+import CommentSection from "../berchi/components/CommentSection";
+import MealCard from "../berchi/components/MealCard";
+import TopRatedFoodsChart from "../berchi/components/TopRatedFoodsChart";
+import { Meal } from "../Berchi/interfaces/Meal";
 
 const HomePage = () => {
 	const [currentDayMeal, setCurrentDayMeal] = useState<Meal | null>(null);

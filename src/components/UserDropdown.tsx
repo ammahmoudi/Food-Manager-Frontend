@@ -41,10 +41,10 @@ const UserDropdown = () => {
 				<DropdownItem
 					textValue="Push Notifications"
 					key="pushNotifications"
-					href="/admin/notification"
+					href="/admin/notifications"
 				>
-					My Settings
-				</DropdownItem>
+					Notifications
+					</DropdownItem>
 
 				<DropdownItem textValue="log out" key="settings" href="/settings">
 					My Settings
