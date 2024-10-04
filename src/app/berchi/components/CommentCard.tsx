@@ -1,5 +1,4 @@
-
-'use client';
+"use client";
 import React, { useState } from "react";
 import {
 	Card,
@@ -14,10 +13,13 @@ import {
 } from "@nextui-org/react";
 import MealChip from "./MealChip";
 import { Comment } from "../interfaces/Comment";
-import { deleteCommentForMeal, updateCommentForMeal } from "@/app/berchi/services/berchiApi";
+import {
+	deleteCommentForMeal,
+	updateCommentForMeal,
+} from "@/app/berchi/services/berchiApi";
 import UserAvatar from "@/components/UserAvatar";
 import moment from "moment";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 interface CommentCardProps {
 	comment: Comment;
@@ -36,20 +38,19 @@ const CommentCard: React.FC<CommentCardProps> = ({
 	const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 	const [editedText, setEditedText] = useState(comment.text);
 
-
 	const handleUpdateComment = async () => {
 		const updatePromise = updateCommentForMeal(comment.id, editedText);
 
-		toast.promise(updatePromise, {
-			pending: 'Updating comment...',
-			success: 'Comment updated successfully!',
-			error: 'Failed to update comment.',
-		});
-
 		try {
-			const updatedComment = await updatePromise;
-			onUpdate(updatedComment);
-			setEditModalVisible(false);
+			toast.promise(updatePromise, {
+				loading: "Updating comment...",
+				success: (updatedComment) => {
+					onUpdate(updatedComment);
+					setEditModalVisible(false);
+					return "Comment updated successfully!";
+				},
+				error: "Failed to update comment.",
+			});
 		} catch (error) {
 			console.error("Failed to update comment:", error);
 		}
@@ -58,16 +59,16 @@ const CommentCard: React.FC<CommentCardProps> = ({
 	const handleConfirmDelete = async () => {
 		const deletePromise = deleteCommentForMeal(comment.id);
 
-		toast.promise(deletePromise, {
-			pending: 'Deleting comment...',
-			success: 'Comment deleted successfully!',
-			error: 'Failed to delete comment.',
-		});
-
 		try {
-			await deletePromise;
-			onDelete(comment.id);
-			setDeleteModalVisible(false);
+			toast.promise(deletePromise, {
+				loading: "Deleting comment...",
+				success: () => {
+					onDelete(comment.id);
+					setDeleteModalVisible(false);
+					return "Comment deleted successfully!";
+				},
+				error: "Failed to delete comment.",
+			});
 		} catch (error) {
 			console.error("Failed to delete comment:", error);
 		}
@@ -94,9 +95,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
 							</p>
 							<span className="inline-flex text-sm align-middle  flex-wrap items-baseline w-full gap-1">
 								on
-								<MealChip
-									meal={comment.meal}
-								/>
+								<MealChip meal={comment.meal} />
 								<span className="text-right absolute right-5 text-xs text-gray-700">
 									{comment.created_at
 										? moment(comment.updated_at).fromNow()

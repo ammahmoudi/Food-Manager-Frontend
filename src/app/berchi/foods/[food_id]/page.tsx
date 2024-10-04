@@ -5,8 +5,9 @@ import { useParams } from 'next/navigation';
 import { getFoodDetails, getMealsWithFood } from "@/app/berchi/services/berchiApi";
 import { Meal } from '../../interfaces/Meal';
 import { Food } from '../../interfaces/Food';
-import { toast } from 'react-toastify';
 import FoodDetails from '../../components/FoodDetails';
+import { toast } from 'sonner';
+import { Spinner } from '@nextui-org/react';
 
 const FoodDetailPage = () => {
   const { food_id } = useParams();
@@ -19,14 +20,15 @@ const FoodDetailPage = () => {
         const fetchFoodPromise = getFoodDetails(parseInt(food_id as string));
 
         try {
-          const fetchedFood = await toast.promise(
+          toast.promise(
             fetchFoodPromise,
             {
-              pending: 'Loading food details...',
-              success: 'Food details loaded successfully!',
+              // loading: 'Loading food details...',
+              // success: 'Food details loaded successfully!',
               error: 'Failed to load food details.',
             }
           );
+          const fetchedFood = await fetchFoodPromise;
           setFood(fetchedFood);
         } catch (error) {
           console.error('Failed to fetch food details:', error);
@@ -44,14 +46,15 @@ const FoodDetailPage = () => {
         const fetchMealsPromise = getMealsWithFood(parseInt(food_id as string));
 
         try {
-          const fetchedMeals = await toast.promise(
+          toast.promise(
             fetchMealsPromise,
             {
-              pending: 'Loading meals...',
-              success: 'Meals loaded successfully!',
+              // loading: 'Loading meals...',
+              // success: 'Meals loaded successfully!',
               error: 'Failed to load meals.',
             }
           );
+          const fetchedMeals = await fetchMealsPromise;
           setMeals(fetchedMeals);
         } catch (error) {
           console.error('Failed to fetch meals with food:', error);
@@ -63,7 +66,9 @@ const FoodDetailPage = () => {
   }, [food_id]);
 
   if (!food) {
-    return <div>Loading...</div>;
+    return 		<div className="flex items-center justify-center h-screen w-screen">
+    <Spinner size="lg" />
+  </div>;
   }
 
   return <FoodDetails food={food} meals={meals} />;

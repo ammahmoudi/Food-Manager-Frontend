@@ -17,12 +17,12 @@ import {
 	getFoodComments,
 	getUserComments,
 	submitCommentForMeal,
-	deleteCommentForMeal
+	deleteCommentForMeal,
 } from "@/app/berchi/services/berchiApi";
 import CommentCard from "./CommentCard";
 import CommentModal from "./CommentModal";
 import { Meal } from "../interfaces/Meal";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 type CommentSectionVariant = "meal" | "food" | "user" | "latest";
 
@@ -87,14 +87,19 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
 	const handleDeleteComment = async (commentId: number) => {
 		try {
-			await toast.promise(deleteCommentForMeal(commentId), {
-				pending: "Deleting comment...",
-				success: "Comment deleted!",
-				error: "Failed to delete comment",
+			toast.promise(deleteCommentForMeal(commentId), {
+				loading: "Deleting comment...",
+				success: () => {
+					setComments((prevComments) =>
+						prevComments.filter((comment) => comment.id !== commentId)
+					);
+					return "Comment deleted successfully!";
+				},
+				error: (data)=>{
+					console.log(data);
+					return "Failed to delete comment";
+				},
 			});
-			setComments((prevComments) =>
-				prevComments.filter((comment) => comment.id !== commentId)
-			);
 		} catch (error) {
 			console.error("Failed to delete comment:", error);
 		}
@@ -110,15 +115,21 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 
 	const handleAddComment = async (newComment: Comment) => {
 		try {
-			const addedComment = await toast.promise(
-				submitCommentForMeal(meal?.id || 0, newComment.text),
-				{
-					pending: "Adding comment...",
-					success: "Comment added!",
-					error: "Failed to add comment",
-				}
+			const addCommentPromise = submitCommentForMeal(
+				meal?.id || 0,
+				newComment.text
 			);
-			setComments((prevComments) => [addedComment, ...prevComments]);
+			toast.promise(addCommentPromise, {
+				loading: "Adding comment...",
+				success: (addedComment) => {
+					setComments((prevComments) => [addedComment, ...prevComments]);
+					return "Comment added!";
+				},
+				error: (data) => {
+					console.log(data);
+					return "Failed to add comment";
+				},
+			});
 		} catch (error) {
 			console.error("Failed to add comment:", error);
 		}

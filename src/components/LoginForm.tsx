@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input, Button, Checkbox } from "@nextui-org/react";
 import { PhoneIcon, KeyIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/solid";
-import { toast } from "react-toastify";
 import { useUser } from "@/context/UserContext";
+import { toast } from "sonner";
 
 export default function LoginForm() {
 	const router = useRouter();
@@ -35,7 +35,7 @@ export default function LoginForm() {
 			await toast.promise(
 				loginPromise,
 				{
-					// pending: "Logging in...",
+					// loading: "Logging in...",
 					// success: "Logged in successfully!",
 					// error: "Failed to log in. Please check your credentials.",
 				}

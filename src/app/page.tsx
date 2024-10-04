@@ -11,7 +11,7 @@ export default function Page() {
   // },[router])
   return (
     <>
-    lo
+    main page
 
     </>
   );

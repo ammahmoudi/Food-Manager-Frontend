@@ -12,12 +12,12 @@ type Props = {
 export default function Providers({ children }: Props) {
 	const router = useRouter();
 	return (
-		<UserProvider>
+		<NextUIProvider navigate={router.push}>
 		<ToastProvider>
-			<NextUIProvider navigate={router.push}>
+				<UserProvider>
 				{children}
-			</NextUIProvider>
-		</ToastProvider>
 		</UserProvider>
+		</ToastProvider>
+			</NextUIProvider>
 	);
 }

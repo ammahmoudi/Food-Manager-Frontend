@@ -48,7 +48,7 @@ export const fetchNodesFromJson = async (jsonData: string) => {
 export const submitWorkflowInputs = async (inputs: any) => {
   try {
     const response = await api.post(`/cui/workflows/`, inputs);
-    console.log(input);
+    console.log(inputs);
     return response.data;
   } catch (error) {
     console.error("Submit failed:", error);
@@ -83,7 +83,7 @@ export const sendPromptToBackend = async (data: { prompt: string }) => {
 };
 
 // Function to submit the final data (using job ID) and get dataset ID
-export const submitFinalData = async (imageId: string) => {
+export const submitFinalData = async (imageId: number) => {
   try {
     const response = await api.post(
       `/cui/workflow-runners/characters/generate-character-samples/`,
@@ -98,7 +98,7 @@ export const submitFinalData = async (imageId: string) => {
 };
 
 // Function to get a dataset by its ID
-export const getDataset = async (datasetId: string) => {
+export const getDataset = async (datasetId: number) => {
   try {
     const response = await api.get(`/cui/datasets/${datasetId}/`); // Replace with the correct API endpoint
     console.log(response.data);
@@ -125,7 +125,7 @@ export const getCharacters = async () => {
 // Send prompt with selected character and lora to the backend
 export const sendPromptforCharacter = async (data: {
   prompt: string;
-  character_id: string;
+  character_id: number;
   lora_name: string;
 }) => {
   try {

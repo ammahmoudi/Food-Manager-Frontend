@@ -15,8 +15,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import FoodModal from "./FoodModal";
-import { toast } from "react-toastify";
 import { Food } from "../interfaces/Food";
+import { toast } from "sonner";
 
 interface CustomFoodAutocompleteProps {
 	selectedFood: Food | null;
@@ -37,16 +37,17 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({
 
 	const fetchFoods = async () => {
 		try {
-			await toast.promise(
+			toast.promise(
 				getFoods(),
 				{
-					pending: "Loading foods...",
-					success: "Foods loaded successfully!",
+					loading: "Loading foods...",
+					success: (response) => {
+						setFoods(response);
+						return "Foods loaded successfully!";
+					},
 					error: "Failed to load foods",
 				}
-			).then((response) => {
-				setFoods(response);
-			});
+			)
 		} catch (error) {
 			console.error("Failed to fetch foods:", error);
 		}
@@ -77,14 +78,18 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({
 			await toast.promise(
 				addFood(food),
 				{
-					pending: "Adding food...",
-					success: "Food added successfully!",
+					loading: "Adding food...",
+					success: (updatedFood) => {
+						fetchFoods();
+						onFoodSelect(updatedFood);
+						setInputValue(updatedFood.name);
+						return "Food added successfully!";
+					}
+					,
 					error: "Failed to add food",
 				}
 			);
-			fetchFoods();
-			onFoodSelect(food);
-			setInputValue(food.name);
+	
 		} catch (error) {
 			console.error("Failed to add food:", error);
 		}

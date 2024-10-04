@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useUser } from "../context/UserContext";
 import { useEffect } from "react";
 import { Spinner } from "@nextui-org/react";
+import React from "react";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 	children,
@@ -14,7 +15,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 
 	useEffect(() => {
 		if (!isLoading && !isAuthenticated) {
-			router.push("/login");
+			// router.push("/login");
 		}
 	}, [isAuthenticated, isLoading, router]);
 

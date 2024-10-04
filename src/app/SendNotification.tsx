@@ -1,5 +1,6 @@
 "use client";
 import type { MouseEventHandler } from "react";
+import React from "react";
 import { useEffect, useState } from "react";
 
 const base64ToUint8Array = (base64: string) => {

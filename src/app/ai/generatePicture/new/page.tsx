@@ -9,38 +9,31 @@ import {
 	Textarea,
 	Spinner,
 } from "@nextui-org/react";
-import { toast } from "react-toastify";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import ImageCropModal from "@/components/ImageCropModal";
 import { useRouter } from "next/navigation"; // For navigation
 import React from "react";
-import { sendPromptToBackend, submitFinalData } from "../../services/aiApi";
-
-interface Job {
-	id: string;
-	workflow: string;
-	status: "pending" | "running" | "completed" | "failed";
-	runtime: string;
-	images: any[];
-	result_data: Record<string, any>;
-	input_data: Record<string, any>;
-	logs: string;
-	user: string;
-}
+import {
+	getJob,
+	sendPromptToBackend,
+	submitFinalData,
+} from "../../services/aiApi";
+import { Job } from "../../interfaces/Job";
+import { toast } from "sonner";
 
 const PromptPage = () => {
-	const [prompt, setPrompt] = useState<string>(""); 
+	const [prompt, setPrompt] = useState<string>("");
 	const [job, setJob] = useState<Job | null>(null); // Store the entire job object
-	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false); 
-	const [isSubmittingFinal, setIsSubmittingFinal] = useState<boolean>(false); 
-	const [polling, setPolling] = useState<boolean>(false); 
+	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false);
+	const [isSubmittingFinal, setIsSubmittingFinal] = useState<boolean>(false);
+	const [polling, setPolling] = useState<boolean>(false);
 	const [isCropModalOpen, setCropModalOpen] = useState(false);
-	const router = useRouter(); 
+	const router = useRouter();
 
-	const pollJobStatus = async (jobId: string) => {
+	const pollJobStatus = async (jobId: number) => {
 		const intervalId = setInterval(async () => {
 			try {
-				const jobData = await getJobStatus(jobId);
+				const jobData = await getJob(jobId);
 				setJob(jobData); // Store the full job object
 
 				if (jobData.status === "completed") {
@@ -58,6 +51,7 @@ const PromptPage = () => {
 					toast.error("Job failed to complete.");
 				}
 			} catch (error) {
+				console.error("Error fetching job status:", error);
 				clearInterval(intervalId);
 				setPolling(false);
 				toast.error("Error fetching job status.");
@@ -80,7 +74,7 @@ const PromptPage = () => {
 			toast.success("Prompt submitted successfully!");
 
 			if (response.job_id) {
-				setPolling(true); 
+				setPolling(true);
 				pollJobStatus(response.job_id);
 			} else {
 				toast.error("Failed to retrieve job ID.");
@@ -95,7 +89,7 @@ const PromptPage = () => {
 
 	// Handle final submission of data
 	const handleFinalSubmit = async () => {
-		console.log(job)
+		console.log(job);
 		if (!job) {
 			toast.error("No job available to submit.");
 			return;
@@ -128,21 +122,23 @@ const PromptPage = () => {
 			return;
 		}
 		if (file) {
-			setJob({
-				...job,
-				images: [URL.createObjectURL(file)], // Simulate image being added
-			} as Job);
-			setCropModalOpen(true);
+			// setJob({
+			// 	...job,
+			// 	images: [URL.createObjectURL(file)], // Simulate image being added
+			// } as Job);
+			// setCropModalOpen(true);
+			console.log("file", file);
 		}
 	};
 
 	// Handle crop complete and set the cropped image
 	const handleCropComplete = (croppedImage: File) => {
 		if (job) {
-			setJob({
-				...job,
-				images: [URL.createObjectURL(croppedImage)],
-			});
+			// setJob({
+			// 	...job,
+			// 	images: [URL.createObjectURL(croppedImage)],
+			// });
+			console.log("croppedImage", croppedImage);
 		}
 		setCropModalOpen(false);
 	};
@@ -164,9 +160,7 @@ const PromptPage = () => {
 					{/* Image Section */}
 					<Card
 						isPressable
-						onClick={() =>
-							document.getElementById("user-image-input")?.click()
-						}
+						onClick={() => document.getElementById("user-image-input")?.click()}
 						className="w-[500px] aspect-square bg-pink-500 relative"
 					>
 						{job && job.images?.length > 0 ? (
@@ -175,7 +169,7 @@ const PromptPage = () => {
 									alt="Result Image"
 									className="z-0 w-full h-full object-cover"
 									classNames={{ wrapper: "w-full h-full aspect-square" }}
-									src={job.result_data.image_urls[0]} 
+									src={job.result_data.image_urls[0]}
 								/>
 								<CardFooter className="absolute bottom-0 z-10">
 									<div className="flex items-center">
@@ -207,6 +201,7 @@ const PromptPage = () => {
 						)}
 					</Card>
 					<input
+						placeholder="image"
 						type="file"
 						id="user-image-input"
 						accept="image/*"
@@ -256,11 +251,7 @@ const PromptPage = () => {
 			<ImageCropModal
 				isOpen={isCropModalOpen}
 				onClose={() => setCropModalOpen(false)}
-				imageSrc={
-					job && job.images?.length > 0
-						? job.images[0]
-						: ""
-				}
+				imageSrc={job && job.images?.length > 0 ? job.images[0].toString() : ""}
 				onCropComplete={handleCropComplete}
 			/>
 		</div>

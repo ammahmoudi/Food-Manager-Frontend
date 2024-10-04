@@ -11,7 +11,7 @@ import {
 import { checkPhoneNumberUnique } from "@/services/api";
 import debounce from "@/utils/debounce";
 import { useUser } from "@/context/UserContext";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 export default function SignupForm() {
 	const router = useRouter();
@@ -111,7 +111,7 @@ export default function SignupForm() {
 					re_password: confirmPassword,
 				}),
 				{
-					// pending: "Signing up...",
+					// laoding: "Signing up...",
 					// success: "Signup successful! 🎉",
 					// error: "Signup failed. Please try again.",
 				}

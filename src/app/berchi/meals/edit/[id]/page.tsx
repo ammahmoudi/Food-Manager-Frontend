@@ -1,31 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Button, Input } from "@nextui-org/react";
+import { useParams} from "next/navigation";
+import { Button, Input, Spinner } from "@nextui-org/react";
 import { updateMeal, getMealById } from "@/app/berchi/services/berchiApi";
 import { Meal } from "../../../interfaces/Meal";
 import { Food } from "../../../interfaces/Food";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const EditMealPage = () => {
 	const { id } = useParams();
 	const [meal, setMeal] = useState<Meal | null>(null);
 	const [selectedFood, setSelectedFood] = useState<Food | null>(null);
 	const [date, setDate] = useState<string>("");
-	const router = useRouter();
 
 	useEffect(() => {
 		const fetchMeal = async () => {
 			if (id) {
 				const fetchMealPromise = getMealById(parseInt(id as string));
 				try {
-					const fetchedMeal = await toast.promise(fetchMealPromise, {
-						pending: "Fetching meal details...",
+					toast.promise(fetchMealPromise, {
+						loading: "Fetching meal details...",
 						success: "Meal details loaded successfully!",
 						error: "Failed to load meal details. Please try again.",
 					});
+					const fetchedMeal = await  fetchMealPromise;
 					setMeal(fetchedMeal);
 					setSelectedFood(fetchedMeal.food);
 					setDate(fetchedMeal.date);
@@ -48,11 +48,11 @@ const EditMealPage = () => {
 
 			try {
 				await toast.promise(saveMealPromise, {
-					pending: "Saving meal...",
+					loading: "Saving meal...",
 					success: "Meal updated successfully!",
 					error: "Failed to update meal. Please try again.",
 				});
-				router.push("/meals");
+				// router.push("/meals");
 			} catch (error) {
 				console.error("Failed to update meal:", error);
 			}
@@ -60,7 +60,9 @@ const EditMealPage = () => {
 	};
 
 	if (!meal) {
-		return <div>There is no meal</div>;
+		return 		<div className="flex items-center justify-center h-screen w-screen">
+		<Spinner size="lg" />
+	</div>;
 	}
 
 	return (

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState } from "react";
 import { Card, CardBody, Image } from "@nextui-org/react";
@@ -8,7 +8,7 @@ import { Meal } from "../interfaces/Meal";
 import MealDetailModal from "./MealDetailModal";
 import { getMealByDate } from "@/app/berchi/services/berchiApi";
 import { formatDateToYYYYMMDD } from "@/utils/dateUtils";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 interface MealCardProps {
 	date: Date;
@@ -27,15 +27,14 @@ const MealCard: React.FC<MealCardProps> = ({
 	const fetchMeal = async () => {
 		try {
 			const fetchPromise = getMealByDate(formatDateToYYYYMMDD(date));
-			const response = await toast.promise(
-				fetchPromise,
-				{
-					pending: "Fetching meal details...",
-					success: "Meal fetched successfully!",
-					error: "Failed to fetch meal details.",
-				}
-			);
-			setMeal(response);
+			toast.promise(fetchPromise, {
+				loading: "Fetching meal details...",
+				success: (response) => {
+					setMeal(response);
+					return "Meal details loaded successfully!";
+				},
+				error: "Failed to fetch meal details.",
+			});
 		} catch (error) {
 			setMeal(null);
 			console.error("Failed to fetch meals:", error);
@@ -52,15 +51,12 @@ const MealCard: React.FC<MealCardProps> = ({
 	};
 
 	const handleSave = (meal: Meal | null) => {
-		console.log(meal)
+		console.log(meal);
 		// Optionally handle save logic
 	};
 
 	const handleDelete = async (mealId: number) => {
-	
-			onDelete(mealId);
-
-		
+		onDelete(mealId);
 	};
 
 	return (
@@ -83,7 +79,10 @@ const MealCard: React.FC<MealCardProps> = ({
 										wrapper: "w-full h-full max-w-full max-h-full ",
 									}}
 									shadow="md"
-									src={meal.food?.image as string ?? "/images/food-placeholder.jpg"} // Add a placeholder image if no picture is available
+									src={
+										(meal.food?.image as string) ??
+										"/images/food-placeholder.jpg"
+									} // Add a placeholder image if no picture is available
 									width={120}
 									height={120}
 								/>
