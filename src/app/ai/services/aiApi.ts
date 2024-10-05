@@ -138,3 +138,40 @@ export const sendPromptForCharacter = async (data: {
     throw error;
   }
 };
+
+
+
+// Define the function to fetch image details by image ID
+export const getImageById = async (imageId: number) => {
+  try {
+    const response = await api.get(`/api/cui/dataset-images/${imageId}/`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching image with ID ${imageId}:`, error);
+    throw new Error('Failed to fetch image.');
+  }
+};
+
+// Define the function to fetch dataset details by dataset ID
+export const getDatasets = async () => {
+  try {
+    const response = await api.get(`/cui/datasets/`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching datasets`, error);
+    throw new Error('Failed to fetch dataset.');
+  }
+};
+
+
+
+// Fetch all datasets for the user
+export const getUserDatasets = async (): Promise<Dataset[]> => {
+  try {
+    const response = await api.get(`/cui/datasets/my-datasets/`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user datasets", error);
+    throw error;
+  }
+};
