@@ -1,29 +1,41 @@
-"use client";
-import { Toaster } from "sonner";
+import "react-toastify/dist/ReactToastify.css";
+import "@/app/globals.css";
+import { ToastContainer } from "react-toastify";
 import React from "react";
 
 interface ToastProviderProps {
 	children: React.ReactNode;
 }
 export default function ToastProvider({ children }: ToastProviderProps) {
-	// const contextClass = {
-	// 	toast: "bg-blue-400",
-	// 	title: "text-red-400",
-	// 	description: "text-red-400",
-	// 	actionButton: "bg-zinc-400",
-	// 	cancelButton: "bg-orange-400",
-	// 	closeButton: "bg-lime-400",
-	// };
+	const contextClass = {
+		success: "bg-blue-600",
+		error: "bg-red-600",
+		info: "bg-gray-600",
+		warning: "bg-orange-400",
+		default: "bg-indigo-600",
+		dark: "bg-white-600 font-gray-300",
+	};
 
 	return (
 		<>
-			<Toaster
-				toastOptions={{
-					unstyled: false,
-					// classNames: contextClass,
-				}}
-			/>
 			{children}
+			<ToastContainer
+				toastClassName={(context) =>
+					contextClass[context?.type || "default"] +
+					" relative flex p-1 min-h-10 rounded-md justify-between overflow-hidden cursor-pointer"
+				}
+				bodyClassName={() => "text-sm font-white font-med block p-3"}
+				position="top-center"
+				autoClose={5000}
+				hideProgressBar={false}
+				newestOnTop={false}
+				closeOnClick
+				rtl={false}
+				pauseOnFocusLoss
+				draggable
+				pauseOnHover
+				theme="light"
+			/>
 		</>
 	);
 }

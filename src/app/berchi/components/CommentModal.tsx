@@ -16,11 +16,11 @@ import { useUser } from "@/context/UserContext";
 import {
 	submitCommentForMeal,
 	updateCommentForMeal,
-	deleteCommentForMeal,
+	deleteCommentForMeal
 } from "@/app/berchi/services/berchiApi";
 import { ModalContent } from "@nextui-org/react";
 import moment from "moment";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 interface CommentModalProps {
 	isOpen: boolean;
@@ -55,26 +55,27 @@ const CommentModal: React.FC<CommentModalProps> = ({
 	const handleSave = async () => {
 		setIsSubmitting(true);
 
-		try {
-			const savePromise = comment
-				? updateCommentForMeal(comment.id, commentText)
-				: meal
-				? submitCommentForMeal(meal.id, commentText)
-				: Promise.reject("Invalid comment or meal");
+		const savePromise = comment
+			? updateCommentForMeal(comment.id, commentText)
+			: meal
+			? submitCommentForMeal(meal.id, commentText)
+			: Promise.reject("Invalid comment or meal");
 
-			toast.promise(savePromise, {
-				loading: "Saving comment...",
-				success: (savedComment) => {
-					if (comment) {
-						onUpdate(savedComment);
-					} else {
-						onAdd(savedComment);
-					}
-					onClose();
-					return comment ? "Comment updated!" : "Comment added!";
-				},
-				error: "Failed to save comment",
-			});
+		toast.promise(savePromise, {
+			pending: "Saving comment...",
+			success: comment ? "Comment updated!" : "Comment added!",
+			error: "Failed to save comment",
+		});
+
+		try {
+			const savedComment = await savePromise;
+			if (comment) {
+				onUpdate(savedComment);
+			} else {
+				onAdd(savedComment);
+			}
+
+			onClose();
 		} catch (error) {
 			console.error("Failed to save comment:", error);
 		} finally {
@@ -92,16 +93,16 @@ const CommentModal: React.FC<CommentModalProps> = ({
 
 		const deletePromise = deleteCommentForMeal(comment.id);
 
+		toast.promise(deletePromise, {
+			pending: "Deleting comment...",
+			success: "Comment deleted!",
+			error: "Failed to delete comment",
+		});
+
 		try {
-			toast.promise(deletePromise, {
-				loading: "Deleting comment...",
-				success: () => {
-					onDelete(comment.id);
-					onClose();
-					return "Comment deleted!";
-				},
-				error: "Failed to delete comment",
-			});
+			await deletePromise;
+			onDelete(comment.id);
+			onClose();
 		} catch (error) {
 			console.error("Failed to delete comment:", error);
 		} finally {

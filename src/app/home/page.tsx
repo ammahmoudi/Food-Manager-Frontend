@@ -10,11 +10,11 @@ import {
 import { format, startOfToday } from "date-fns-jalali";
 import { useUser } from "@/context/UserContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { toast } from "react-toastify";
 import CommentSection from "../berchi/components/CommentSection";
 import MealCard from "../berchi/components/MealCard";
 import TopRatedFoodsChart from "../berchi/components/TopRatedFoodsChart";
-import { Meal } from "../berchi/interfaces/Meal";
-import { toast } from "sonner";
+import { Meal } from "../Berchi/interfaces/Meal";
 
 const HomePage = () => {
 	const [currentDayMeal, setCurrentDayMeal] = useState<Meal | null>(null);
@@ -26,25 +26,19 @@ const HomePage = () => {
 		setLoadingMeal(true);
 		const fetchMealPromise = getCurrentDayMeal();
 		try {
-			toast.promise(fetchMealPromise, {
-				// loading: "Fetching today's meal...",
-				success: (meal)=>{
-					setCurrentDayMeal(meal);
-					return "Today's meal loaded successfully!";
-				},
+			const meal = await toast.promise(fetchMealPromise, {
+				pending: "Fetching today's meal...",
+				success: "Today's meal loaded successfully!",
 				error: "Failed to load today's meal.",
 			});
-
-
+			setCurrentDayMeal(meal);
 		} catch (error) {
 			console.error("Failed to fetch current day meal:", error);
 		} finally {
 			setLoadingMeal(false);
 		}
 	}, []); // Add empty dependency array to ensure it doesn't change
-	useEffect(() => {
-		fetchCurrentDayMeal();
-	}, []);
+
 	const handleDeleteMeal = (mealId: number) => {
 		console.log("meal", mealId, "deleted");
 		setCurrentDayMeal(null);
@@ -54,6 +48,10 @@ const HomePage = () => {
 	const currentDate = startOfToday();
 	let currentYear = Number(format(currentDate, "yyyy"));
 	let currentMonth = Number(format(currentDate, "MM"));
+
+	useEffect(() => {
+		fetchCurrentDayMeal();
+	}, []);
 
 	return (
 		<ProtectedRoute>

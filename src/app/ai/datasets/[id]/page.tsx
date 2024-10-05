@@ -1,17 +1,23 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Button, Spinner,Image } from "@nextui-org/react";
-import { useParams } from "next/navigation";
-import { getDataset, getJob } from "../../services/aiApi";
-import React from "react";
-import { toast } from "sonner";
-import { Job } from "../../interfaces/Job";
+import { getDataset, getJobStatus } from "@/services/api";
+import { Button, Spinner } from "@nextui-org/react";
+import { useRouter } from "next/navigation"; 
+import { useParams } from "next/navigation"; 
+import { toast } from "react-toastify";
+
+interface Job {
+	id: string;
+	status: string;
+	image_urls: string[];
+}
 
 const ResultPage = () => {
-	const [jobs, setJobs] = useState<Job[]>([]);
-	const [loading, setLoading] = useState<boolean>(true);
+	const [jobs, setJobs] = useState<Job[]>([]); 
+	const [loading, setLoading] = useState<boolean>(true); 
 	const [polling, setPolling] = useState<boolean>(true);
 
+	const router = useRouter();
 	const { id: datasetId } = useParams(); // Get the dynamic dataset_id from the URL
 
 	// Fetch dataset and start polling jobs
@@ -20,34 +26,34 @@ const ResultPage = () => {
 
 		try {
 			setLoading(true);
-			const dataset = await getDataset(datasetId as unknown as number);
+			const dataset = await getDataset(datasetId);
 			const jobIds = dataset.jobs || [];
 
 			// Initialize jobs with empty status and image_urls
 			const initialJobs = jobIds.map((jobId: string) => ({
 				id: jobId,
 				status: "pending", // Initial status
-				image_urls: [], // Empty array for images
+				image_urls: [] // Empty array for images
 			}));
 			setJobs(initialJobs);
 
 			// Start polling job statuses
 			const intervalId = setInterval(async () => {
 				const updatedJobs = await Promise.all(
-					initialJobs.map(async (job: Job) => {
-						const jobData = await getJob(job.id);
-						return jobData
+					initialJobs.map(async (job) => {
+						const jobData = await getJobStatus(job.id);
+						return {
+							id: job.id,
+							status: jobData.status,
+							image_urls: jobData.result_data?.image_urls || []
+						};
 					})
 				);
 
 				setJobs(updatedJobs);
 
 				// Stop polling if all jobs are either completed or failed
-				if (
-					updatedJobs.every(
-						(job) => job.status === "completed" || job.status === "failed"
-					)
-				) {
+				if (updatedJobs.every((job) => job.status === "completed" || job.status === "failed")) {
 					clearInterval(intervalId);
 					setPolling(false);
 				}
@@ -75,8 +81,8 @@ const ResultPage = () => {
 							<div key={job.id} className="flex flex-col items-center">
 								{/* If the job is completed, show the images */}
 								{job.status === "completed" ? (
-									job.result_data.image_urls.map((imageURL, index) => (
-										<Image
+									job.image_urls.map((imageURL, index) => (
+										<img
 											key={index}
 											src={imageURL}
 											alt={`Job ${job.id} Image ${index + 1}`}

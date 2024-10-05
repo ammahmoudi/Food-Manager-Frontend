@@ -11,12 +11,12 @@ import {
 	CardBody,
 	Checkbox,
 } from "@nextui-org/react";
+import { toast } from "react-toastify";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import ImageCropModal from "@/components/ImageCropModal"; // Import ImageCropModal
 import { sendNotification, getAllUsers } from "@/services/api"; // Assuming getUsers API is available
 import { Select, SelectItem, Avatar, Chip } from "@nextui-org/react";
 import { User} from "@/interfaces/User"; // Assuming User interface is in this path
-import { toast } from "sonner";
 
 // Define the types for user selection
 
@@ -86,20 +86,15 @@ const NotificationPage = () => {
 			: (Array.from(selectedUserIds) as number[]);
 
 		try {
-			toast.promise(
+			const response = await toast.promise(
 				sendNotification(title, message, userIdsToSend, image as File, link),
 				{
-					loading: "Sending notification...",
+					pending: "Sending notification...",
 					success: "Notification sent successfully!",
-					error:(response)=>{
-						console.log("Notification response:", response);
-						return 	"Failed to send notification";
-					} 
-					
-				,
+					error: "Failed to send notification",
 				}
 			);
-		
+			console.log("Notification response:", response);
 		} catch (error) {
 			console.error("Error sending notification:", error);
 		}

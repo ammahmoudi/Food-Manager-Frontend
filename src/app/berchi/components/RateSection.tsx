@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Slider, SliderValue } from "@nextui-org/react";
 import { getUserRateForMeal, submitRateForMeal } from "@/app/berchi/services/berchiApi";
-import { toast } from "sonner";
+import { toast } from "react-toastify";
 
 interface RateSectionProps {
 	mealId: number;
@@ -16,18 +16,15 @@ const RateSection: React.FC<RateSectionProps> = ({ mealId }) => {
 	useEffect(() => {
 		const fetchUserRate = async () => {
 			try {
-				toast.promise(
+				const response = await toast.promise(
 					getUserRateForMeal(mealId),
 					{
-						// loading: "Loading your rate...",
-						success: (response)=>{
-							setRate(response.rate);
-							return"Rate loaded!"
-						}	,
+						pending: "Loading your rate...",
+						success: "Rate loaded!",
 						error: "Failed to load rate.",
 					}
 				);
-				
+				setRate(response.rate);
 			} catch (error) {
 				console.error("Failed to fetch rate:", error);
 			}
@@ -43,8 +40,8 @@ const RateSection: React.FC<RateSectionProps> = ({ mealId }) => {
 				await toast.promise(
 					submitRateForMeal(mealId, rate as number),
 					{
-						// loading: "Submitting your rate...",
-						// success: "Rate submitted successfully!",
+						pending: "Submitting your rate...",
+						success: "Rate submitted successfully!",
 						error: "Failed to submit rate.",
 					}
 				);

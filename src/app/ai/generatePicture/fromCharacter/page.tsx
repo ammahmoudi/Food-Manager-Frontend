@@ -10,14 +10,35 @@ import {
   SelectItem,
   Avatar,
   SelectedItems,
-  Image
 } from "@nextui-org/react";
 
-import { getCharacters, sendPromptforCharacter } from "../../services/aiApi";
-import { Job } from "../../interfaces/Job";
-import { toast } from "sonner";
-import Character from "../../interfaces/Character";
+import { toast, Id } from "react-toastify";
+import { getCharacters } from "../../services/aiApi";
 
+interface Character {
+  id: number;
+  name: string;
+  image: string; // Added avatar field for characters
+  loras: Record<string, string>; // Loras is an object with name-path pairs
+  datasets: Dataset[];
+}
+
+interface Dataset {
+  id: number;
+  name: string;
+}
+
+interface Job {
+  id: number;
+  workflow: string;
+  status: "pending" | "running" | "completed" | "failed";
+  runtime: string;
+  images: any[];
+  result_data: Record<string, any>;
+  input_data: Record<string, any>;
+  logs: string;
+  user: string;
+}
 
 const PromptPage = () => {
   const [prompt, setPrompt] = useState<string>("");
@@ -175,7 +196,7 @@ const PromptPage = () => {
               <Select
                 label="Choose a Lora"
                 selectedKeys={selectedLora}
-                onChange={(e) => setSelectedLora(e as unknown as string)}
+                onChange={(e) => setSelectedLora(e as string)}
               >
                 {loras.map((lora) => (
                   <SelectItem key={lora.name} value={lora.path}>
@@ -205,7 +226,7 @@ const PromptPage = () => {
       {resultImage && (
         <div className="mt-4">
           <h3 className="text-xl font-semibold mb-2">Generated Image</h3>
-          <Image
+          <img
             src={resultImage}
             alt="Generated result"
             className="w-80 h-80 object-cover border rounded-md"

@@ -12,13 +12,10 @@ import {
 } from "@nextui-org/react";
 
 import { FoodDetailCard } from "./FoodDetailCard";
+import { toast } from "react-toastify"; // Import toast
 import { Food } from "../interfaces/Food";
-import { toast } from "sonner";
-import {
-	getThemeColorFromImage,
-	getLighterColorBasedOnRating,
-	getReadableTextColor,
-} from "@/utils/colorUtils";
+import { getThemeColorFromImage, getLighterColorBasedOnRating, getReadableTextColor } from "@/utils/ColorUtils";
+
 interface AvatarPosition {
 	x: number;
 	y: number;
@@ -35,9 +32,13 @@ const TopRatedFoodsChartJS = () => {
 		const fetchTopFoods = async () => {
 			try {
 				setLoading(true);
-				toast.promise(getFoods(), {
-					// pending: "Loading top-rated foods...",
-					success: (response) => {
+				await toast
+					.promise(getFoods(), {
+						// pending: "Loading top-rated foods...",
+						// success: "Top-rated foods loaded! 🎉",
+						error: "Failed to load foods.",
+					})
+					.then((response) => {
 						const filteredFoods = response.filter(
 							(food: Food) => food.avg_rate !== 0
 						);
@@ -47,10 +48,7 @@ const TopRatedFoodsChartJS = () => {
 
 						setFoods(sortedFoods);
 						setLoading(false);
-						return "Top-rated foods loaded successfully!";
-					},
-					error: "Failed to load foods.",
-				});
+					});
 			} catch (error) {
 				console.error("Error fetching top-rated foods:", error);
 			}

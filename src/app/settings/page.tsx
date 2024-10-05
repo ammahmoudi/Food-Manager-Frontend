@@ -27,10 +27,9 @@ import {
 } from "@heroicons/react/24/solid";
 import debounce from "@/utils/debounce";
 import { useUser } from "@/context/UserContext";
+import { toast } from "react-toastify";
 import ImageCropModal from "@/components/ImageCropModal";
 import { UpdateUserData } from "@/interfaces/UpdateUserData";
-import { toast } from "sonner";
-import React from "react";
 
 const SettingsPage = () => {
 	const { user, updateUserData, isLoading } = useUser(); // Destructure methods from useUser
@@ -126,7 +125,7 @@ const SettingsPage = () => {
 
 		try {
 			await toast.promise(saveUserPromise, {
-				loading: "Saving changes...",
+				pending: "Saving changes...",
 				success: "User data updated successfully!",
 				error: "Failed to update user data",
 			});
@@ -149,7 +148,7 @@ const SettingsPage = () => {
 
 		try {
 			await toast.promise(changePasswordPromise, {
-				loading: "Changing password...",
+				pending: "Changing password...",
 				success: "Password changed successfully!",
 				error: "Failed to change password",
 			});

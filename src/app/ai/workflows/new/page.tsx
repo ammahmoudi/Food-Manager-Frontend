@@ -2,8 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { Card, CardBody, Button, Input, Textarea } from "@nextui-org/react";
+import { toast } from "react-toastify";
 import { fetchNodesFromJson, submitWorkflowInputs } from "../../services/aiApi";
-import { toast } from "sonner";
 
 interface InputType {
   type: string;
@@ -23,7 +23,7 @@ interface ConstructedInputs {
 
 interface RequestBody {
   name: string;
-  json_data: Record<string, unknown>; // Replace with specific type if your JSON structure is known
+  json_data: any; // Replace with specific type if your JSON structure is known
   inputs: ConstructedInputs;
 }
 
@@ -47,7 +47,6 @@ const WorkflowPage = () => {
       setAvailableNodes(fetchedNodes); // Initialize available nodes
       toast.success("Nodes fetched successfully!");
     } catch (error) {
-      console.error("Failed to fetch nodes:", error);
       toast.error("Failed to fetch nodes.");
     }
   }, [jsonText]);
@@ -267,7 +266,6 @@ const WorkflowPage = () => {
         <div className="mb-4">
           <h3 className="text-xl font-semibold">Select Node</h3>
           <select
-          title="Select Node"
             className="border p-2 rounded w-full"
             onChange={handleSelectNode}
             value={selectedNodeId || ""}
@@ -289,7 +287,6 @@ const WorkflowPage = () => {
         <div className="mb-4">
           <h3 className="text-xl font-semibold">Select Input for Node</h3>
           <select
-            title="Select Input"
             className="border p-2 rounded w-full"
             onChange={handleSelectInput}
             value={selectedInput || ""}

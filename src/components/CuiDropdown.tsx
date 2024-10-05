@@ -7,15 +7,23 @@ import {
 	DropdownItem,
 	Link,
 } from "@nextui-org/react";
-import { PhotoIcon as PhotoIconOutline } from "@heroicons/react/24/outline";
+import {
+	PhotoIcon as PhotoIconSolid,
+} from "@heroicons/react/24/solid";
+import {
+	PhotoIcon as PhotoIconOutline,
+} from "@heroicons/react/24/outline";
 import { useUser } from "@/context/UserContext";
+import { useRouter } from 'next/navigation';
 
 const UserDropdown = () => {
 	const { user } = useUser();
+	const router = useRouter();
 
 	if (!user) {
 		return <div>Loading...</div>;
 	}
+
 
 	return (
 		<Dropdown placement="bottom-end" shouldCloseOnBlur>
@@ -23,7 +31,8 @@ const UserDropdown = () => {
 				<Button
 					as={Link}
 					variant="light"
-					startContent={<PhotoIconOutline className="text-grey size-6" />} // Button properties
+				
+				startContent={<PhotoIconOutline  className="text-grey size-6"  />} // Button properties
 				>
 					<span className="hidden sm:inline">CumfyUI</span>
 				</Button>
@@ -50,8 +59,9 @@ const UserDropdown = () => {
 					key="generatePictureNew"
 					href="/ai/generatePicture/new/"
 				>
-					Generate picture
+					Generate picture 
 				</DropdownItem>
+
 
 				<DropdownItem
 					textValue="Generate Picture"

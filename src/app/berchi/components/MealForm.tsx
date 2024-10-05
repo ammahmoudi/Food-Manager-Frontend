@@ -4,6 +4,7 @@ import React, { FC, useState, useEffect, useCallback } from "react";
 import {
 	Button,
 	Card,
+	
 	CardFooter,
 	CardHeader,
 	Image,
@@ -21,7 +22,7 @@ import {
 	createMeal,
 	deleteMeal,
 	getMealByDate,
-	updateMeal,
+	updateMeal
 } from "@/app/berchi/services/berchiApi";
 import CustomFoodAutocomplete from "./CustomFoodAutocomplete";
 import FoodModal from "./FoodModal";
@@ -32,7 +33,7 @@ import { PencilSquareIcon } from "@heroicons/react/16/solid";
 import CommentSection from "./CommentSection";
 import RateSection from "./RateSection";
 import { useUser } from "@/context/UserContext";
-import { toast } from "sonner";
+import { toast } from "react-toastify"; // Importing toast
 
 interface MealFormProps {
 	initialData: Meal | null;
@@ -60,17 +61,18 @@ const MealForm: FC<MealFormProps> = ({
 	const fetchMeal = useCallback(async () => {
 		if (selectedDate) {
 			try {
-				toast.promise(getMealByDate(formatDateToYYYYMMDD(selectedDate)), {
-					// pending: "Fetching meal data...",
-					success: (response) => {
-						setMeal(response);
-						if (!selectedFood) {
-							setSelectedFood(response.food);
-						}
-						return "Meal data loaded successfully!";
-					},
-					error: "Failed to fetch meal data",
-				});
+				const response = await toast.promise(
+					getMealByDate(formatDateToYYYYMMDD(selectedDate)),
+					{
+						// pending: "Fetching meal data...",
+						// success: "Meal data loaded successfully!",
+						error: "Failed to fetch meal data",
+					}
+				);
+				setMeal(response);
+				if (!selectedFood) {
+					setSelectedFood(response.food);
+				}
 			} catch (error) {
 				setMeal(null);
 				console.error("Failed to fetch meal:", error);
@@ -129,19 +131,28 @@ const MealForm: FC<MealFormProps> = ({
 			? updateMeal(meal.id, newMeal)
 			: createMeal(newMeal);
 
-		toast.promise(saveMealPromise, {
-			loading: meal ? "Updating meal..." : "Creating meal...",
-			success: (updatedMeal) => {
-				onSave(updatedMeal); // Pass the updated meal to onSave after toast.promise resolves
-
-				return meal
-					? "Meal has been updated successfully!"
-					: "Meal has been created successfully!";
+		const updatedMeal = await toast.promise(saveMealPromise, {
+			pending: {
+				render() {
+					return meal ? "Updating meal..." : "Creating meal...";
+				},
+				icon: false,
 			},
-			error: () => {
-				return "Failed to save meal";
+			success: {
+				render() {
+					return meal
+						? "Meal has been updated successfully!"
+						: "Meal has been created successfully!";
+				},
+			},
+			error: {
+				render({ data }) {
+					return `Failed to save meal: ${data || "Unknown error"}`;
+				},
 			},
 		});
+
+		onSave(updatedMeal); // Pass the updated meal to onSave after toast.promise resolves
 	};
 
 	const handleDeleteMeal = async () => {
@@ -149,17 +160,13 @@ const MealForm: FC<MealFormProps> = ({
 
 		const deletePromise = deleteMeal(meal.id);
 
-	toast.promise(deletePromise, {
-			loading: "Deleting meal...",
-			success:()=>{
-
-				onDelete(meal.id);
-				return "Meal has been deleted successfully!";
-
-			},
+		await toast.promise(deletePromise, {
+			pending: "Deleting meal...",
+			success: "Meal has been deleted successfully!",
 			error: "Failed to delete meal",
 		});
 
+		onDelete(meal.id);
 	};
 
 	return (
@@ -205,9 +212,7 @@ const MealForm: FC<MealFormProps> = ({
 					<Image
 						alt={selectedFood.name}
 						className="z-0 w-full h-full object-cover"
-						classNames={{
-							wrapper: "w-full h-full max-w-full max-h-full  aspect-square ",
-						}}
+						classNames={{ wrapper: "w-full h-full max-w-full max-h-full  aspect-square " }}
 						src={
 							(selectedFood.image as string) ?? "/images/food-placeholder.jpg"
 						}
@@ -216,9 +221,7 @@ const MealForm: FC<MealFormProps> = ({
 						<div className="flex flex-grow gap-2 items-center">
 							<div className="flex flex-col">
 								<p className="text-tiny text-white/60">
-									<span className="text-muted-foreground text-sm">
-										{selectedFood.avg_rate}/5.0
-									</span>
+									<span className="text-muted-foreground text-sm">{selectedFood.avg_rate}/5.0</span>
 								</p>
 							</div>
 						</div>

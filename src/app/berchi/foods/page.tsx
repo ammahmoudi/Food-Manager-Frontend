@@ -19,8 +19,8 @@ import FoodCard from "../components/FoodCard";
 import FoodModal from "../components/FoodModal";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useUser } from "@/context/UserContext";
+import { toast } from "react-toastify";
 import { Food } from "../interfaces/Food";
-import { toast } from "sonner";
 
 const FoodsPage = () => {
 	const [foods, setFoods] = useState<Food[]>([]);
@@ -33,12 +33,11 @@ const FoodsPage = () => {
 	const fetchFoods = useCallback(async () => {
 		const fetchFoodsPromise = getFoods();
 		try {
-			toast.promise(fetchFoodsPromise, {
+			const response = await toast.promise(fetchFoodsPromise, {
 				// pending: 'Loading foods...',
 				// success: 'Foods loaded successfully!',
 				error: "Failed to load foods.",
 			});
-			const response = await fetchFoodsPromise;
 			setFoods(response);
 			setFilteredFoods(response);
 		} catch (error) {
