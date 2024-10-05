@@ -9,27 +9,25 @@ import {
   Select,
   SelectItem,
   Avatar,
-  SelectedItems,
-  Image
+  Image,
+  Spinner,
 } from "@nextui-org/react";
-
-import { getCharacters, sendPromptforCharacter } from "../../services/aiApi";
-import { Job } from "../../interfaces/Job";
+import { getCharacters, sendPromptForCharacter, getJob } from "../../services/aiApi"; 
+import { Job } from "../../interfaces/Job"; 
 import { toast } from "sonner";
 import Character from "../../interfaces/Character";
 
 
 const PromptPage = () => {
   const [prompt, setPrompt] = useState<string>("");
-  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(
-    null
-  );
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [selectedLora, setSelectedLora] = useState<string>("");
   const [characters, setCharacters] = useState<Character[]>([]);
-  const [loras, setLoras] = useState<{ name: string; path: string }[]>([]); // Array for Loras
+  const [loras, setLoras] = useState<{ name: string; path: string }[]>([]);
   const [job, setJob] = useState<Job | null>(null);
   const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false);
-  const [resultImage, setResultImage] = useState<string | null>(null);
+  const [resultImages, setResultImages] = useState<string[]>([]); // For multiple images
+  const [polling, setPolling] = useState<boolean>(false); // Track if polling is in progress
 
   // Fetch list of characters from backend on component mount
   useEffect(() => {
@@ -46,25 +44,49 @@ const PromptPage = () => {
   }, []);
 
   // Handle character selection and update Loras
-  const handleCharacterSelection = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    // Find the selected character and update the Loras
-    const character = characters.find(
-      (char) => char.id === parseInt(e.target.value)
-    );
+  const handleCharacterSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const character = characters.find((char) => char.id === parseInt(e.target.value));
     if (character) {
       setSelectedCharacter(character);
-      console.log(character);
       const loraList = Object.entries(character.loras).map(([name, path]) => ({
         name,
         path,
       }));
-
       setLoras(loraList);
     } else {
-      setLoras([]); // Reset Loras if no character is selected
+      setLoras([]);
     }
+  };
+
+  // Poll the job status using the jobID
+  const pollJobStatus = async (jobId: number) => {
+    const intervalId = setInterval(async () => {
+      try {
+        const jobData = await getJob(jobId);
+        setJob(jobData);
+
+        if (jobData.status === "completed") {
+          clearInterval(intervalId);
+          setPolling(false);
+
+          if (jobData.result_data && jobData.result_data.image_urls.length > 0) {
+            setResultImages(jobData.result_data.image_urls); // Store the image URLs
+            toast.success("Images generated successfully!");
+          } else {
+            toast.error("No images returned from the backend.");
+          }
+        } else if (jobData.status === "failed") {
+          clearInterval(intervalId);
+          setPolling(false);
+          toast.error("Job failed to complete.");
+        }
+      } catch (error) {
+        console.error("Error fetching job status:", error);
+        clearInterval(intervalId);
+        setPolling(false);
+        toast.error("Error fetching job status.");
+      }
+    }, 5000); // Poll every 5 seconds
   };
 
   // Handle prompt submission to backend
@@ -87,9 +109,9 @@ const PromptPage = () => {
     try {
       setIsSubmittingPrompt(true);
       setJob(null);
-      setResultImage(null);
+      setResultImages([]); // Clear previous images
 
-      const response = await sendPromptforCharacter({
+      const response = await sendPromptForCharacter({
         prompt,
         character_id: selectedCharacter.id,
         lora_name: selectedLora,
@@ -98,7 +120,8 @@ const PromptPage = () => {
       toast.success("Prompt submitted successfully!");
 
       if (response.job_id) {
-        // Handle polling for job status here (if necessary)
+        setPolling(true); // Start polling
+        pollJobStatus(response.job_id); // Start polling job status with jobID
       } else {
         toast.error("Failed to retrieve job ID.");
       }
@@ -118,7 +141,6 @@ const PromptPage = () => {
           <div className="flex flex-col w-full h-full">
             <Textarea
               label="Prompt"
-              className="h-[110px]"
               placeholder="Enter your prompt"
               fullWidth
               value={prompt}
@@ -129,37 +151,19 @@ const PromptPage = () => {
             <div className="mt-4">
               <Select
                 label="Choose a character"
-                onChange={handleCharacterSelection} // Call the handleCharacterSelection function
+                variant="bordered"
+                onChange={handleCharacterSelection}
                 selectedKeys={String(selectedCharacter?.id)}
-                classNames={{ base: "max-w-xs", trigger: "h-12" }}
-                renderValue={(items: SelectedItems<Character>) => {
-                  return items.map((item) => (
-                    <div key={item.key} className="flex items-center gap-2">
-                      <Avatar
-                        alt={item.data?.name}
-                        className="flex-shrink-0"
-                        size="sm"
-                        src={item.data?.image} // Show the avatar
-                      />
-                      <div className="flex flex-col">
-                        <span>{item.data?.name}</span>
-                      </div>
-                    </div>
-                  ));
-                }}
               >
                 {characters.map((char) => (
-                  <SelectItem
-                    key={char.id}
-                    value={char.id}
-                    textValue={char.name}
-                  >
+                  <SelectItem key={char.id} value={char.id} textValue={char.name}>
                     <div className="flex gap-2 items-center">
                       <Avatar
                         alt={char.name}
+                        
                         className="flex-shrink-0"
                         size="sm"
-                        src={char.image} // Show the avatar in the dropdown
+                        src={char.image}
                       />
                       <div className="flex flex-col">
                         <span className="text-small">{char.name}</span>
@@ -172,16 +176,19 @@ const PromptPage = () => {
 
             {/* Lora Selection */}
             <div className="mt-4">
-              <Select
+              <Select<{ name: string, path: string }>
+                items={loras}
                 label="Choose a Lora"
-                selectedKeys={selectedLora}
-                onChange={(e) => setSelectedLora(e as unknown as string)}
+                variant="bordered"
+                placeholder="Select a Lora"
+                onSelectionChange={(selectedKeys) => setSelectedLora(Array.from(selectedKeys)[0] as string)}
+                selectedKeys={selectedLora ? new Set([selectedLora]) : new Set()}
               >
-                {loras.map((lora) => (
-                  <SelectItem key={lora.name} value={lora.path}>
-                    {lora.name}
+                {(lora) => (
+                  <SelectItem key={lora.name} textValue={lora.name}>
+                    <div className="flex gap-2 items-center">{lora.name}</div>
                   </SelectItem>
-                ))}
+                )}
               </Select>
             </div>
           </div>
@@ -192,8 +199,8 @@ const PromptPage = () => {
             <Button
               color="primary"
               onPress={handleSubmitPrompt}
-              isLoading={isSubmittingPrompt}
-              isDisabled={isSubmittingPrompt}
+              isLoading={isSubmittingPrompt || polling}
+              isDisabled={isSubmittingPrompt || polling}
             >
               Submit Prompt
             </Button>
@@ -201,15 +208,18 @@ const PromptPage = () => {
         </CardFooter>
       </Card>
 
-      {/* Show result image under the button */}
-      {resultImage && (
-        <div className="mt-4">
-          <h3 className="text-xl font-semibold mb-2">Generated Image</h3>
-          <Image
-            src={resultImage}
-            alt="Generated result"
-            className="w-80 h-80 object-cover border rounded-md"
-          />
+      {/* Show result images under the button */}
+      {resultImages.length > 0 && (
+        <div className="mt-4 grid grid-cols-2 gap-4">
+          {resultImages.map((imageUrl, index) => (
+            <div key={index} className="w-80 h-80">
+              <Image
+                src={imageUrl}
+                alt={`Generated result ${index + 1}`}
+                className="w-full h-full object-cover border rounded-md"
+              />
+            </div>
+          ))}
         </div>
       )}
     </div>

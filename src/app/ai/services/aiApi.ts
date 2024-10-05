@@ -123,14 +123,13 @@ export const getCharacters = async () => {
 };
 
 // Send prompt with selected character and lora to the backend
-export const sendPromptforCharacter = async (data: {
+export const sendPromptForCharacter = async (data: {
   prompt: string;
   character_id: number;
   lora_name: string;
 }) => {
   try {
-    const response = await api.post(
-      "/cui/characters/generate-charachter-image/",
+    const response = await api.post("/cui/workflow-runners/characters/generate-character-image/",
       data
     );
     return response.data; // Assuming this returns job_id in response

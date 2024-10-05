@@ -60,6 +60,14 @@ const UserDropdown = () => {
 				>
 					Generate picture from character
 				</DropdownItem>
+
+				<DropdownItem
+					textValue="Assets"
+					key="Assets"
+					href="/ai/datasets/"
+				>
+					Assets
+				</DropdownItem>
 			</DropdownMenu>
 		</Dropdown>
 	);

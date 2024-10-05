@@ -5,7 +5,7 @@ import { jwtDecode, JwtPayload } from "jwt-decode"; // To decode JWT and check e
 import { UpdateUserData } from "@/interfaces/UpdateUserData";
 import { SignUpData } from "@/interfaces/SignUpData";
 
-const API_BASE_URL = "http://localhost:8000/api/";
+const API_BASE_URL = "http://192.168.40.39:8000/api/";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

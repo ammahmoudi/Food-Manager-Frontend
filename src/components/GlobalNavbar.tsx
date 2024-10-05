@@ -24,7 +24,7 @@ import {
 
 import UserDropdown from "./UserDropdown";
 import { useUser } from "@/context/UserContext";
-import CuiDropdown from "./CuiDropdown";
+import CuiDropdown from "../app/ai/components/CuiDropdown";
 import React from "react";
 
 const GlobalNavbar = () => {
