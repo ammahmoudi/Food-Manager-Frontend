@@ -19,7 +19,8 @@ import {
 } from "@/app/berchi/services/berchiApi";
 import UserAvatar from "@/components/UserAvatar";
 import moment from "moment";
-import { toast } from "sonner";
+import { useUser } from "@/context/UserContext";
+import { toast } from 'sonner';
 
 interface CommentCardProps {
 	comment: Comment;
@@ -37,6 +38,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
 	const [editModalVisible, setEditModalVisible] = useState(false);
 	const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 	const [editedText, setEditedText] = useState(comment.text);
+	const { user} = useUser();
 
 	const handleUpdateComment = async () => {
 		const updatePromise = updateCommentForMeal(comment.id, editedText);
@@ -86,7 +88,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
 				<CardBody>
 					<div className="flex mb-2 items-center gap-4">
 						<div className=" flex flex-col items-left">
-							<UserAvatar user={comment.user} />
+							<UserAvatar user={comment.user||user} />
 						</div>
 
 						<div className=" flex flex-col items-left overflow-hidden">
