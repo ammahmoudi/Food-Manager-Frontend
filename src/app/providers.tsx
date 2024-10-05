@@ -3,6 +3,7 @@ import { NextUIProvider } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import ToastProvider from "./ToastProvider";
 import { UserProvider } from "@/context/UserContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 export default function Providers({ children }: Props) {
 	const router = useRouter();
 	return (
+		<ThemeProvider>
 		<NextUIProvider navigate={router.push}>
 		<ToastProvider>
 				<UserProvider>
@@ -19,5 +21,7 @@ export default function Providers({ children }: Props) {
 		</UserProvider>
 		</ToastProvider>
 			</NextUIProvider>
+			</ThemeProvider>
+
 	);
 }

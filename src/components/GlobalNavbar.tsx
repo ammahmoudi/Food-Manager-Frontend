@@ -21,17 +21,16 @@ import {
 	CakeIcon as CakeIconOutline,
 } from "@heroicons/react/24/outline";
 
-
 import UserDropdown from "./UserDropdown";
 import { useUser } from "@/context/UserContext";
 import CuiDropdown from "../app/ai/components/CuiDropdown";
+import { useTheme } from "../context/ThemeContext"; // Import the ThemeContext
 import React from "react";
 
 const GlobalNavbar = () => {
 	const { isLoading, isAuthenticated } = useUser();
-	// const [showNavbar, setShowNavbar] = useState(true);
-	// setShowNavbar(true);
 	const pathName = usePathname();
+	const { currentTheme } = useTheme(); // Get the current theme
 
 	// Helper to determine if the current page matches the path
 	const isActive = (path: string) => pathName === path;
@@ -66,10 +65,13 @@ const GlobalNavbar = () => {
 			<OutlineIcon className="w-5 h-5" />
 		);
 
+	// Set the navbar brand name based on the active sub-app
+	const navbarBrandName = pathName.startsWith("/ai") ? "AI App" : "Berchi";
+
 	return (
-		<Navbar isBordered>
+		<Navbar isBordered style={{ backgroundColor: currentTheme.colors.primary }}>
 			<NavbarBrand>
-				<p className="font-bold text-inherit overflow-clip">Berchi</p>
+				<p className="font-bold text-inherit overflow-clip">{navbarBrandName}</p>
 			</NavbarBrand>
 
 			<NavbarContent>
@@ -86,8 +88,7 @@ const GlobalNavbar = () => {
 				</Button>
 				<CuiDropdown/>
 
-
-			<Button
+				<Button
 					as={Link}
 					href="/calendar"
 					variant="light"
