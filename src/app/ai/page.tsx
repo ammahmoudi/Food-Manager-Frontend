@@ -1,55 +1,89 @@
+/* eslint-disable @next/next/no-page-custom-font */
 "use client";
 
-import React from "react";
-import {
-  Button,
-  Link,
-  Card,
-  CardBody,
-} from "@nextui-org/react";
-import {
-  PhotoIcon as PhotoIconSolidFilled,
-} from "@heroicons/react/24/solid";
-import HumaaniDropdown from "@/app/ai/components/HumaaniDropdown";
-import CuiDropdown from "@/app/ai/components/CuiDropdown";
+import React, { useEffect } from "react";
+import OrbAnimation from "./animated/test/OrbAnimation";
 
 const MainPage: React.FC = () => {
-  return (
-    <div className="relative flex flex-col items-center justify-center min-h-screen bg-gray-100 overflow-hidden">
-      {/* Background image using a div */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/maani_bg_1.png')",					backgroundAttachment: 'fixed',
-        }} // Update with your image path
-      ></div>
-      
-      {/* Overlay for better text visibility */}
-      <div className="absolute inset-0 bg-black bg-opacity-50 z-10" />
+  useEffect(() => {
+    // Disable scrolling for the entire page
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
 
-      {/* Card to wrap content */}
-      <Card
-        isBlurred
-        className="border-none bg-black bg-background/50 dark:bg-default-100/50 max-w-[610px] z-20 p-4"
-        shadow="sm"
-      >
-        <CardBody>
-          <h1 className="text-3xl font-bold mb-6 text-white">Welcome to Manni</h1>
-          <div className="flex flex-col space-y-4">
-            <Button
-              as={Link}
-              href="/ai/datasets"
-              variant="light"
-              startContent={<PhotoIconSolidFilled className="w-5 h-5" />}
-            >
-              <span className="hidden sm:inline">Assets</span>
-            </Button>
-            {/* Add other buttons or dropdowns as needed */}
-            <HumaaniDropdown />
-            <CuiDropdown />
-          </div>
-        </CardBody>
-      </Card>
-    </div>
+    return () => {
+      // Re-enable scrolling when component unmounts
+      document.body.style.overflow = "auto";
+      document.documentElement.style.overflow = "auto";
+    };
+  }, []);
+
+  return (
+    <>
+      {/* Include fonts */}
+      <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap"
+        rel="stylesheet"
+      />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+        rel="stylesheet"
+      />
+
+      <div className="relative flex flex-col items-center justify-center min-h-screen bg-gray-100 overflow-hidden">
+        {/* Background image using a div */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: "url('/images/maani_bg_1.png')",
+            backgroundAttachment: "fixed",
+          }} // Update with your image path
+        ></div>
+
+        {/* Overlay for better text visibility */}
+        <div className="absolute inset-0  z-10" />
+
+        {/* Render the Lottie animation fullscreen */}
+        <OrbAnimation />
+
+        {/* Motto at the center of the page */}
+        <div
+          style={{
+            position: "absolute",
+            top: "45%", // Vertical center
+            left: "50%", // Horizontal center
+            transform: "translate(-50%, -50%)", // Center both vertically and horizontally
+            zIndex: 2, // Ensure it's on top of the animation
+            fontFamily: "'Orbitron', sans-serif", // Robotic font for motto
+            fontSize: "3rem", // Larger font for the motto
+            fontWeight: "bold", // Bold text
+            textAlign: "center", // Center the text
+            textTransform: "uppercase", // Make it uppercase for a futuristic feel
+            color: "#fff",
+          }}
+        >
+          <h5>Art redefined: Your vision, our AI</h5>
+        </div>
+
+        {/* Description at the bottom of the page */}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "100px", // Small gap from the bottom of the page
+            width: "100%", // Full width
+            textAlign: "center", // Center the text
+            zIndex: 2, // Keep it above the animation
+            fontFamily: "'Roboto', sans-serif", // Description stays with Roboto
+            fontSize: "1.5rem", // Smaller font for description
+            padding: "0 20px", // Small padding for mobile view
+            color: "#fff",
+          }}
+        >
+          <p>
+            At Maani, we transform your creative visions into breathtaking visuals, powered by cutting-edge AI technology, where artificial intelligence meets the art of visual storytelling.
+          </p>
+        </div>
+      </div>
+    </>
   );
 };
 
