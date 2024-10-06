@@ -5,6 +5,7 @@ import {
 	Avatar,
 	DropdownMenu,
 	DropdownItem,
+	DropdownSection,
 } from "@nextui-org/react";
 import { useUser } from "@/context/UserContext";
 
@@ -37,6 +38,16 @@ const UserDropdown = () => {
 					<p className="font-semibold">Signed in as</p>
 					<p className="font-semibold">{user.full_name}</p>
 				</DropdownItem>
+				<DropdownSection title="Apps">
+					<DropdownItem
+						textValue="Maani"
+						key="Manni"
+						href="/ai/"
+					>Maani</DropdownItem>
+					<DropdownItem textValue="Berchi" key="Berchi" href="/berchi/">
+						Berchi
+					</DropdownItem>
+				</DropdownSection>
 
 				<DropdownItem
 					textValue="Push Notifications"
@@ -44,7 +55,7 @@ const UserDropdown = () => {
 					href="/admin/notifications"
 				>
 					Notifications
-					</DropdownItem>
+				</DropdownItem>
 
 				<DropdownItem textValue="log out" key="settings" href="/settings">
 					My Settings

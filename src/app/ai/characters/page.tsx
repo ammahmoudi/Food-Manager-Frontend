@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { Card, CardFooter, Image, Button, Spinner } from "@nextui-org/react";
 
 import { toast } from "sonner";
-import { getCharacters } from "../../services/aiApi";
-import Character from "../../interfaces/Character";
+import { getCharacters } from "../services/aiApi";
+import Character from "../interfaces/Character";
 
 const CharacterListPage = () => {
   const [characters, setCharacters] = useState<Character[]>([]);

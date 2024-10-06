@@ -134,7 +134,7 @@ const PromptPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+    <div className="flex flex-col  space-x-2 space-y-2 justify-center items-center min-h-screen bg-gray-100">
       <Card className="w-[700px] h-auto gap-1">
         <CardBody className="flex flex-col md:flex md:flex-row gap-2">
           {/* Prompt Input Field */}
@@ -207,21 +207,42 @@ const PromptPage = () => {
           </div>
         </CardFooter>
       </Card>
+      {job?.status === "pending" || job?.status === "running" ? (
 
-      {/* Show result images under the button */}
-      {resultImages.length > 0 && (
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          {resultImages.map((imageUrl, index) => (
-            <div key={index} className="w-80 h-80">
-              <Image
-                src={imageUrl}
-                alt={`Generated result ${index + 1}`}
-                className="w-full h-full object-cover border rounded-md"
-              />
-            </div>
-          ))}
+        <div className=" w-[700px] h-full gap-1 flex justify-center items-center  bg-gray-200">
+          <Spinner color="primary" size="lg" />
+          <p className="text-gray-500 ml-4">{job?.status}</p>
         </div>
+      ) : (
+        resultImages.length > 0 && (
+          <Card className="w-[700px] h-full gap-1">
+            <CardBody className="">
+              {/* Prompt Input Field */}
+              <div className="flex flex-col w-full h-full">
+              {resultImages.map((imageUrl, index) => (
+                <div key={index} className="w-full">
+                  <Image
+                    src={imageUrl}
+                    alt={`Generated result ${index + 1}`}
+                    className="w-full h-full object-cover border rounded-md"
+                  />
+                </div>
+              ))}
+                  </div>
+    
+            </CardBody>
+    
+            <CardFooter>
+              <div className="flex flex-col w-full h-full">
+               
+              </div>
+            </CardFooter>
+          </Card>  
+          )
       )}
+      
+   
+      
     </div>
   );
 };

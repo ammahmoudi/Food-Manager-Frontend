@@ -63,8 +63,7 @@ const MealCard: React.FC<MealCardProps> = ({
 		<div className="meal-card h-full w-full p-0.5">
 			{meal ? (
 				<Card
-					isBlurred
-					className="border-none bg-background/60 dark:bg-default-100/50 h-full w-full"
+					className="border-none  dark:bg-grey-100/50 h-full w-full"
 					isPressable
 					onPress={handleOpenModal}
 					shadow="sm"
