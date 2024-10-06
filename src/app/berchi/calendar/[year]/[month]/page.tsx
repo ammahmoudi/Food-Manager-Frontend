@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { notFound } from "next/navigation";
-import Calendar from "@/components/Calendar";
+import Calendar from "@/app/berchi/components/Calendar";
 
 export default function CalendarPage({
 	params,

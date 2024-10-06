@@ -133,8 +133,9 @@ const PromptPage = () => {
     }
   };
 
-  return (
-    <div className="flex flex-col  space-x-2 space-y-2 justify-center items-center min-h-screen bg-gray-100">
+  return (    <div className="container xl:w-1/2 mx-auto p-2 items-center">
+
+    <div className="flex justify-center items-center min-h-screen">
       <Card className="w-[700px] h-auto gap-1">
         <CardBody className="flex flex-col md:flex md:flex-row gap-2">
           {/* Prompt Input Field */}
@@ -209,7 +210,7 @@ const PromptPage = () => {
       </Card>
       {job?.status === "pending" || job?.status === "running" ? (
 
-        <div className=" w-[700px] h-full gap-1 flex justify-center items-center  bg-gray-200">
+        <div className=" w-[700px] h-full gap-1 flex justify-center items-center ">
           <Spinner color="primary" size="lg" />
           <p className="text-gray-500 ml-4">{job?.status}</p>
         </div>
@@ -244,6 +245,7 @@ const PromptPage = () => {
    
       
     </div>
+     </div>
   );
 };
 

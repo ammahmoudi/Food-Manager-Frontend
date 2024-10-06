@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { getCurrentDayMeal } from "@/app/berchi/services/berchiApi";
-import Calendar from "@/components/Calendar";
+import Calendar from "@/app/berchi/components/Calendar";
 import { Card, CardBody, Skeleton } from "@nextui-org/react";
 import {
 	TrophyIcon,

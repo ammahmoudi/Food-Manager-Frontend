@@ -65,7 +65,7 @@ const PromptPage = () => {
 			toast.error("Prompt cannot be empty!");
 			return;
 		}
-		
+
 		setIsSubmittingPrompt(true);
 
 		try {
@@ -155,7 +155,9 @@ const PromptPage = () => {
 	};
 
 	return (
-		<div className="flex justify-center items-center min-h-screen bg-gray-100">
+		<div className="container xl:w-1/2 mx-auto p-2 items-center">
+
+		<div className="flex justify-center items-center min-h-screen">
 			<Card className="w-[700px] h-auto gap-1">
 				<CardBody className="flex flex-col md:flex md:flex-row gap-2">
 					{/* Image Section */}
@@ -263,6 +265,8 @@ const PromptPage = () => {
 				onCropComplete={handleCropComplete}
 			/>
 		</div>
+		</div>
+
 	);
 };
 

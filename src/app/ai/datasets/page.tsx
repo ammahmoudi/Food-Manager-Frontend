@@ -30,7 +30,7 @@ const UserDatasetsPage = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-4">
+<div className="container xl:w-1/2 mx-auto p-2 items-center">
       <h2 className="text-2xl font-semibold mb-4">Your Datasets</h2>
 
       {loading ? (
