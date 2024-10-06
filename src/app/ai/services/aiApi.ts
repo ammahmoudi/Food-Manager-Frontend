@@ -144,7 +144,7 @@ export const sendPromptForCharacter = async (data: {
 // Define the function to fetch image details by image ID
 export const getImageById = async (imageId: number) => {
   try {
-    const response = await api.get(`/api/cui/dataset-images/${imageId}/`);
+    const response = await api.get(`/cui/dataset-images/${imageId}/`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching image with ID ${imageId}:`, error);

@@ -4,13 +4,13 @@ import { toast } from "sonner";
 import { getImageById, getJob } from "../services/aiApi";
 import Dataset from "../interfaces/Dataset";
 import { Job } from "../interfaces/Job";
+import { DatasetImage } from "../interfaces/DatasetImage";
 
-
-interface ImageDisplayComponentProps {
+interface DatasetAlbumProps {
   dataset: Dataset;
 }
 
-const ImageDisplayComponent: React.FC<ImageDisplayComponentProps> = ({ dataset }) => {
+const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ dataset }) => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [images, setImages] = useState<string[]>([]); // For storing image URLs
   const [loading, setLoading] = useState<boolean>(true);
@@ -22,9 +22,7 @@ const ImageDisplayComponent: React.FC<ImageDisplayComponentProps> = ({ dataset }
       const initialJobs = jobIds.map((jobId) => ({
         id: jobId,
         status: "pending", // Initial status
-        result_data: {
-          image_urls: [], // Empty array for images
-        },
+        result_data: { image_urls: [] },
       }));
       setJobs(initialJobs);
 
@@ -62,18 +60,20 @@ const ImageDisplayComponent: React.FC<ImageDisplayComponentProps> = ({ dataset }
     }
   };
 
-  // Function to fetch images by image IDs (if any)
+  // Function to fetch images by image IDs (if dataset has images)
   const fetchImageByIds = async (imageIds: number[]) => {
     try {
       const imagePromises = imageIds.map(async (imageId) => {
-        const imageData: ImageData = await getImageById(imageId);
-        return imageData.image;
+        const imageData: DatasetImage = await getImageById(imageId);
+        return imageData.image_url;
       });
       const fetchedImages = await Promise.all(imagePromises);
       setImages((prevImages) => [...prevImages, ...fetchedImages]);
     } catch (error) {
       console.error("Error fetching images:", error);
       toast.error("Failed to load images.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,7 +114,7 @@ const ImageDisplayComponent: React.FC<ImageDisplayComponentProps> = ({ dataset }
                 </div>
               ))
             ) : (
-              <div className="w-40 h-40">
+              <div className="w-40 h-40 relative">
                 <Skeleton width="100%" height="100%" />
                 <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center">
                   <Spinner color="primary" />
@@ -125,6 +125,16 @@ const ImageDisplayComponent: React.FC<ImageDisplayComponentProps> = ({ dataset }
             <p className="text-sm">Status: {job.status}</p>
           </div>
         ))
+      ) : images.length > 0 ? (
+        images.map((imageUrl, index) => (
+          <div key={index} className="w-40 h-40">
+            <Image
+              src={imageUrl}
+              alt={`Image ${index + 1}`}
+              className="w-full h-full object-cover border rounded-md"
+            />
+          </div>
+        ))
       ) : (
         <p>No jobs or images available.</p>
       )}
@@ -132,4 +142,4 @@ const ImageDisplayComponent: React.FC<ImageDisplayComponentProps> = ({ dataset }
   );
 };
 
-export default ImageDisplayComponent;
+export default DatasetAlbum;

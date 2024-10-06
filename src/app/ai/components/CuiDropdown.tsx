@@ -68,6 +68,13 @@ const UserDropdown = () => {
 				>
 					Assets
 				</DropdownItem>
+				<DropdownItem
+					textValue="Characters"
+					key="Characters"
+					href="/ai/characters/all/"
+				>
+					All Characters
+				</DropdownItem>
 			</DropdownMenu>
 		</Dropdown>
 	);
