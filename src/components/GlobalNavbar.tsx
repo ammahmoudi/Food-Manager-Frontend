@@ -6,7 +6,6 @@ import {
   Button,
   NavbarContent,
   Link,
-  Image,
 } from "@nextui-org/react";
 import { usePathname } from "next/navigation";
 import {
@@ -29,8 +28,9 @@ import { useUser } from "@/context/UserContext";
 import CuiDropdown from "../app/ai/components/CuiDropdown";
 import { useTheme } from "../context/ThemeContext";
 import React from "react";
-import MaaniIcon from "@/icons/maaniIcon.svg";
 import HumaaniDropdown from "@/app/ai/components/HumaaniDropdown";
+import { MaaniIcon   } from '@/icons/MaaniIcon'; // Maan  i icon component for NavbarBrand
+import { BerchiIcon } from '@/icons/BerchiIcon';
 
 // Define a type for navigation items
 interface NavItem {
@@ -40,15 +40,25 @@ interface NavItem {
   outlineIcon: React.ElementType;
 }
 
+// Define a type for app navigation structure
+interface AppNav {
+  app: string;
+  icon: React.ElementType;
+  basePath: string;
+  items: NavItem[];
+  dropdowns: React.ReactNode[];
+}
+
 const GlobalNavbar = () => {
   const { isLoading, isAuthenticated } = useUser();
   const pathName = usePathname();
   const { currentTheme } = useTheme();
 
-  // Define structured navigation items for different applications
-  const navItems = [
+  // Define structured navigation items for different applications, including app icons
+  const navItems: AppNav[] = [
     {
       app: "Maani",
+      icon: MaaniIcon  ,
       basePath: "/ai",
       items: [
         {
@@ -58,18 +68,13 @@ const GlobalNavbar = () => {
           outlineIcon: PhotoIconOutline,
         },
       ],
-      dropdowns: [<HumaaniDropdown />, <CuiDropdown />],
+      dropdowns: [<HumaaniDropdown key="humaani" />, <CuiDropdown key="cui" />],
     },
     {
       app: "Berchi",
+      icon: BerchiIcon, // Change to Berchi icon
       basePath: "/berchi",
       items: [
-        // {
-        //   path: "home", // Changed to relative path
-        //   label: "Home",
-        //   solidIcon: HomeIconSolid,
-        //   outlineIcon: HomeIconOutline,
-        // },
         {
           path: "calendar", // Changed to relative path
           label: "Calendar",
@@ -93,37 +98,48 @@ const GlobalNavbar = () => {
     },
   ];
 
-  const isActive = (path: string) => pathName === path;
+  const isActive = (path: string) => pathName.startsWith(path);
 
   const getButtonProps = (path: string) => ({
     underline: isActive(path) ? "always" : "hover",
-    className: "my-0 p-2 w-fit min-w-0 " + (isActive(path) ? "text-primary font-bold" : "text-gray"),
+    className:
+      "my-0 p-2 w-fit min-w-0 " +
+      (isActive(path) ? "text-primary font-bold" : "text-gray"),
   });
 
-  const getIcon = (path: string, SolidIcon: React.ElementType, OutlineIcon: React.ElementType) =>
-    isActive(path) ? <SolidIcon className="w-5 h-5" /> : <OutlineIcon className="w-5 h-5" />;
+  const getIcon = (
+    path: string,
+    SolidIcon: React.ElementType,
+    OutlineIcon: React.ElementType
+  ) =>
+    isActive(path) ? (
+      <SolidIcon className="w-5 h-5" />
+    ) : (
+      <OutlineIcon className="w-5 h-5" />
+    );
 
-  // Set the navbar brand name and link based on the pathname
-  const currentApp = navItems.find(app => pathName.startsWith(app.basePath));
+  // Set the navbar brand name, link, and app icon based on the pathname
+  const currentApp = navItems.find((app) => pathName.startsWith(app.basePath));
   const navbarBrandName = currentApp ? currentApp.app : "Rasta";
   const brandLink = currentApp ? currentApp.basePath : "/";
+  const BrandIcon = currentApp ? currentApp.icon : MaaniIcon; // Default icon if no match
 
   return (
-    <Navbar
-      isBordered
-            // className={currentTheme.key === "ai" ? "bg-[#faf2db]" : "bg-[#F5FFFA]"}
-    >
+    <Navbar>
       <NavbarBrand>
         <Link href={brandLink}>
-          <Image src={MaaniIcon} className="text-black w-5 h-5" alt="Brand Icon" />
-          <p className="font-bold text-inherit overflow-clip">{navbarBrandName}</p>
+          <BrandIcon className="w-10 h-10" />
+          <p className="font-bold text-inherit overflow-clip">
+            {navbarBrandName}
+          </p>
         </Link>
       </NavbarBrand>
 
       <NavbarContent>
         {isAuthenticated ? (
           pathName === "/" ? (
-<></>          ) : (
+            <></>
+          ) : (
             navItems.map((app) => {
               if (pathName.startsWith(app.basePath)) {
                 return (
@@ -134,14 +150,20 @@ const GlobalNavbar = () => {
                         as={Link}
                         href={`${app.basePath}/${item.path}`} // Use basePath here
                         variant="light"
-                        startContent={getIcon(`${app.basePath}/${item.path}`, item.solidIcon, item.outlineIcon)}
+                        startContent={getIcon(
+                          `${app.basePath}/${item.path}`,
+                          item.solidIcon,
+                          item.outlineIcon
+                        )}
                         {...getButtonProps(`${app.basePath}/${item.path}`)}
                       >
                         <span className="hidden sm:inline">{item.label}</span>
                       </Button>
                     ))}
                     {app.dropdowns.map((DropdownComponent, index) => (
-                      <React.Fragment key={index}>{DropdownComponent}</React.Fragment>
+                      <React.Fragment key={index}>
+                        {DropdownComponent}
+                      </React.Fragment>
                     ))}
                   </React.Fragment>
                 );
