@@ -17,16 +17,16 @@ export default function AuthPage() {
 
 	return (
 		<div className="h-screen flex">
-			<div className="hidden sm:flex w-1/2 bg-gradient-to-tr from-blue-800 to-purple-700 justify-around items-center">
+			<div className="hidden sm:flex w-1/2 bg-gradient-to-tr from-yellow-500 to-blue-300 justify-around items-center">
 				<div>
-					<h1 className="text-white font-bold text-4xl font-sans">Berchi</h1>
-					<p className="text-white mt-1">Unleash your Appetite</p>
-					<button
+					{/* <h1 className="text-white font-bold text-4xl font-sans">Berchi</h1>
+					<p className="text-white mt-1">Unleash your Appetite</p> */}
+					{/* <button
 						type="button"
 						className="block w-28 bg-white text-indigo-800 mt-4 py-2 rounded-2xl font-bold mb-2"
 					>
 						Read More
-					</button>
+					</button> */}
 				</div>
 			</div>
 			<div className="flex w-screen sm:w-1/2 justify-center items-center bg-white">

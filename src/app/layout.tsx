@@ -24,8 +24,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { notificationPermissionStatus } = useFcmToken();
-  console.log('notification status:',notificationPermissionStatus);
+  // const { notificationPermissionStatus } = useFcmToken();
+  // console.log('notification status:',notificationPermissionStatus);
   // // Function to handle Accept button click
   // const handleAccept = () => {
   // 	toast.dismiss(); // Dismiss the toast
