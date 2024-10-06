@@ -24,6 +24,13 @@ const HumaaniDropdown = () => {
 				</Button>
 			</DropdownTrigger>
 			<DropdownMenu aria-label="Profile Actions" variant="flat">
+			<DropdownItem
+					textValue="Generate Image from Character"
+					key="generatePictureFromCharacter"
+					href="/ai/characters/"
+				>
+					Characters
+				</DropdownItem>
 				<DropdownItem
 					textValue="New Character"
 					key="NewCharacter"

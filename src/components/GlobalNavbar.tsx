@@ -68,7 +68,7 @@ const GlobalNavbar = () => {
 		<Navbar
 			isBordered
 			style={{
-				backgroundColor: currentTheme.key === "ai" ? "#F0F8FF" : "#F5FFFA",
+				backgroundColor: currentTheme.key === "ai" ? "#faf2db" : "#F5FFFA",
 			}}
 		>
 			<NavbarBrand>
