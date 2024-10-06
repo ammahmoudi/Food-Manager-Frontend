@@ -91,40 +91,55 @@ const WorkflowPage = () => {
 		}
 	};
 
-	// Submit the workflow
-	const handleSubmit = async () => {
-		if (!selectedWorkflow) return;
+// Submit the workflow
+const handleSubmit = async () => {
+	if (!selectedWorkflow) return;
 
-		try {
-			console.log(inputValues);
-			const response = await runWorkflow(selectedWorkflow.id, inputValues);
-			console.log(response);
-			const jobId = response.job_id;
-			toast.success("Workflow submitted successfully!");
+	try {
+		console.log(inputValues);
+		const response = await runWorkflow(selectedWorkflow.id, inputValues);
+		console.log(response);
+		const jobId = response.job_id;
+		toast.success("Workflow submitted successfully!");
 
-			// Start polling for job status
-			setPolling(true);
-			const intervalId = setInterval(async () => {
-				const jobData = await getJob(jobId);
-				console.log(jobData);
-				setJob(jobData);
+		// Start polling for job status
+		setPolling(true);
 
-				// If the job is complete and has a result (which is a list of image URLs)
-				if (jobData.status === "completed" || jobData.status === "failed") {
-					clearInterval(intervalId);
-					setPolling(false);
+		// Define the polling function
+		const fetchJobStatus = async () => {
+			const jobData = await getJob(jobId);
+			console.log(jobData);
+			setJob(jobData);
 
-					// Check if the result contains image URLs and set them
-					if (jobData.result_data?.image_urls?.length > 0) {
-						setResultImages(jobData.result_data.image_urls); // Set the result as an array of image URLs
-					}
+			// If the job is complete or has failed
+			if (jobData.status === "completed" || jobData.status === "failed") {
+				setPolling(false);
+
+				// Check if the result contains image URLs and set them
+				if (jobData.result_data?.image_urls?.length > 0) {
+					setResultImages(jobData.result_data.image_urls); // Set the result as an array of image URLs
 				}
-			}, 5000); // Poll every 5 seconds
-		} catch (error) {
-      console.error("Failed to submit workflow:", error);
-			toast.error("Failed to submit workflow.");
+			}
+		};
+
+		// Call the polling function immediately for the first time
+		await fetchJobStatus();
+
+		// Set up the interval for subsequent polling
+		const intervalId = setInterval(async () => {
+			await fetchJobStatus();
+		}, 5000); // Poll every 5 seconds
+
+		// Clear the interval when polling stops
+		if (!polling) {
+			clearInterval(intervalId);
 		}
-	};
+	} catch (error) {
+		console.error("Failed to submit workflow:", error);
+		toast.error("Failed to submit workflow.");
+	}
+};
+
 
 	return (
 		<div className="container mx-auto p-4 w-screen">

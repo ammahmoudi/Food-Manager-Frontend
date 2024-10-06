@@ -30,34 +30,47 @@ const PromptPage = () => {
 	const [isCropModalOpen, setCropModalOpen] = useState(false);
 	const router = useRouter();
 
-	const pollJobStatus = async (jobId: number) => {
-		const intervalId = setInterval(async () => {
-			try {
-				const jobData = await getJob(jobId);
-				setJob(jobData); // Store the full job object
+// Poll the job statuses
+const pollJobStatus = async (jobId: number) => {
+    setPolling(true); // Set polling to true when the polling starts
 
-				if (jobData.status === "completed") {
-					clearInterval(intervalId);
-					setPolling(false);
+    // Define the polling function
+    const fetchJobStatus = async () => {
+        try {
+            const jobData = await getJob(jobId);
+            setJob(jobData); // Store the full job object
 
-					if (jobData.images && jobData.images.length > 0) {
-						toast.success("Image generated successfully!");
-					} else {
-						toast.error("No images returned from the backend.");
-					}
-				} else if (jobData.status === "failed") {
-					clearInterval(intervalId);
-					setPolling(false);
-					toast.error("Job failed to complete.");
-				}
-			} catch (error) {
-				console.error("Error fetching job status:", error);
-				clearInterval(intervalId);
-				setPolling(false);
-				toast.error("Error fetching job status.");
-			}
-		}, 5000);
-	};
+            if (jobData.status === "completed") {
+                setPolling(false);
+                clearInterval(intervalId); // Stop polling when job is completed
+
+                if (jobData.images && jobData.images.length > 0) {
+                    toast.success("Image generated successfully!");
+                } else {
+                    toast.error("No images returned from the backend.");
+                }
+            } else if (jobData.status === "failed") {
+                setPolling(false);
+                clearInterval(intervalId); // Stop polling when job has failed
+                toast.error("Job failed to complete.");
+            }
+        } catch (error) {
+            console.error("Error fetching job status:", error);
+            setPolling(false);
+            clearInterval(intervalId); // Stop polling in case of error
+            toast.error("Error fetching job status.");
+        }
+    };
+
+    // Call the function immediately for the first time
+    await fetchJobStatus();
+
+    // Set up the interval for subsequent polling
+    const intervalId = setInterval(async () => {
+        await fetchJobStatus();
+    }, 5000); // Poll every 5 seconds
+};
+  
 
 	// Handle prompt submission to backend
 	const handleSubmitPrompt = async () => {

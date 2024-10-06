@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { getImageById, getJob } from "../services/aiApi";
 import Dataset from "../interfaces/Dataset";
 import { Job } from "../interfaces/Job";
-import { DatasetImage } from "../interfaces/DatasetImage";
+import DatasetImage from "../interfaces/DatasetImage";
 
 interface DatasetAlbumProps {
   dataset: Dataset;
@@ -14,7 +14,46 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ dataset }) => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [images, setImages] = useState<string[]>([]); // For storing image URLs
   const [loading, setLoading] = useState<boolean>(true);
-  const [polling, setPolling] = useState<boolean>(true);
+
+  // Function to poll a specific job's status until it's complete or fails
+  const pollJobStatus = async (jobId: number) => {
+    // Fetch job status immediately
+    const fetchJobStatus = async () => {
+      try {
+        const jobData = await getJob(jobId);
+        setJobs((prevJobs) =>
+          prevJobs.map((job) =>
+            job.id === jobId ? { ...job, ...jobData } : job
+          )
+        );
+
+        if (jobData.status === "completed") {
+          // toast.success(`Job ${jobId} completed successfully!`);
+          return true; // Job completed
+        } else if (jobData.status === "failed") {
+          // toast.error(`Job ${jobId} failed.`);
+          return true; // Job failed
+        }
+        return false; // Job still pending/running
+      } catch (error) {
+        toast.error(`Error fetching job status for job ${jobId}: ${error}`);
+        return true; // Stop polling on error
+      }
+    };
+
+    // First call immediately
+    const jobCompleted = await fetchJobStatus();
+    
+    // If the job is not completed, start polling every 5 seconds
+    if (!jobCompleted) {
+      const intervalId = setInterval(async () => {
+        const jobCompleted = await fetchJobStatus();
+        if (jobCompleted) {
+          clearInterval(intervalId); // Stop polling when the job is done
+        }
+      }, 5000); // Poll every 5 seconds
+    }
+  };
 
   // Function to fetch job data and images by job IDs
   const fetchJobImages = async (jobIds: number[]) => {
@@ -26,32 +65,10 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ dataset }) => {
       }));
       setJobs(initialJobs);
 
-      const intervalId = setInterval(async () => {
-        const updatedJobs = await Promise.all(
-          initialJobs.map(async (job: Job) => {
-            const jobData: Job = await getJob(job.id);
-            return jobData;
-          })
-        );
-
-        setJobs(updatedJobs);
-
-        // If all jobs are completed or failed, stop polling
-        if (
-          updatedJobs.every(
-            (job) => job.status === "completed" || job.status === "failed"
-          )
-        ) {
-          clearInterval(intervalId);
-          setPolling(false);
-        }
-
-        // Collect image URLs from completed jobs
-        const completedImages = updatedJobs
-          .filter((job) => job.status === "completed")
-          .flatMap((job) => job.result_data.image_urls);
-        setImages(completedImages);
-      }, 5000); // Poll every 5 seconds
+      // Start polling each job independently
+      jobIds.forEach((jobId) => {
+        pollJobStatus(jobId); // Poll each job
+      });
     } catch (error) {
       console.error("Error fetching jobs:", error);
       toast.error("Failed to load job images.");
