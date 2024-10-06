@@ -14,13 +14,13 @@ const config: Config = {
 			colors: {
 				ai: {
 					background: "#F0F8FF",
-					primary: "#FF6347",
+					primary: "#FF9C00",
 					secondary: "#4B0082",
 				},
 				berchi: {
 					background: "#F5FFFA",
-					primary: "#4682B4",
-					secondary: "#FFD700",
+					primary: "#3D929D",
+					secondary: "#54B9C6",
 				},
 			},
 		},
@@ -38,13 +38,15 @@ const config: Config = {
 				ai: {
 					colors: {
 						background: "#F0F8FF",
-						primary: "#FF6347",
+						primary: "#FF9C00",
+					secondary: "#4B0082",
 					},
 				},
 				berchi: {
 					colors: {
 						background: "#F5FFFA",
-						primary: "#4682B4",
+						primary: "#3D929D",
+					secondary: "#54B9C6",
 					},
 				},
 			},

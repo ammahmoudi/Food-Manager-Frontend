@@ -65,9 +65,10 @@ const PromptPage = () => {
 			toast.error("Prompt cannot be empty!");
 			return;
 		}
+		
+		setIsSubmittingPrompt(true);
 
 		try {
-			setIsSubmittingPrompt(true);
 			setJob(null); // Clear previous job on new prompt
 
 			const response = await sendPromptToBackend({ prompt: prompt });
@@ -161,7 +162,7 @@ const PromptPage = () => {
 					<Card
 						isPressable
 						onClick={() => document.getElementById("user-image-input")?.click()}
-						className="w-[500px] aspect-square bg-pink-500 relative"
+						className="w-full aspect-square bg-pink-500 relative"
 					>
 						{job && job.images?.length > 0 ? (
 							<>
@@ -210,19 +211,26 @@ const PromptPage = () => {
 					/>
 
 					{/* Prompt Input Field and Submit Button */}
-					<div className="flex flex-col w-full h-full">
+					<div className="flex flex-grow flex-col justify-between w-full space-y-2">
 						<Textarea
 							label="Prompt"
-							className="h-[110px]"
+							className=""
 							placeholder="Enter your prompt"
 							fullWidth
+
+							
 							value={prompt}
 							onChange={(e) => setPrompt(e.target.value)}
 						/>
+						<div className="flex flex-col items-center justify-center w-full h-full bg-gray-100 rounded-lg">
+								<p className="text-gray-600">Advanced Features</p>
+								<p className="text-gray-500">Comming Soon...</p>
+
+							</div>
 						<div className="flex w-full">
 							<Button
 								color="primary"
-								className="w-[390px]"
+								className="w-full"
 								onPress={handleSubmitPrompt}
 								isLoading={isSubmittingPrompt}
 								isDisabled={isSubmittingPrompt}
@@ -233,10 +241,10 @@ const PromptPage = () => {
 					</div>
 				</CardBody>
 				<CardFooter>
-					<div className="flex justify-center">
+					<div className="flex w-full justify-center">
 						<Button
 							color="secondary"
-							className="w-[280px]"
+							className="w-full"
 							isDisabled={!job || polling || isSubmittingFinal}
 							onPress={handleFinalSubmit}
 							isLoading={isSubmittingFinal}
