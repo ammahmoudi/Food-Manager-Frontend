@@ -1,3 +1,4 @@
+// tailwind.config.ts
 import { nextui } from "@nextui-org/theme";
 import type { Config } from "tailwindcss";
 
@@ -12,14 +13,14 @@ const config: Config = {
 		extend: {
 			colors: {
 				ai: {
-					background: "#F0F8FF", // AI specific background color
-					primary: "#FF9C00", // AI primary color
-					secondary: "#4B0082", // AI secondary color
+					background: "#F0F8FF",
+					primary: "#FF6347",
+					secondary: "#4B0082",
 				},
 				berchi: {
-					background: "#C8C3BD", // Berchi specific background color
-					primary: "#3D929D", // Berchi primary color
-					secondary: "#54B9C6", // Berchi secondary color
+					background: "#F5FFFA",
+					primary: "#4682B4",
+					secondary: "#FFD700",
 				},
 			},
 		},
@@ -29,23 +30,21 @@ const config: Config = {
 		nextui({
 			themes: {
 				light: {
-					// Existing light theme configuration
+					// Light theme configuration
 				},
 				dark: {
-					// Existing dark theme configuration
+					// Dark theme configuration
 				},
 				ai: {
 					colors: {
-						background: "#F0F8FF", // AI specific background color
-						primary: "#FF9C00", // AI primary color
-						secondary: "#4B0082", // AI secondary color
+						background: "#F0F8FF",
+						primary: "#FF6347",
 					},
 				},
 				berchi: {
 					colors: {
-						background: "#C8C3BD", // Berchi specific background color
-						primary: "#3D929D", // Berchi primary color
-						secondary: "#54B9C6", // Berchi secondary color
+						background: "#F5FFFA",
+						primary: "#4682B4",
 					},
 				},
 			},

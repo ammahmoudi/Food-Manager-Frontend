@@ -9,7 +9,7 @@ const BerchiLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
 	useEffect(() => {
 		switchTheme('berchi'); // Switch to the Berchi theme when this layout is used
-	}, [switchTheme]);
+	}, []);
 
 	return (
 		<div className="bg-berchi-background min-h-screen">

@@ -1,48 +1,32 @@
 // src/context/ThemeContext.tsx
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 interface Theme {
-	colors: {
-		background: string;
-		primary: string;
-		secondary: string;
-	};
+	key: 'ai' | 'berchi';
 }
 
 interface ThemeContextType {
 	currentTheme: Theme;
-	switchTheme: (themeKey: string) => void;
+	switchTheme: (themeKey: 'ai' | 'berchi') => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-	const themes: Record<string, Theme> = {
-		ai: {
-			colors: {
-				background: "#F0F8FF",
-				primary: "#FF6347",
-				secondary: "#4B0082",
-			},
-		},
-		berchi: {
-			colors: {
-				background: "#F5FFFA",
-				primary: "#4682B4",
-				secondary: "#FFD700",
-			},
-		},
+	const pathName = usePathname();
+	const [currentTheme, setCurrentTheme] = useState<Theme>({ key: 'ai' }); // Default to AI theme
+
+	const switchTheme = (themeKey: 'ai' | 'berchi') => {
+		setCurrentTheme({ key: themeKey });
+		document.body.className = themeKey; // Set body class for Tailwind
 	};
 
-	const [currentTheme, setCurrentTheme] = useState<Theme>(themes.ai); // Default to AI theme
-
-	const switchTheme = (themeKey: string) => {
-		const selectedTheme = themes[themeKey] || themes.ai; // Fallback to AI theme
-		setCurrentTheme(selectedTheme);
-		document.documentElement.style.setProperty('--tw-bg-opacity', selectedTheme.colors.background);
-		document.documentElement.style.setProperty('--tw-primary', selectedTheme.colors.primary);
-		document.documentElement.style.setProperty('--tw-secondary', selectedTheme.colors.secondary);
-	};
+	useEffect(() => {
+		// Automatically switch theme based on the current path
+		const themeFromPath = pathName.startsWith('/ai') ? 'ai' : 'berchi';
+		switchTheme(themeFromPath as 'ai' | 'berchi');
+	}, [pathName]); // Update theme on path change
 
 	return (
 		<ThemeContext.Provider value={{ currentTheme, switchTheme }}>

@@ -8,7 +8,7 @@ const AILayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 	useEffect(() => {
 		switchTheme('ai'); // Switch to the AI theme when this layout is used
-	}, [switchTheme]);
+	}, []);
 
 	return (
 		<div className="bg-ai-background min-h-screen">

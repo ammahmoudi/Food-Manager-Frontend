@@ -1,3 +1,4 @@
+// src/components/GlobalNavbar.tsx
 "use client";
 
 import {
@@ -24,105 +25,76 @@ import {
 import UserDropdown from "./UserDropdown";
 import { useUser } from "@/context/UserContext";
 import CuiDropdown from "../app/ai/components/CuiDropdown";
-import { useTheme } from "../context/ThemeContext"; // Import the ThemeContext
+import { useTheme } from "../context/ThemeContext";
 import React from "react";
 
 const GlobalNavbar = () => {
 	const { isLoading, isAuthenticated } = useUser();
 	const pathName = usePathname();
-	const { currentTheme } = useTheme(); // Get the current theme
+	const { currentTheme } = useTheme();
 
-	// Helper to determine if the current page matches the path
 	const isActive = (path: string) => pathName === path;
 
-	// Define the button styles based on the active state
 	const getButtonProps = (path: string) => ({
 		underline: isActive(path) ? "always" : "hover",
-		className:
-			"my-0 p-2 w-fit min-w-0 " +
-			(isActive(path) ? "text-primary font-bold" : "text-gray"),
+		className: "my-0 p-2 w-fit min-w-0 " + (isActive(path) ? "text-primary font-bold" : "text-gray"),
 	});
 
-	// Icons based on the active state
-	const getIcon = (
-		path: string,
-		SolidIcon: React.ForwardRefExoticComponent<
-			React.PropsWithoutRef<React.SVGProps<SVGSVGElement>> & {
-				title?: string;
-				titleId?: string;
-			} & React.RefAttributes<SVGSVGElement>
-		>,
-		OutlineIcon: React.ForwardRefExoticComponent<
-			React.PropsWithoutRef<React.SVGProps<SVGSVGElement>> & {
-				title?: string;
-				titleId?: string;
-			} & React.RefAttributes<SVGSVGElement>
-		>
-	) =>
-		isActive(path) ? (
-			<SolidIcon className="w-5 h-5" />
-		) : (
-			<OutlineIcon className="w-5 h-5" />
-		);
+	const getIcon = (path: string, SolidIcon: React.ElementType, OutlineIcon: React.ElementType) =>
+		isActive(path) ? <SolidIcon className="w-5 h-5" /> : <OutlineIcon className="w-5 h-5" />;
 
-	// Set the navbar brand name based on the active sub-app
 	const navbarBrandName = pathName.startsWith("/ai") ? "AI App" : "Berchi";
 
 	return (
-		<Navbar isBordered style={{ backgroundColor: currentTheme.colors.primary }}>
+		<Navbar isBordered style={{ backgroundColor: currentTheme.key === 'ai' ? "#F0F8FF" : "#F5FFFA" }}>
 			<NavbarBrand>
 				<p className="font-bold text-inherit overflow-clip">{navbarBrandName}</p>
 			</NavbarBrand>
 
 			<NavbarContent>
-			{isAuthenticated ? (
-				<>
-				<Button
-					as={Link}
-					href="/home"
-					variant="light"
-					startContent={getIcon("/home", HomeIconSolid, HomeIconOutline)}
-					{...getButtonProps("/home")}
-				>
-					<span className="hidden sm:inline">Home</span>
-				</Button>
-				<CuiDropdown/>
+				{isAuthenticated ? (
+					<>
+						<Button
+							as={Link}
+							href="/home"
+							variant="light"
+							startContent={getIcon("/home", HomeIconSolid, HomeIconOutline)}
+							{...getButtonProps("/home")}
+						>
+							<span className="hidden sm:inline">Home</span>
+						</Button>
+						<CuiDropdown />
 
-				<Button
-					as={Link}
-					href="/calendar"
-					variant="light"
-					startContent={getIcon(
-						"/calendar",
-						CalendarIconSolid,
-						CalendarIconOutline
-					)}
-					{...getButtonProps("/calendar")}
-				>
-					<span className="hidden sm:inline">Calendar</span>
-				</Button>
-				<Button
-					as={Link}
-					href="/berchi/meals"
-					variant="light"
-					startContent={getIcon("/berchi/meals", InboxIconSolid, InboxIconOutline)}
-					{...getButtonProps("/berchi/meals")}
-				>
-					<span className="hidden sm:inline">Meals</span>
-				</Button>
-				<Button
-					as={Link}
-					href="/berchi/foods"
-					variant="light"
-					startContent={getIcon("/berchi/foods", CakeIconSolid, CakeIconOutline)}
-					{...getButtonProps("/berchi/foods")}
-				>
-					<span className="hidden sm:inline">Foods</span>
-				</Button>
-				</>):
-				(
+						<Button
+							as={Link}
+							href="/calendar"
+							variant="light"
+							startContent={getIcon("/calendar", CalendarIconSolid, CalendarIconOutline)}
+							{...getButtonProps("/calendar")}
+						>
+							<span className="hidden sm:inline">Calendar</span>
+						</Button>
+						<Button
+							as={Link}
+							href="/berchi/meals"
+							variant="light"
+							startContent={getIcon("/berchi/meals", InboxIconSolid, InboxIconOutline)}
+							{...getButtonProps("/berchi/meals")}
+						>
+							<span className="hidden sm:inline">Meals</span>
+						</Button>
+						<Button
+							as={Link}
+							href="/berchi/foods"
+							variant="light"
+							startContent={getIcon("/berchi/foods", CakeIconSolid, CakeIconOutline)}
+							{...getButtonProps("/berchi/foods")}
+						>
+							<span className="hidden sm:inline">Foods</span>
+						</Button>
+					</>
+				) : (
 					'Master the Legends'
-
 				)}
 			</NavbarContent>
 			<NavbarContent as="div" justify="end">
