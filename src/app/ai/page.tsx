@@ -1,22 +1,9 @@
 /* eslint-disable @next/next/no-page-custom-font */
 "use client";
 
-import React, { useEffect } from "react";
 import OrbAnimation from "./animated/test/OrbAnimation";
 
 const MainPage: React.FC = () => {
-  useEffect(() => {
-    // Disable scrolling for the entire page
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
-
-    return () => {
-      // Re-enable scrolling when component unmounts
-      document.body.style.overflow = "auto";
-      document.documentElement.style.overflow = "auto";
-    };
-  }, []);
-
   return (
     <>
       {/* Include fonts */}
@@ -29,8 +16,8 @@ const MainPage: React.FC = () => {
         rel="stylesheet"
       />
 
-      <div className="relative flex flex-col items-center justify-center min-h-screen bg-gray-100 overflow-hidden">
-        {/* Background image using a div */}
+      <div className="relative flex flex-col items-center justify-center h-screen bg-gray-100 overflow-hidden">
+        {/* Background image */}
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -40,46 +27,24 @@ const MainPage: React.FC = () => {
         ></div>
 
         {/* Overlay for better text visibility */}
-        <div className="absolute inset-0  z-10" />
+        <div className="absolute inset-0 bg-black opacity-50 z-10" />
 
-        {/* Render the Lottie animation fullscreen */}
-        <OrbAnimation />
+        {/* Orb Animation */}
+        <div className="z-20">
+          <OrbAnimation />
+        </div>
 
-        {/* Motto at the center of the page */}
-        <div
-          style={{
-            position: "absolute",
-            top: "45%", // Vertical center
-            left: "50%", // Horizontal center
-            transform: "translate(-50%, -50%)", // Center both vertically and horizontally
-            zIndex: 2, // Ensure it's on top of the animation
-            fontFamily: "'Orbitron', sans-serif", // Robotic font for motto
-            fontSize: "3rem", // Larger font for the motto
-            fontWeight: "bold", // Bold text
-            textAlign: "center", // Center the text
-            textTransform: "uppercase", // Make it uppercase for a futuristic feel
-            color: "#fff",
-          }}
-        >
+        {/* Motto */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 text-white text-3xl font-bold text-center uppercase font-orbitron">
           <h5>Art redefined: Your vision, our AI</h5>
         </div>
 
-        {/* Description at the bottom of the page */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "100px", // Small gap from the bottom of the page
-            width: "100%", // Full width
-            textAlign: "center", // Center the text
-            zIndex: 2, // Keep it above the animation
-            fontFamily: "'Roboto', sans-serif", // Description stays with Roboto
-            fontSize: "1.5rem", // Smaller font for description
-            padding: "0 20px", // Small padding for mobile view
-            color: "#fff",
-          }}
-        >
+        {/* Description at the bottom */}
+        <div className="absolute bottom-24 w-full text-center z-30 text-white text-lg px-5 font-roboto">
           <p>
-            At Maani, we transform your creative visions into breathtaking visuals, powered by cutting-edge AI technology, where artificial intelligence meets the art of visual storytelling.
+            At Maani, we transform your creative visions into breathtaking
+            visuals, powered by cutting-edge AI technology, where artificial
+            intelligence meets the art of visual storytelling.
           </p>
         </div>
       </div>

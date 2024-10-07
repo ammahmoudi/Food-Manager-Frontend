@@ -4,8 +4,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Providers from "./providers";
 import GlobalNavbar from "@/components/GlobalNavbar";
-import useFcmToken from "@/hooks/useFcmToken";
 // import useFcmToken from "@/hooks/useFcmToken";
+
 
 
 const geistSans = localFont({
