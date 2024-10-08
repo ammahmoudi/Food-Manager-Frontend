@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import OrbAnimation from "./animated/test/OrbAnimation";
+import OrbAnimation from "./animated/OrbAnimation";
+
 
 const MainPage: React.FC = () => {
   useEffect(() => {
