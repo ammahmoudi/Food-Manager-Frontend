@@ -7,7 +7,7 @@ export const getWorkflows = async () => {
     const response = await api.get("/cui/workflows");
     return response.data;
   } catch (error) {
-    console.error("Error sending notification:", error);
+    console.error("Error getting workflows:", error);
     throw error;
   }
 };
@@ -20,7 +20,7 @@ export const runWorkflow = async (workflowId: number, inputs: any) => {
     });
     return response.data; // Assuming the response contains the job ID
   } catch (error) {
-    console.error("Error sending notification:", error);
+    console.error("Error running workflows", error);
     throw error;
   }
 };
@@ -31,7 +31,7 @@ export const getJob = async (jobId: number) => {
     const response = await api.get(`/cui/jobs/${jobId}`);
     return response.data; // Assuming the response contains the job status and result
   } catch (error) {
-    console.error("Error sending notification:", error);
+    console.error("Error getting jobs:", error);
     throw error;
   }
 };
