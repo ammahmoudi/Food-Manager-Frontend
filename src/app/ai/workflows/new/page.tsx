@@ -9,9 +9,19 @@ interface InputType {
   type: string;
 }
 
+interface OutputType {
+  type: string;
+}
+
 interface InputsState {
   [nodeId: string]: {
     [inputName: string]: InputType;
+  };
+}
+
+interface OutputsState {
+  [nodeId: string]: {
+    [outputName: string]: OutputType;
   };
 }
 
@@ -21,10 +31,17 @@ interface ConstructedInputs {
   };
 }
 
+interface ConstructedOutputs {
+  [nodeId: string]: {
+    [outputName: string]: string;
+  };
+}
+
 interface RequestBody {
   name: string;
-  json_data: Record<string, unknown>; // Replace with specific type if your JSON structure is known
+  json_data: Record<string, unknown>;
   inputs: ConstructedInputs;
+  outputs: ConstructedOutputs;
 }
 
 const WorkflowPage = () => {
@@ -33,10 +50,13 @@ const WorkflowPage = () => {
   const [nodes, setNodes] = useState<any[]>([]);
   const [selectedNodes, setSelectedNodes] = useState<any[]>([]);
   const [inputs, setInputs] = useState<InputsState>({}); // Correct typing for inputs
+  const [outputs, setOutputs] = useState<OutputsState>({}); // Correct typing for outputs
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [availableNodes, setAvailableNodes] = useState<any[]>([]); // Nodes that can still be selected
-  const [availableInputs, setAvailableInputs] = useState<string[]>([]); // Inputs that can still be selected for a node
+  const [availableNodes, setAvailableNodes] = useState<any[]>([]);
+  const [availableInputs, setAvailableInputs] = useState<string[]>([]);
   const [selectedInput, setSelectedInput] = useState<string | null>(null);
+  const [outputName, setOutputName] = useState<string>(""); // Stores the name of the output
+  const [outputType, setOutputType] = useState<string>(""); // Stores the type of the output
   const [showSelect, setShowSelect] = useState<boolean>(true); // Show dropdown initially
 
   // Fetch nodes after submitting the JSON
@@ -96,16 +116,12 @@ const WorkflowPage = () => {
           name: selectedNode.name,
           type: selectedNode.type,
           inputs: [],
-        }, // Initially empty input array
+          outputs: [],
+        },
       ]);
 
       // Set available inputs for the selected node
       setAvailableInputs(selectedNode.inputs);
-
-      // Remove selected node from available nodes
-      setAvailableNodes((prevNodes) =>
-        prevNodes.filter((node) => node.id !== nodeId)
-      );
 
       setSelectedNodeId(nodeId); // Store selected node ID
       setSelectedInput(null); // Reset selected input
@@ -117,7 +133,7 @@ const WorkflowPage = () => {
     setSelectedInput(e.target.value); // Set selected input from dropdown
   };
 
-  // Handle adding the selected input to the selected node
+  // Handle adding the input to the selected node
   const handleAddInput = () => {
     if (!selectedInput || !selectedNodeId) return;
 
@@ -152,7 +168,38 @@ const WorkflowPage = () => {
     setSelectedInput(null);
   };
 
-  // Handle input changes for each node's type
+  // Handle adding the output to the selected node
+  const handleAddOutput = () => {
+    if (!outputName || !outputType || !selectedNodeId) return;
+
+    // Add the selected output to the node's outputs
+    setSelectedNodes((prevNodes) =>
+      prevNodes.map((node) => {
+        if (node.id === selectedNodeId) {
+          return {
+            ...node,
+            outputs: [...node.outputs, outputName], // Append the output name
+          };
+        }
+        return node;
+      })
+    );
+
+    // Initialize output field for the added output
+    setOutputs((prevOutputs) => ({
+      ...prevOutputs,
+      [selectedNodeId]: {
+        ...prevOutputs[selectedNodeId],
+        [outputName]: { type: outputType }, // Store output name and type
+      },
+    }));
+
+    // Reset the output name and type fields
+    setOutputName("");
+    setOutputType("");
+  };
+
+  // Handle input type changes for each node
   const handleInputChange = (
     nodeId: string,
     inputName: string,
@@ -163,6 +210,23 @@ const WorkflowPage = () => {
       [nodeId]: {
         ...prevInputs[nodeId],
         [inputName]: {
+          type: value, // Update type dynamically
+        },
+      },
+    }));
+  };
+
+  // Handle output type changes for each node
+  const handleOutputChange = (
+    nodeId: string,
+    outputName: string,
+    value: string
+  ) => {
+    setOutputs((prevOutputs) => ({
+      ...prevOutputs,
+      [nodeId]: {
+        ...prevOutputs[nodeId],
+        [outputName]: {
           type: value, // Update type dynamically
         },
       },
@@ -182,7 +246,7 @@ const WorkflowPage = () => {
       }
 
       // Use the raw JSON text directly
-      let json_data: any; // You can define the type for this based on your expected JSON structure
+      let json_data: any;
       try {
         json_data = JSON.parse(jsonText); // Parse the jsonText to ensure it's valid JSON
       } catch (error) {
@@ -191,7 +255,7 @@ const WorkflowPage = () => {
         return;
       }
 
-      // Construct the inputs object to match the new required format
+      // Construct the inputs object to match the required format
       const constructedInputs: ConstructedInputs = Object.keys(inputs).reduce(
         (acc: ConstructedInputs, nodeId: string) => {
           acc[nodeId] = Object.keys(inputs[nodeId]).reduce(
@@ -206,11 +270,27 @@ const WorkflowPage = () => {
         {} as ConstructedInputs
       );
 
+      // Construct the outputs object to match the required format
+      const constructedOutputs: ConstructedOutputs = Object.keys(outputs).reduce(
+        (acc: ConstructedOutputs, nodeId: string) => {
+          acc[nodeId] = Object.keys(outputs[nodeId]).reduce(
+            (innerAcc: { [outputName: string]: string }, outputName: string) => {
+              innerAcc[outputName] = outputs[nodeId][outputName].type; // Only take the type field
+              return innerAcc;
+            },
+            {} as { [outputName: string]: string }
+          );
+          return acc;
+        },
+        {} as ConstructedOutputs
+      );
+
       // Prepare the final request body
       const requestBody: RequestBody = {
-        name: workflowName, // Ensure the workflow name is populated
-        json_data: json_data, // The json_data in the correct format, parsed from jsonText
-        inputs: constructedInputs, // Constructed inputs in the correct format
+        name: workflowName,
+        json_data: json_data,
+        inputs: constructedInputs,
+        outputs: constructedOutputs,
       };
 
       console.log(
@@ -218,7 +298,7 @@ const WorkflowPage = () => {
         JSON.stringify(requestBody, null, 2)
       );
 
-      // Send the formatted inputs to the backend
+      // Send the formatted inputs and outputs to the backend
       await submitWorkflowInputs(requestBody);
       toast.success("Workflow submitted successfully!");
     } catch (error) {
@@ -267,7 +347,6 @@ const WorkflowPage = () => {
         <div className="mb-4">
           <h3 className="text-xl font-semibold">Select Node</h3>
           <select
-          title="Select Node"
             className="border p-2 rounded w-full"
             onChange={handleSelectNode}
             value={selectedNodeId || ""}
@@ -289,7 +368,6 @@ const WorkflowPage = () => {
         <div className="mb-4">
           <h3 className="text-xl font-semibold">Select Input for Node</h3>
           <select
-            title="Select Input"
             className="border p-2 rounded w-full"
             onChange={handleSelectInput}
             value={selectedInput || ""}
@@ -309,7 +387,30 @@ const WorkflowPage = () => {
         </div>
       )}
 
-      {/* Display selected nodes and their inputs */}
+      {/* Output Entry */}
+      {selectedNodeId && (
+        <div className="mb-4">
+          <h3 className="text-xl font-semibold">Add Output for Node</h3>
+          <Input
+            label="Output Name"
+            placeholder="Enter output name"
+            value={outputName}
+            onChange={(e) => setOutputName(e.target.value)}
+            className="mb-2"
+          />
+          <Input
+            label="Output Type"
+            placeholder="Enter output type (e.g., string)"
+            value={outputType}
+            onChange={(e) => setOutputType(e.target.value)}
+          />
+          <Button onClick={handleAddOutput} className="mt-2">
+            Add Output
+          </Button>
+        </div>
+      )}
+
+      {/* Display selected nodes, their inputs, and outputs */}
       {selectedNodes.map((node) => (
         <Card key={node.id} className="mb-4">
           <CardBody>
@@ -325,6 +426,22 @@ const WorkflowPage = () => {
                     value={inputs[node.id]?.[inputName]?.type || ""}
                     onChange={(e) =>
                       handleInputChange(node.id, inputName, e.target.value)
+                    }
+                  />
+                </div>
+              </div>
+            ))}
+            {node.outputs.map((outputName: string) => (
+              <div key={outputName} className="mb-4">
+                <h5 className="font-semibold">Output: {outputName}</h5>
+                <div className="mb-2">
+                  <label>Output Type:</label>
+                  <Input
+                    type="text"
+                    placeholder="Enter output type (e.g., string)"
+                    value={outputs[node.id]?.[outputName]?.type || ""}
+                    onChange={(e) =>
+                      handleOutputChange(node.id, outputName, e.target.value)
                     }
                   />
                 </div>

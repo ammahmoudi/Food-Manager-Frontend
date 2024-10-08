@@ -120,12 +120,14 @@ const GlobalNavbar = () => {
 
   // Set the navbar brand name, link, and app icon based on the pathname
   const currentApp = navItems.find((app) => pathName.startsWith(app.basePath));
-  const navbarBrandName = currentApp ? currentApp.app : "Rasta";
+  const navbarBrandName = currentApp ? currentApp.app : "Rastar";
   const brandLink = currentApp ? currentApp.basePath : "/";
   const BrandIcon = currentApp ? currentApp.icon : MaaniIcon; // Default icon if no match
 
   return (
-    <Navbar>
+    <Navbar
+    position="sticky"
+    >
       <NavbarBrand>
         <Link href={brandLink}>
           <BrandIcon className="w-10 h-10" />
