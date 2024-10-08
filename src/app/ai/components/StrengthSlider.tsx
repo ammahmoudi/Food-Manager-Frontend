@@ -4,30 +4,32 @@ import { Slider, SliderValue } from "@nextui-org/react";
 interface LoraUsageSliderProps {
   defaultValue?: number;
   onValueChange: (value: number) => void;
+  label: string;
 }
 
 const LoraUsageSlider: React.FC<LoraUsageSliderProps> = ({
   defaultValue = 100,
   onValueChange,
+  label,
 }) => {
   const [sliderValue, setSliderValue] = useState<number>(defaultValue);
 
   // Handle slider value change
   const handleSliderChange = (value: SliderValue) => {
     setSliderValue(value as number);
-    onValueChange((value as number)/ 100);
+    onValueChange((value as number) / 100);
   };
 
   return (
     <div className="flex flex-col gap-4">
       <Slider
         size="sm"
-
         value={sliderValue}
         defaultValue={defaultValue}
         onChange={handleSliderChange}
         maxValue={100}
         step={1}
+        label={label}
         classNames={{
           base: "max-w-md gap-3",
           track: "border-s-secondary-100",
@@ -47,3 +49,23 @@ const LoraUsageSlider: React.FC<LoraUsageSliderProps> = ({
 };
 
 export default LoraUsageSlider;
+
+
+
+
+//  ---------------------- Usage ON OTHER PAGES ---------------------- //
+
+
+
+
+// .     const handleValueChange = (value: number) => {console.log("Lora usage value:", value);};
+
+
+// <div>
+// <h2 className="text-2xl font-semibold mb-4">Adjust Lora Usage</h2>
+// <LoraUsageSlider 
+//   label=""
+//   onValueChange={handleValueChange} 
+// />
+// </div>
+

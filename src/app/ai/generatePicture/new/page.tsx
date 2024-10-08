@@ -21,7 +21,6 @@ import {
 import { Job } from "../../interfaces/Job";
 import { toast } from "sonner";
 import SeedInput from "../../components/SeedGenerator";
-import StrengthSlider from "../../components/StrengthSlider";
 
 
 
@@ -35,11 +34,8 @@ const PromptPage = () => {
 	const [isCropModalOpen, setCropModalOpen] = useState(false);
 	const router = useRouter();
 	const [seed, setSeed] = useState<number>(Math.floor(Math.random() * Math.pow(2, 16)));
-	const [loraUsage, setLoraUsage] = useState<number>(1);
-	const handleSliderValueChange = (value: number) => {
-		setLoraUsage(value); // Save the slider value (0 to 1 scale)
-	  };
-  
+	const handleValueChange = (value: number) => {console.log("Lora usage value:", value)};
+
 
 // Poll the job statuses
 const pollJobStatus = async (jobId: number) => {
@@ -95,7 +91,7 @@ const pollJobStatus = async (jobId: number) => {
 		try {
 			setJob(null); // Clear previous job on new prompt
 
-			const response = await sendPromptToBackend({ prompt: prompt });
+			const response = await sendPromptToBackend({ prompt: prompt, seed : String(seed) });
 			toast.success("Prompt submitted successfully!");
 
 			if (response.job_id) {
@@ -252,14 +248,6 @@ const pollJobStatus = async (jobId: number) => {
 							<div>
    						       <SeedInput seed={seed} setSeed={setSeed}/>
         					</div>
-
-							<div className="container mx-auto p-4">
-								<StrengthSlider defaultValue={100} onValueChange={handleSliderValueChange} />
-    						</div>
-
-
-
-
 							</div>
 						<div className="flex w-full">
 							<Button

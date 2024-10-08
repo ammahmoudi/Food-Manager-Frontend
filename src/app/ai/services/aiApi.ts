@@ -69,7 +69,7 @@ export const getImagesByJobID = async (jobId: string) => {
 };
 
 // Function to send the prompt to the backend and get the job ID
-export const sendPromptToBackend = async (data: { prompt: string }) => {
+export const sendPromptToBackend = async (data: { prompt: string , seed : string}) => {
   try {
     const response = await api.post(
       "/cui/workflow-runners/characters/prompt/",
