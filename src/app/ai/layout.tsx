@@ -14,24 +14,17 @@ const AILayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }, []);
 
   return (
-    <div className="relative h-screen">
+    <div className="relative min-h-screen">
       {/* Background image */}
       <div
-        className="absolute inset-0 bg-cover bg-center z-0"
-        style={{
-          backgroundImage: "url('/images/maani_bg_2.png')", // Update with your image path
-          backgroundAttachment: 'fixed',
-          backgroundSize: 'cover',
-          opacity: 0.5, // Adjust this value for desired transparency
-          filter: 'blur(10px)', // Apply blur effect
-        }}
+        className="fixed inset-0 bg-cover bg-center bg-no-repeat blur-md z-0 bg-[url('/images/maani_bg_2.png')]"
       ></div>
 
       {/* Overlay for better text visibility */}
-      <div className="absolute inset-0 bg-black bg-opacity-30 z-10" />
+      <div className="fixed inset-0 bg-black bg-opacity-30 z-10"></div>
 
       {/* Container for children */}
-      <div className="relative z-20 h-full">
+      <div className="relative z-20 min-h-screen">
         {children}
       </div>
     </div>

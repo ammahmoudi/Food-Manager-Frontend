@@ -6,6 +6,7 @@ import DatasetAlbum from "../components/DatasetAlbum"; // This is the ImageDispl
 import { getUserDatasets } from "../services/aiApi"; // API function to fetch datasets
 import Dataset from "../interfaces/Dataset";
 import { toast } from "sonner";
+import SeedInput from "../components/SeedGenerator";
 
 const UserDatasetsPage = () => {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
@@ -31,6 +32,7 @@ const UserDatasetsPage = () => {
 
   return (
 <div className="container xl:w-1/2 mx-auto p-2 items-center">
+
       <h2 className="text-2xl font-semibold mb-4">Your Datasets</h2>
 
       {loading ? (

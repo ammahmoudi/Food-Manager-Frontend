@@ -20,6 +20,7 @@ import {
 import { Job } from "../../interfaces/Job";
 import { toast } from "sonner";
 import Character from "../../interfaces/Character";
+import SeedInput from "../../components/SeedGenerator";
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
@@ -33,6 +34,7 @@ const PromptPage = () => {
 	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false);
 	const [resultImages, setResultImages] = useState<string[]>([]); // For multiple images
 	const [polling, setPolling] = useState<boolean>(false); // Track if polling is in progress
+	const [seed, setSeed] = useState<number>(Math.floor(Math.random() * Math.pow(2, 16)));
 
 	// Fetch list of characters from backend on component mount
 	useEffect(() => {
@@ -160,7 +162,7 @@ const pollJobStatus = async (jobId: number) => {
 				<Card className="w-full h-full gap-1">
 					<CardBody className="flex flex-col md:flex md:flex-row gap-2">
 						{/* Prompt Input Field */}
-						<div className="flex flex-col w-full h-full">
+						<div className="flex flex-col w-full h-full gap-2">
 							<Textarea
 								label="Prompt"
 								placeholder="Enter your prompt"
@@ -170,7 +172,7 @@ const pollJobStatus = async (jobId: number) => {
 							/>
 
 							{/* Character Selection with Avatar */}
-							<div className="mt-4">
+							<div className="">
 								<Select
 									label="Choose a character"
 									variant="bordered"
@@ -200,7 +202,7 @@ const pollJobStatus = async (jobId: number) => {
 							</div>
 
 							{/* Lora Selection */}
-							<div className="mt-4">
+							<div className="">
 								<Select<{ name: string; path: string }>
 									items={loras}
 									label="Choose a Lora"
@@ -220,8 +222,31 @@ const pollJobStatus = async (jobId: number) => {
 									)}
 								</Select>
 							</div>
+							<div className="flex flex-grow flex-col justify-between w-full space-y-2 ">
+
+							<div>
+   						       <SeedInput seed={seed} setSeed={setSeed}/>
+        					</div>
+
+					</div>
+
 						</div>
 					</CardBody>
+
+
+
+
+
+
+
+
+
+					
+
+
+
+
+
 
 					<CardFooter>
 						<div className="flex flex-col w-full h-full">

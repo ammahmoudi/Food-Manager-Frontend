@@ -28,10 +28,23 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ dataset }) => {
         );
 
         if (jobData.status === "completed") {
-          // toast.success(`Job ${jobId} completed successfully!`);
+          // Extract image URLs from the new result_data structure
+          const imageUrls: string[] = [];
+          if (jobData.result_data) {
+            Object.keys(jobData.result_data).forEach((nodeId) => {
+              const nodeOutputs = jobData.result_data[nodeId];
+              Object.keys(nodeOutputs).forEach((inputName) => {
+                const output = nodeOutputs[inputName];
+                if (output.type === "image") {
+                  imageUrls.push(output.value); // Add full image URLs to the array
+                }
+              });
+            });
+          }
+
+          setImages((prevImages) => [...prevImages, ...imageUrls]);
           return true; // Job completed
         } else if (jobData.status === "failed") {
-          // toast.error(`Job ${jobId} failed.`);
           return true; // Job failed
         }
         return false; // Job still pending/running
@@ -61,7 +74,7 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ dataset }) => {
       const initialJobs = jobIds.map((jobId) => ({
         id: jobId,
         status: "pending", // Initial status
-        result_data: { image_urls: [] },
+        result_data: {},
       }));
       setJobs(initialJobs);
 
@@ -82,7 +95,7 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ dataset }) => {
     try {
       const imagePromises = imageIds.map(async (imageId) => {
         const imageData: DatasetImage = await getImageById(imageId);
-        return imageData.image_url;
+        return imageData.images;
       });
       const fetchedImages = await Promise.all(imagePromises);
       setImages((prevImages) => [...prevImages, ...fetchedImages]);
@@ -121,7 +134,7 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ dataset }) => {
         jobs.map((job) => (
           <div key={job.id} className="flex flex-col items-center">
             {job.status === "completed" ? (
-              job.result_data.image_urls.map((imageUrl, index) => (
+              images.map((imageUrl, index) => (
                 <div key={index} className="w-40 h-40">
                   <Image
                     src={imageUrl}

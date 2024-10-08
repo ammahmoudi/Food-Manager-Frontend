@@ -20,6 +20,11 @@ import {
 } from "../../services/aiApi";
 import { Job } from "../../interfaces/Job";
 import { toast } from "sonner";
+import SeedInput from "../../components/SeedGenerator";
+import StrengthSlider from "../../components/StrengthSlider";
+
+
+
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
@@ -29,6 +34,12 @@ const PromptPage = () => {
 	const [polling, setPolling] = useState<boolean>(false);
 	const [isCropModalOpen, setCropModalOpen] = useState(false);
 	const router = useRouter();
+	const [seed, setSeed] = useState<number>(Math.floor(Math.random() * Math.pow(2, 16)));
+	const [loraUsage, setLoraUsage] = useState<number>(1);
+	const handleSliderValueChange = (value: number) => {
+		setLoraUsage(value); // Save the slider value (0 to 1 scale)
+	  };
+  
 
 // Poll the job statuses
 const pollJobStatus = async (jobId: number) => {
@@ -238,8 +249,16 @@ const pollJobStatus = async (jobId: number) => {
 							onChange={(e) => setPrompt(e.target.value)}
 						/>
 						<div className="flex flex-col items-center justify-center w-full h-full bg-gray-100 rounded-lg">
-								<p className="text-gray-600">Advanced Features</p>
-								<p className="text-gray-500">Comming Soon...</p>
+							<div>
+   						       <SeedInput seed={seed} setSeed={setSeed}/>
+        					</div>
+
+							<div className="container mx-auto p-4">
+								<StrengthSlider defaultValue={100} onValueChange={handleSliderValueChange} />
+    						</div>
+
+
+
 
 							</div>
 						<div className="flex w-full">
