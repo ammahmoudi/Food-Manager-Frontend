@@ -8,5 +8,5 @@ export default interface DatasetImage {
     created_by: number;
     crated_at: string;
     character : number | null;
-    images : string
+    image : string
 }
