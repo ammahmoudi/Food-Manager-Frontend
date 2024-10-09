@@ -21,7 +21,7 @@ const LoraUsageSlider: React.FC<LoraUsageSliderProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 ">
       <Slider
         size="sm"
         value={sliderValue}
@@ -30,8 +30,9 @@ const LoraUsageSlider: React.FC<LoraUsageSliderProps> = ({
         maxValue={100}
         step={1}
         label={label}
+        className="p-1"
         classNames={{
-          base: "max-w-md gap-3",
+          base: "gap-3",
           track: "border-s-secondary-100",
           filler: "bg-gradient-to-r from-secondary-100 to-secondary-500",
         }}
@@ -61,11 +62,10 @@ export default LoraUsageSlider;
 // .     const handleValueChange = (value: number) => {console.log("Lora usage value:", value);};
 
 
-// <div>
-// <h2 className="text-2xl font-semibold mb-4">Adjust Lora Usage</h2>
-// <LoraUsageSlider 
-//   label=""
-//   onValueChange={handleValueChange} 
-// />
-// </div>
+{/* <div>
+<LoraUsageSlider 
+  label=""
+  onValueChange={handleValueChange} 
+/>
+</div> */}
 

@@ -6,7 +6,6 @@ import DatasetAlbum from "../components/DatasetAlbum"; // This is the ImageDispl
 import { getUserDatasets } from "../services/aiApi"; // API function to fetch datasets
 import Dataset from "../interfaces/Dataset";
 import { toast } from "sonner";
-import SeedInput from "../components/SeedGenerator";
 
 const UserDatasetsPage = () => {
   const [datasets, setDatasets] = useState<Dataset[]>([]);

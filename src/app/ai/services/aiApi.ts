@@ -1,5 +1,6 @@
 "use client";
 import { api } from "../../../services/api";
+import Dataset from "../interfaces/Dataset";
 
 // Fetch the list of available workflows
 export const getWorkflows = async () => {
@@ -13,7 +14,7 @@ export const getWorkflows = async () => {
 };
 
 // Run a workflow with the provided inputs
-export const runWorkflow = async (workflowId: number, inputs: any) => {
+export const runWorkflow = async (workflowId: number, inputs: unknown) => {
   try {
     const response = await api.post(`/cui/workflows/${workflowId}/run/`, {
       inputs,
@@ -45,7 +46,7 @@ export const fetchNodesFromJson = async (jsonData: string) => {
 };
 
 // Function to submit workflow inputs
-export const submitWorkflowInputs = async (inputs: any) => {
+export const submitWorkflowInputs = async (inputs: unknown) => {
   try {
     const response = await api.post(`/cui/workflows/`, inputs);
     console.log(inputs);
