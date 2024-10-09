@@ -24,16 +24,14 @@ import SeedInput from "../../components/SeedGenerator";
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
-	const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(
-		null
-	);
+	const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
 	const [selectedLora, setSelectedLora] = useState<string>("");
 	const [characters, setCharacters] = useState<Character[]>([]);
 	const [loras, setLoras] = useState<{ name: string; path: string }[]>([]);
 	const [job, setJob] = useState<Job | null>(null);
 	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false);
-	const [resultImages, setResultImages] = useState<string[]>([]); // For multiple images
-	const [polling, setPolling] = useState<boolean>(false); // Track if polling is in progress
+	const [resultImages, setResultImages] = useState<string[]>([]); // For storing images from the new structure
+	const [polling, setPolling] = useState<boolean>(false);
 	const [seed, setSeed] = useState<number>(Math.floor(Math.random() * Math.pow(2, 16)));
 
 	// Fetch list of characters from backend on component mount
@@ -51,9 +49,7 @@ const PromptPage = () => {
 	}, []);
 
 	// Handle character selection and update Loras
-	const handleCharacterSelection = (
-		e: React.ChangeEvent<HTMLSelectElement>
-	) => {
+	const handleCharacterSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const character = characters.find(
 			(char) => char.id === parseInt(e.target.value)
 		);
@@ -69,48 +65,62 @@ const PromptPage = () => {
 		}
 	};
 
-// Poll the job status using the jobID
-const pollJobStatus = async (jobId: number) => {
-  setPolling(true); // Ensure polling is set to true when it starts
+	// Poll the job status using the jobID and process result_data
+	const pollJobStatus = async (jobId: number) => {
+		setPolling(true);
 
-  // Define the polling function
-  const fetchJobStatus = async () => {
-      try {
-          const jobData = await getJob(jobId);
-          setJob(jobData);
+		const fetchJobStatus = async () => {
+			try {
+				const jobData = await getJob(jobId);
+				setJob(jobData);
 
-          if (jobData.status === "completed") {
-              setPolling(false);
-              clearInterval(intervalId); // Stop polling when job is completed
+				if (jobData.status === "completed") {
+					setPolling(false);
+					clearInterval(intervalId);
 
-              if (jobData.result_data && jobData.result_data.image_urls.length > 0) {
-                  setResultImages(jobData.result_data.image_urls); // Store the image URLs
-                  toast.success("Images generated successfully!");
-              } else {
-                  toast.error("No images returned from the backend.");
-              }
-          } else if (jobData.status === "failed") {
-              setPolling(false);
-              clearInterval(intervalId); // Stop polling when job has failed
-              toast.error("Job failed to complete.");
-          }
-      } catch (error) {
-          console.error("Error fetching job status:", error);
-          setPolling(false);
-          clearInterval(intervalId); // Stop polling in case of error
-          toast.error("Error fetching job status.");
-      }
-  };
+					// Extract images from the new result_data structure
+					if (jobData.result_data) {
+						const images: string[] = [];
 
-  // Call the function immediately for the first time
-  await fetchJobStatus();
+						// Traverse through result_data to collect images
+						Object.keys(jobData.result_data).forEach((nodeId) => {
+							const nodeOutputs = jobData.result_data[nodeId];
+							Object.keys(nodeOutputs).forEach((inputName) => {
+								const output = nodeOutputs[inputName];
+								if (output.type === "image") {
+									images.push(output.value); // Collect image URLs
+								}
+							});
+						});
 
-  // Set up the interval for subsequent polling
-  const intervalId = setInterval(async () => {
-      await fetchJobStatus();
-  }, 5000); // Poll every 5 seconds
-};
+						if (images.length > 0) {
+							setResultImages(images);
+							toast.success("Images generated successfully!");
+						} else {
+							toast.error("No images returned from the backend.");
+						}
+					}
+				} else if (jobData.status === "failed") {
+					setPolling(false);
+					clearInterval(intervalId);
+					toast.error("Job failed to complete.");
+				}
+			} catch (error) {
+				console.error("Error fetching job status:", error);
+				setPolling(false);
+				clearInterval(intervalId);
+				toast.error("Error fetching job status.");
+			}
+		};
 
+		// Call the function immediately for the first time
+		await fetchJobStatus();
+
+		// Set up the interval for subsequent polling
+		const intervalId = setInterval(async () => {
+			await fetchJobStatus();
+		}, 5000);
+	};
 
 	// Handle prompt submission to backend
 	const handleSubmitPrompt = async () => {
@@ -138,13 +148,14 @@ const pollJobStatus = async (jobId: number) => {
 				prompt,
 				character_id: selectedCharacter.id,
 				lora_name: selectedLora,
+				seed: String(seed),
 			});
 
 			toast.success("Prompt submitted successfully!");
 
 			if (response.job_id) {
-				setPolling(true); // Start polling
-				pollJobStatus(response.job_id); // Start polling job status with jobID
+				setPolling(true);
+				pollJobStatus(response.job_id);
 			} else {
 				toast.error("Failed to retrieve job ID.");
 			}
@@ -161,7 +172,6 @@ const pollJobStatus = async (jobId: number) => {
 			<div className="flex flex-col lg:flex-row justify-center items-center min-h-screen gap-2">
 				<Card className="w-full h-full gap-1">
 					<CardBody className="flex flex-col md:flex md:flex-row gap-2">
-						{/* Prompt Input Field */}
 						<div className="flex flex-col w-full h-full gap-2">
 							<Textarea
 								label="Prompt"
@@ -171,7 +181,6 @@ const pollJobStatus = async (jobId: number) => {
 								onChange={(e) => setPrompt(e.target.value)}
 							/>
 
-							{/* Character Selection with Avatar */}
 							<div className="">
 								<Select
 									label="Choose a character"
@@ -201,7 +210,6 @@ const pollJobStatus = async (jobId: number) => {
 								</Select>
 							</div>
 
-							{/* Lora Selection */}
 							<div className="">
 								<Select<{ name: string; path: string }>
 									items={loras}
@@ -211,9 +219,7 @@ const pollJobStatus = async (jobId: number) => {
 									onSelectionChange={(selectedKeys) =>
 										setSelectedLora(Array.from(selectedKeys)[0] as string)
 									}
-									selectedKeys={
-										selectedLora ? new Set([selectedLora]) : new Set()
-									}
+									selectedKeys={selectedLora ? new Set([selectedLora]) : new Set()}
 								>
 									{(lora) => (
 										<SelectItem key={lora.name} textValue={lora.name}>
@@ -222,31 +228,14 @@ const pollJobStatus = async (jobId: number) => {
 									)}
 								</Select>
 							</div>
-							<div className="flex flex-grow flex-col justify-between w-full space-y-2 ">
 
-							<div>
-   						       <SeedInput seed={seed} setSeed={setSeed}/>
-        					</div>
-
-					</div>
-
+							<div className="flex flex-grow flex-col justify-between w-full space-y-2">
+								<div>
+									<SeedInput seed={seed} setSeed={setSeed} />
+								</div>
+							</div>
 						</div>
 					</CardBody>
-
-
-
-
-
-
-
-
-
-					
-
-
-
-
-
 
 					<CardFooter>
 						<div className="flex flex-col w-full h-full">
@@ -261,20 +250,16 @@ const pollJobStatus = async (jobId: number) => {
 						</div>
 					</CardFooter>
 				</Card>
-				{job?.status === "pending" || job?.status === "running" ? (
-          	<Card className="w-full h-full gap-1 flex justify-center items-center p-10 ">
 
-         
+				{job?.status === "pending" || job?.status === "running" ? (
+					<Card className="w-full h-full gap-1 flex justify-center items-center p-10">
 						<Spinner color="primary" size="lg" />
 						<p className="text-gray-500 ">{job?.status}</p>
-
-          						</Card>
-
+					</Card>
 				) : (
 					resultImages.length > 0 && (
 						<Card className="h-full gap-1">
 							<CardBody className="">
-								{/* Prompt Input Field */}
 								<div className="flex flex-col w-full h-full">
 									{resultImages.map((imageUrl, index) => (
 										<div key={index} className="w-full">
@@ -287,10 +272,6 @@ const pollJobStatus = async (jobId: number) => {
 									))}
 								</div>
 							</CardBody>
-
-							<CardFooter>
-								<div className="flex flex-col w-full h-full"></div>
-							</CardFooter>
 						</Card>
 					)
 				)}

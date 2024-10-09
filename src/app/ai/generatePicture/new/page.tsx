@@ -22,9 +22,6 @@ import { Job } from "../../interfaces/Job";
 import { toast } from "sonner";
 import SeedInput from "../../components/SeedGenerator";
 
-
-
-
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
 	const [job, setJob] = useState<Job | null>(null); // Store the entire job object
@@ -33,51 +30,49 @@ const PromptPage = () => {
 	const [polling, setPolling] = useState<boolean>(false);
 	const [isCropModalOpen, setCropModalOpen] = useState(false);
 	const router = useRouter();
-	const [seed, setSeed] = useState<number>(Math.floor(Math.random() * Math.pow(2, 16)));
-	const handleValueChange = (value: number) => {console.log("Lora usage value:", value)};
+	const [seed, setSeed] = useState<number>(
+		Math.floor(Math.random() * Math.pow(2, 16))
+	);
 
+	// Poll the job statuses
+	const pollJobStatus = async (jobId: number) => {
+		setPolling(true);
 
-// Poll the job statuses
-const pollJobStatus = async (jobId: number) => {
-    setPolling(true); // Set polling to true when the polling starts
+		const fetchJobStatus = async () => {
+			try {
+				const jobData = await getJob(jobId);
+				setJob(jobData); // Store the full job object
 
-    // Define the polling function
-    const fetchJobStatus = async () => {
-        try {
-            const jobData = await getJob(jobId);
-            setJob(jobData); // Store the full job object
+				if (jobData.status === "completed") {
+					setPolling(false);
+					clearInterval(intervalId); // Stop polling when job is completed
 
-            if (jobData.status === "completed") {
-                setPolling(false);
-                clearInterval(intervalId); // Stop polling when job is completed
+					if (jobData.result_data) {
+						toast.success("Job completed and result is ready!");
+					} else {
+						toast.error("No results returned from the backend.");
+					}
+				} else if (jobData.status === "failed") {
+					setPolling(false);
+					clearInterval(intervalId); // Stop polling when job has failed
+					toast.error("Job failed to complete.");
+				}
+			} catch (error) {
+				console.error("Error fetching job status:", error);
+				setPolling(false);
+				clearInterval(intervalId); // Stop polling in case of error
+				toast.error("Error fetching job status.");
+			}
+		};
 
-                if (jobData.images && jobData.images.length > 0) {
-                    toast.success("Image generated successfully!");
-                } else {
-                    toast.error("No images returned from the backend.");
-                }
-            } else if (jobData.status === "failed") {
-                setPolling(false);
-                clearInterval(intervalId); // Stop polling when job has failed
-                toast.error("Job failed to complete.");
-            }
-        } catch (error) {
-            console.error("Error fetching job status:", error);
-            setPolling(false);
-            clearInterval(intervalId); // Stop polling in case of error
-            toast.error("Error fetching job status.");
-        }
-    };
+		// Call the function immediately for the first time
+		await fetchJobStatus();
 
-    // Call the function immediately for the first time
-    await fetchJobStatus();
-
-    // Set up the interval for subsequent polling
-    const intervalId = setInterval(async () => {
-        await fetchJobStatus();
-    }, 5000); // Poll every 5 seconds
-};
-  
+		// Set up the interval for subsequent polling
+		const intervalId = setInterval(async () => {
+			await fetchJobStatus();
+		}, 5000); // Poll every 5 seconds
+	};
 
 	// Handle prompt submission to backend
 	const handleSubmitPrompt = async () => {
@@ -91,7 +86,10 @@ const pollJobStatus = async (jobId: number) => {
 		try {
 			setJob(null); // Clear previous job on new prompt
 
-			const response = await sendPromptToBackend({ prompt: prompt, seed : String(seed) });
+			const response = await sendPromptToBackend({
+				prompt: prompt,
+				seed: String(seed),
+			});
 			toast.success("Prompt submitted successfully!");
 
 			if (response.job_id) {
@@ -110,7 +108,6 @@ const pollJobStatus = async (jobId: number) => {
 
 	// Handle final submission of data
 	const handleFinalSubmit = async () => {
-		console.log(job);
 		if (!job) {
 			toast.error("No job available to submit.");
 			return;
@@ -146,7 +143,7 @@ const pollJobStatus = async (jobId: number) => {
 			// setJob({
 			// 	...job,
 			// 	images: [URL.createObjectURL(file)], // Simulate image being added
-			// } as Job);
+			// } as Job);F
 			// setCropModalOpen(true);
 			console.log("file", file);
 		}
@@ -174,119 +171,139 @@ const pollJobStatus = async (jobId: number) => {
 		}
 	};
 
+	// Render result images from job.result_data
+	const renderResultImages = () => {
+		if (!job || !job.result_data) return null;
+
+		// Iterate over the result_data structure and extract images
+		return Object.keys(job.result_data).map((nodeId) =>
+			Object.keys(job.result_data[nodeId]).map((inputName) => {
+				const output = job.result_data[nodeId][inputName];
+				if (output.type === "image") {
+					return (
+						<>
+							<Image
+								src={output.value} // Use the full URL for the image
+								alt={`Result from ${inputName}`}
+								className="z-0 w-full h-full object-cover"
+								classNames={{ wrapper: "w-full h-full aspect-square" }}
+							/>
+						</>
+					);
+				}
+				return null;
+			})
+		);
+	};
+
 	return (
 		<div className="container xl:w-1/2 mx-auto p-2 items-center">
-
-		<div className="flex justify-center items-center min-h-screen">
-			<Card className="w-[700px] h-auto gap-1">
-				<CardBody className="flex flex-col md:flex md:flex-row gap-2">
-					{/* Image Section */}
-					<Card
-						isPressable
-						onClick={() => document.getElementById("user-image-input")?.click()}
-						className="w-full aspect-square bg-pink-500 relative"
-					>
-						{job && job.images?.length > 0 ? (
-							<>
-								<Image
-									alt="Result Image"
-									className="z-0 w-full h-full object-cover"
-									classNames={{ wrapper: "w-full h-full aspect-square" }}
-									src={job.result_data.image_urls[0]}
-								/>
-								<CardFooter className="absolute bottom-0 z-10">
-									<div className="flex items-center">
-										<div className="flex flex-col">
-											<Button
-												onClick={(e) => {
-													e.stopPropagation();
-													handleDeleteImage();
-												}}
-												radius="full"
-												size="sm"
-												className="w-full h-full aspect-square bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
-											>
-												<TrashIcon className="h-5 w-5" />
-											</Button>
+			<div className="flex justify-center items-center min-h-screen">
+				<Card className="w-[700px] h-auto gap-1">
+					<CardBody className="flex flex-col md:flex md:flex-row gap-2">
+						{/* Image Section */}
+						<Card
+							isPressable
+							onClick={() =>
+								document.getElementById("user-image-input")?.click()
+							}
+							className="w-full aspect-square bg-pink-500 relative"
+						>
+							{job && renderResultImages() ? (
+								<>
+									{renderResultImages()}
+									<CardFooter className="absolute bottom-0 z-10">
+										<div className="flex items-center">
+											<div className="flex flex-col">
+												<Button
+													onClick={(e) => {
+														e.stopPropagation();
+														handleDeleteImage();
+													}}
+													radius="full"
+													size="sm"
+													className="w-full h-full aspect-square bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
+												>
+													<TrashIcon className="h-5 w-5" />
+												</Button>
+											</div>
 										</div>
-									</div>
-								</CardFooter>
-							</>
-						) : job?.status === "pending" || job?.status === "running" ? (
-							<div className="flex justify-center items-center w-full h-full bg-gray-200">
-								<Spinner color="primary" size="lg" />
-								<p className="text-gray-500 ml-4">{job?.status}</p>
-							</div>
-						) : (
-							<div className="flex flex-col items-center justify-center w-full h-full bg-gray-200">
-								<p className="text-gray-500">Click to upload an image</p>
-							</div>
-						)}
-					</Card>
-					<input
-						placeholder="image"
-						type="file"
-						id="user-image-input"
-						accept="image/*"
-						className="hidden"
-						onChange={handleImageChange}
-					/>
-
-					{/* Prompt Input Field and Submit Button */}
-					<div className="flex flex-grow flex-col justify-between w-full space-y-2">
-						<Textarea
-							label="Prompt"
-							className=""
-							placeholder="Enter your prompt"
-							fullWidth
-
-							
-							value={prompt}
-							onChange={(e) => setPrompt(e.target.value)}
+									</CardFooter>
+								</>
+							) : job?.status === "pending" || job?.status === "running" ? (
+								<div className="flex justify-center items-center w-full h-full bg-gray-200">
+									<Spinner color="primary" size="lg" />
+									<p className="text-gray-500 ml-4">{job?.status}</p>
+								</div>
+							) : (
+								<div className="flex flex-col items-center justify-center w-full h-full bg-gray-200">
+									<p className="text-gray-500">Click to upload an image</p>
+								</div>
+							)}
+						</Card>
+						<input
+							placeholder="image"
+							type="file"
+							id="user-image-input"
+							accept="image/*"
+							className="hidden"
+							onChange={handleImageChange}
 						/>
-						<div className="flex flex-col items-center justify-center w-full h-full bg-gray-100 rounded-lg">
-							<div>
-   						       <SeedInput seed={seed} setSeed={setSeed}/>
-        					</div>
+
+						{/* Prompt Input Field and Submit Button */}
+						<div className="flex flex-grow flex-col justify-between w-full space-y-2">
+							<Textarea
+								label="Prompt"
+								className=""
+								placeholder="Enter your prompt"
+								fullWidth
+								value={prompt}
+								onChange={(e) => setPrompt(e.target.value)}
+							/>
+							<div className="flex flex-col items-center justify-center w-full h-full bg-gray-100 rounded-lg">
+								<div>
+									<SeedInput seed={seed} setSeed={setSeed} />
+								</div>
 							</div>
-						<div className="flex w-full">
+							<div className="flex w-full">
+								<Button
+									color="primary"
+									className="w-full"
+									onPress={handleSubmitPrompt}
+									isLoading={isSubmittingPrompt}
+									isDisabled={isSubmittingPrompt}
+								>
+									Submit Prompt
+								</Button>
+							</div>
+						</div>
+					</CardBody>
+					<CardFooter>
+						<div className="flex w-full justify-center">
 							<Button
-								color="primary"
+								color="secondary"
 								className="w-full"
-								onPress={handleSubmitPrompt}
-								isLoading={isSubmittingPrompt}
-								isDisabled={isSubmittingPrompt}
+								isDisabled={!job || polling || isSubmittingFinal}
+								onPress={handleFinalSubmit}
+								isLoading={isSubmittingFinal}
 							>
-								Submit Prompt
+								Final Submit
 							</Button>
 						</div>
-					</div>
-				</CardBody>
-				<CardFooter>
-					<div className="flex w-full justify-center">
-						<Button
-							color="secondary"
-							className="w-full"
-							isDisabled={!job || polling || isSubmittingFinal}
-							onPress={handleFinalSubmit}
-							isLoading={isSubmittingFinal}
-						>
-							Final Submit
-						</Button>
-					</div>
-				</CardFooter>
-			</Card>
+					</CardFooter>
+				</Card>
 
-			{/* Image Crop Modal */}
-			<ImageCropModal
-				isOpen={isCropModalOpen}
-				onClose={() => setCropModalOpen(false)}
-				imageSrc={job && job.images?.length > 0 ? job.images[0].toString() : ""}
-				onCropComplete={handleCropComplete}
-			/>
+				{/* Image Crop Modal */}
+				<ImageCropModal
+					isOpen={isCropModalOpen}
+					onClose={() => setCropModalOpen(false)}
+					imageSrc={
+						job && job.images?.length > 0 ? job.images[0].toString() : ""
+					}
+					onCropComplete={handleCropComplete}
+				/>
+			</div>
 		</div>
-		</div>
-
 	);
 };
 
