@@ -7,18 +7,19 @@ interface AspectRatioDropDownProps {
 
 const AspectRatioDropDown: React.FC<AspectRatioDropDownProps> = ({ onSelect }) => {
   const aspectRatios = [
-    {
-      key: "1:1",
-      label: "Square (1:1)",
-    },
-    {
-      key: "16:9",
-      label: "Portrait (16:9)",
-    },
-    {
-      key: "3:2",
-      label: "Landscape (3:2)",
-    }
+    { key: "1:1", label: "1:1" },
+    { key: "2:3", label: "2:3" },
+    { key: "3:4", label: "3:4" },
+    { key: "5:8", label: "5:8" },
+    { key: "9:16", label: "9:16" },
+    { key: "9:19", label: "9:19" },
+    { key: "9:21", label: "9:21" },
+    { key: "3:2", label: "3:2" },
+    { key: "4:3", label: "4:3" },
+    { key: "8:5", label: "8:5" },
+    { key: "16:9", label: "16:9" },
+    { key: "19:9", label: "19:9" },
+    { key: "21:9", label: "21:9" }
   ];
 
   const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>("");
@@ -31,7 +32,7 @@ const AspectRatioDropDown: React.FC<AspectRatioDropDownProps> = ({ onSelect }) =
   return (
     <Dropdown>
       <DropdownTrigger>
-        <Button variant="bordered" color="warning">
+        <Button variant="solid" color="secondary">
           {selectedAspectRatio ? `Aspect Ratio: ${selectedAspectRatio}` : "Choose Aspect Ratio"}
         </Button>
       </DropdownTrigger>
@@ -56,10 +57,8 @@ export default AspectRatioDropDown;
 
 
 
+
 //  Usage  //
-
-
-// const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>("");
 
 
 {/*
@@ -75,13 +74,11 @@ const handleAspectRatioSelect = (aspectRatio: string) => {
   console.log("Selected aspect ratio:", aspectRatio);
 
 
-
-  <div className="p-4">
-<h2 className="text-xl font-semibold mb-4">Select Aspect Ratio</h2>
-<AspectRatioDropDown onSelect={handleAspectRatioSelect} />
-{selectedAspectRatio && (
-  <p className="mt-4">Chosen Aspect Ratio: {selectedAspectRatio}</p>
-)}
+<div className="p-4">
+  <AspectRatioDropDown onSelect={handleAspectRatioSelect} />
+  {selectedAspectRatio && (
+    <p className="mt-4">Chosen Aspect Ratio: {selectedAspectRatio}</p>
+  )}
 </div>
 
 

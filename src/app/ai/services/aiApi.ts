@@ -129,6 +129,8 @@ export const sendPromptForCharacter = async (data: {
   character_id: number;
   lora_name: string;
   seed: string;
+  lora_strength : string
+  aspect_ratio: string
 }) => {
   try {
     const response = await api.post("/cui/workflow-runners/characters/generate-character-image/",
@@ -176,4 +178,19 @@ export const getUserDatasets = async (): Promise<Dataset[]> => {
     console.error("Error fetching user datasets", error);
     throw error;
   }
+};
+
+
+// Fetch Image ID From Picture
+export const uploadImageToBackend = async (file: File) => {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const response = await api.post("/cui/datasets/add-temp-images/", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data; // Returns { id: number }
 };

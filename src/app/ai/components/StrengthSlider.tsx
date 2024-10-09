@@ -8,7 +8,7 @@ interface LoraUsageSliderProps {
 }
 
 const LoraUsageSlider: React.FC<LoraUsageSliderProps> = ({
-  defaultValue = 100,
+  defaultValue = 80,
   onValueChange,
   label,
 }) => {
@@ -62,10 +62,12 @@ export default LoraUsageSlider;
 // .     const handleValueChange = (value: number) => {console.log("Lora usage value:", value);};
 
 
-{/* <div>
-<LoraUsageSlider 
-  label=""
-  onValueChange={handleValueChange} 
-/>
-</div> */}
+{/*
+<div>
+  <LoraUsageSlider 
+    label=""
+      onValueChange={handleValueChange} 
+  />
+</div> 
+*/}
 

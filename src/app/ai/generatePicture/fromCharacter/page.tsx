@@ -16,11 +16,16 @@ import {
 	getCharacters,
 	sendPromptForCharacter,
 	getJob,
+	getImageById, // Import the API method to fetch image by ID
 } from "../../services/aiApi";
 import { Job } from "../../interfaces/Job";
 import { toast } from "sonner";
 import Character from "../../interfaces/Character";
 import SeedInput from "../../components/SeedGenerator";
+import AspectRatioDropDown from "../../components/AspectRatioDropDown";
+import LoraUsageSlider from "../../components/StrengthSlider";
+import ImageUploadComponent from "../../components/UploadImage";
+import DatasetImage from "../../interfaces/DatasetImage"; // Import the DatasetImage interface
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
@@ -33,6 +38,9 @@ const PromptPage = () => {
 	const [resultImages, setResultImages] = useState<string[]>([]); // For storing images from the new structure
 	const [polling, setPolling] = useState<boolean>(false);
 	const [seed, setSeed] = useState<number>(Math.floor(Math.random() * Math.pow(2, 16)));
+	const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>("");
+	const [sliderValue, setSliderValue] = useState<number>(1);
+	const [imageId, setImageId] = useState<number | null>(null);
 
 	// Fetch list of characters from backend on component mount
 	useEffect(() => {
@@ -47,6 +55,39 @@ const PromptPage = () => {
 		};
 		fetchCharacters();
 	}, []);
+
+	// Fetch image details when image ID is set
+	useEffect(() => {
+		const fetchImageDetails = async () => {
+			if (imageId) {
+				try {
+					const datasetImage: DatasetImage = await getImageById(imageId);
+					if (datasetImage && datasetImage.tag_prompt) {
+						setPrompt(datasetImage.tag_prompt); // Set the tag_prompt into the textarea
+					}
+				} catch (error) {
+					console.error("Failed to fetch image details:", error);
+					toast.error("Failed to fetch image details.");
+				}
+			}
+		};
+
+		fetchImageDetails();
+	}, [imageId]);
+
+	// Handle image ID received from the image upload component
+	const handleImageIdReceived = (id: number) => {
+		setImageId(id);
+	};
+
+	const handleAspectRatioSelect = (aspectRatio: string) => {
+		setSelectedAspectRatio(aspectRatio);
+		console.log("Selected aspect ratio:", aspectRatio);
+	};
+
+	const handleSliderChange = (value: number) => {
+		setSliderValue(value);
+	};
 
 	// Handle character selection and update Loras
 	const handleCharacterSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -82,7 +123,6 @@ const PromptPage = () => {
 					if (jobData.result_data) {
 						const images: string[] = [];
 
-						// Traverse through result_data to collect images
 						Object.keys(jobData.result_data).forEach((nodeId) => {
 							const nodeOutputs = jobData.result_data[nodeId];
 							Object.keys(nodeOutputs).forEach((inputName) => {
@@ -149,6 +189,8 @@ const PromptPage = () => {
 				character_id: selectedCharacter.id,
 				lora_name: selectedLora,
 				seed: String(seed),
+				lora_strength: String(sliderValue),
+				aspect_ratio: selectedAspectRatio,
 			});
 
 			toast.success("Prompt submitted successfully!");
@@ -173,14 +215,36 @@ const PromptPage = () => {
 				<Card className="w-full h-full gap-1">
 					<CardBody className="flex flex-col md:flex md:flex-row gap-2">
 						<div className="flex flex-col w-full h-full gap-2">
-							<Textarea
-								label="Prompt"
-								placeholder="Enter your prompt"
-								fullWidth
-								value={prompt}
-								onChange={(e) => setPrompt(e.target.value)}
-							/>
 
+							{/* Image Upload and Textarea */}
+							<div className="container mx-auto p-4">
+								<div className="flex flex-col lg:flex-row gap-4 w-full items-start">
+
+
+
+									{/* <div className="w-full lg:w-1/2">
+										<ImageUploadComponent onImageIdReceived={handleImageIdReceived} />
+										{imageId && <p>Uploaded Image ID: {imageId}</p>}
+									</div> */}
+
+
+                  
+
+									<div className="w-full">
+										<Textarea
+											label="Prompt"
+											placeholder="Enter your prompt"
+											fullWidth
+											value={prompt}
+											onChange={(e) => setPrompt(e.target.value)}
+											className="w-full"
+											minRows={8}
+										/>
+									</div>
+								</div>
+							</div>
+
+							{/* Character and Lora Selection */}
 							<div className="">
 								<Select
 									label="Choose a character"
@@ -189,11 +253,7 @@ const PromptPage = () => {
 									selectedKeys={String(selectedCharacter?.id)}
 								>
 									{characters.map((char) => (
-										<SelectItem
-											key={char.id}
-											value={char.id}
-											textValue={char.name}
-										>
+										<SelectItem key={char.id} value={char.id} textValue={char.name}>
 											<div className="flex gap-2 items-center">
 												<Avatar
 													alt={char.name}
@@ -230,9 +290,17 @@ const PromptPage = () => {
 							</div>
 
 							<div className="flex flex-grow flex-col justify-between w-full space-y-2">
-								<div>
-									<SeedInput seed={seed} setSeed={setSeed} />
-								</div>
+								<SeedInput seed={seed} setSeed={setSeed} />
+							</div>
+
+							<div className="flex flex-grow flex-col justify-between w-full space-y-1">
+								<LoraUsageSlider
+									defaultValue={100}
+									onValueChange={handleSliderChange}
+									label="Lora Strength"
+								/>
+
+								<AspectRatioDropDown onSelect={handleAspectRatioSelect} />
 							</div>
 						</div>
 					</CardBody>
@@ -251,6 +319,7 @@ const PromptPage = () => {
 					</CardFooter>
 				</Card>
 
+				{/* Image Rendering */}
 				{job?.status === "pending" || job?.status === "running" ? (
 					<Card className="w-full h-full gap-1 flex justify-center items-center p-10">
 						<Spinner color="primary" size="lg" />

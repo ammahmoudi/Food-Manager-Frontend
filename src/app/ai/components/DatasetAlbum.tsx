@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { Image, Spinner, Skeleton } from "@nextui-org/react";
 import { toast } from "sonner";

@@ -8,7 +8,6 @@ import {
     Link,
 } from "@nextui-org/react";
 import {
-    PhotoIcon as PhotoIconOutline,
     WrenchScrewdriverIcon as WrenchScrewdriverIconOutline,
     DocumentPlusIcon,
     PlayIcon,
@@ -16,7 +15,7 @@ import {
 
 const AdminToolsDropdown = () => {
     return (
-        <Dropdown placement="bottom-end" shouldCloseOnBlur>
+        <Dropdown placement="bottom-end" shouldCloseOnBlur>``
             <DropdownTrigger>
                 <Button
                     as={Link}
