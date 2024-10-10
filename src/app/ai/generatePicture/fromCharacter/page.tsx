@@ -29,7 +29,9 @@ import DatasetImage from "../../interfaces/DatasetImage"; // Import the DatasetI
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
-	const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
+	const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(
+		null
+	);
 	const [selectedLora, setSelectedLora] = useState<string>("");
 	const [characters, setCharacters] = useState<Character[]>([]);
 	const [loras, setLoras] = useState<{ name: string; path: string }[]>([]);
@@ -37,10 +39,14 @@ const PromptPage = () => {
 	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false);
 	const [resultImages, setResultImages] = useState<string[]>([]); // For storing images from the new structure
 	const [polling, setPolling] = useState<boolean>(false);
-	const [seed, setSeed] = useState<number>(Math.floor(Math.random() * Math.pow(2, 16)));
+	const [seed, setSeed] = useState<number>(
+		Math.floor(Math.random() * Math.pow(2, 16))
+	);
 	const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>("");
 	const [sliderValue, setSliderValue] = useState<number>(1);
-	const [imageId, setImageId] = useState<number | null>(null);
+	const [referenceImage, setReferenceImage] = useState<DatasetImage | null>(
+		null
+	);
 
 	// Fetch list of characters from backend on component mount
 	useEffect(() => {
@@ -59,9 +65,11 @@ const PromptPage = () => {
 	// Fetch image details when image ID is set
 	useEffect(() => {
 		const fetchImageDetails = async () => {
-			if (imageId) {
+			if (referenceImage) {
 				try {
-					const datasetImage: DatasetImage = await getImageById(imageId);
+					const datasetImage: DatasetImage = await getImageById(
+						referenceImage.id
+					);
 					if (datasetImage && datasetImage.tag_prompt) {
 						setPrompt(datasetImage.tag_prompt); // Set the tag_prompt into the textarea
 					}
@@ -73,11 +81,11 @@ const PromptPage = () => {
 		};
 
 		fetchImageDetails();
-	}, [imageId]);
+	}, [referenceImage]);
 
 	// Handle image ID received from the image upload component
-	const handleImageIdReceived = (id: number) => {
-		setImageId(id);
+	const handleImageIdReceived = (image: DatasetImage|null) => {
+		setReferenceImage(image);
 	};
 
 	const handleAspectRatioSelect = (aspectRatio: string) => {
@@ -90,7 +98,9 @@ const PromptPage = () => {
 	};
 
 	// Handle character selection and update Loras
-	const handleCharacterSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+	const handleCharacterSelection = (
+		e: React.ChangeEvent<HTMLSelectElement>
+	) => {
 		const character = characters.find(
 			(char) => char.id === parseInt(e.target.value)
 		);
@@ -215,20 +225,17 @@ const PromptPage = () => {
 				<Card className="w-full h-full gap-1">
 					<CardBody className="flex flex-col md:flex md:flex-row gap-2">
 						<div className="flex flex-col w-full h-full gap-2">
-
 							{/* Image Upload and Textarea */}
 							<div className="container mx-auto p-4">
 								<div className="flex flex-col lg:flex-row gap-4 w-full items-start">
-
-
-
-									{/* <div className="w-full lg:w-1/2">
-										<ImageUploadComponent onImageIdReceived={handleImageIdReceived} />
-										{imageId && <p>Uploaded Image ID: {imageId}</p>}
-									</div> */}
-
-
-                  
+									<div className="w-full lg:w-1/2">
+										<ImageUploadComponent
+											onImageIdReceived={handleImageIdReceived}
+										/>
+										{referenceImage && (
+											<p>Uploaded Image ID: {referenceImage.id}</p>
+										)}
+									</div>
 
 									<div className="w-full">
 										<Textarea
@@ -253,7 +260,11 @@ const PromptPage = () => {
 									selectedKeys={String(selectedCharacter?.id)}
 								>
 									{characters.map((char) => (
-										<SelectItem key={char.id} value={char.id} textValue={char.name}>
+										<SelectItem
+											key={char.id}
+											value={char.id}
+											textValue={char.name}
+										>
 											<div className="flex gap-2 items-center">
 												<Avatar
 													alt={char.name}
@@ -279,7 +290,9 @@ const PromptPage = () => {
 									onSelectionChange={(selectedKeys) =>
 										setSelectedLora(Array.from(selectedKeys)[0] as string)
 									}
-									selectedKeys={selectedLora ? new Set([selectedLora]) : new Set()}
+									selectedKeys={
+										selectedLora ? new Set([selectedLora]) : new Set()
+									}
 								>
 									{(lora) => (
 										<SelectItem key={lora.name} textValue={lora.name}>

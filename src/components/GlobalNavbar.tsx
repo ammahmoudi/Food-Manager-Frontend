@@ -9,14 +9,12 @@ import {
 } from "@nextui-org/react";
 import { usePathname } from "next/navigation";
 import {
-  HomeIcon as HomeIconSolid,
   CalendarIcon as CalendarIconSolid,
   InboxIcon as InboxIconSolid,
   CakeIcon as CakeIconSolid,
   PhotoIcon as PhotoIconSolid,
 } from "@heroicons/react/24/solid";
 import {
-  HomeIcon as HomeIconOutline,
   CalendarIcon as CalendarIconOutline,
   InboxIcon as InboxIconOutline,
   CakeIcon as CakeIconOutline,
@@ -25,12 +23,11 @@ import {
 
 import UserDropdown from "./UserDropdown";
 import { useUser } from "@/context/UserContext";
-import CuiDropdown from "../app/ai/components/CuiDropdown";
-import { useTheme } from "../context/ThemeContext";
 import React from "react";
 import HumaaniDropdown from "@/app/ai/components/HumaaniDropdown";
 import { MaaniIcon   } from '@/icons/MaaniIcon'; // Maan  i icon component for NavbarBrand
 import { BerchiIcon } from '@/icons/BerchiIcon';
+import AdminToolsDropdown from "../app/ai/components/AdminToolsDropdown";
 
 // Define a type for navigation items
 interface NavItem {
@@ -52,8 +49,6 @@ interface AppNav {
 const GlobalNavbar = () => {
   const { isLoading, isAuthenticated } = useUser();
   const pathName = usePathname();
-  const { currentTheme } = useTheme();
-
   // Define structured navigation items for different applications, including app icons
   const navItems: AppNav[] = [
     {
@@ -68,7 +63,7 @@ const GlobalNavbar = () => {
           outlineIcon: PhotoIconOutline,
         },
       ],
-      dropdowns: [<HumaaniDropdown key="humaani" />, <CuiDropdown key="cui" />],
+      dropdowns: [<HumaaniDropdown key="humaani" />, <AdminToolsDropdown key="cui" />],
     },
     {
       app: "Berchi",

@@ -1,33 +1,25 @@
 import React, { useState, ChangeEvent } from "react";
 import { Button, Image, Spinner, Card, CardFooter } from "@nextui-org/react";
 import { toast } from "sonner";
- // API call function
-import { TrashIcon } from "@heroicons/react/24/solid";
-import { uploadImageToBackend } from "../services/aiApi";
+import { TrashIcon, InformationCircleIcon } from "@heroicons/react/24/solid";
+import { uploadTempImage } from "../services/aiApi";
+import DatasetImage from "../interfaces/DatasetImage";
+import DatasetImageInfoModal from "./modals/DatasetImageInfoModal";
 
 interface ImageUploadProps {
-  onImageIdReceived: (imageId: number) => void; // Callback prop to pass imageId to the parent component
+  onImageIdReceived: (image: DatasetImage | null) => void; // Callback prop to pass imageId to the parent component
 }
 
 const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived }) => {
-  const [image, setImage] = useState<string | null>(null); // To store image preview URL
+  const [image, setImage] = useState<DatasetImage | null>(null); // To store image preview URL
   const [loading, setLoading] = useState<boolean>(false); // To show spinner during image upload
-  const [cropModalOpen, setCropModalOpen] = useState<boolean>(false); // Simulated cropping modal state
-
-
-
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false); // Modal state for info modal
 
   // Handle image change (upload)
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setLoading(true);
-
-      // Simulate opening a crop modal
-      setCropModalOpen(true);
-      console.log("Selected file for cropping:", file);
-
-      // For simplicity, directly upload the image after selecting (no actual cropping)
       await handleUploadToBackend(file);
       setLoading(false);
     }
@@ -37,10 +29,10 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
   const handleUploadToBackend = async (file: File) => {
     setLoading(true);
     try {
-      const response = await uploadImageToBackend(file); // Make API call
-      const imageId = response.id;
-      onImageIdReceived(imageId); // Pass the received imageId to the parent component
-      setImage(URL.createObjectURL(file)); // Show image preview
+      const uploadedImage: DatasetImage = await uploadTempImage(file); // Make API call
+
+      onImageIdReceived(uploadedImage); // Pass the received imageId to the parent component
+      setImage(uploadedImage); // Show image preview
       toast.success("Image uploaded successfully!");
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -53,6 +45,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
   // Handle image deletion
   const handleDeleteImage = () => {
     setImage(null); // Clear the image preview
+    onImageIdReceived(null); // Pass the received imageId to the parent component
     toast.success("Image deleted successfully.");
   };
 
@@ -61,28 +54,36 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
       <Card
         isPressable
         onClick={() => document.getElementById("user-image-input")?.click()}
-        className="w-full aspect-square bg-gray-200 relative"
+        className="w-full aspect-square bg-gray-200 relative items-center justify-center"
       >
-        {/* Image Preview and Deletion Button */}
+        {/* Image Preview and Action Buttons */}
         {image ? (
           <>
-            <Image src={image} alt="Uploaded" className="w-full h-full object-cover" />
-            <CardFooter className="absolute bottom-0 z-10">
-              <div className="flex items-center">
-                <div className="flex flex-col">
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteImage();
-                    }}
-                    radius="full"
-                    size="sm"
-                    className="w-full h-full bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
-                  >
-                    <TrashIcon className="h-5 w-5" />
-                  </Button>
-                </div>
-              </div>
+            <Image src={image.image} alt="Uploaded" className="w-full h-full object-cover" />
+            <CardFooter className="absolute bottom-0 z-10 flex justify-between w-full p-2">
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsInfoModalOpen(true); // Open info modal
+                }}
+                radius="full"
+                size="sm"
+                className="w-10 h-10 bg-blue-500 text-white shadow-lg"
+              >
+                <InformationCircleIcon className="h-5 w-5" />
+              </Button>
+
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteImage();
+                }}
+                radius="full"
+                size="sm"
+                className="w-10 h-10 bg-red-500 text-white shadow-lg"
+              >
+                <TrashIcon className="h-5 w-5" />
+              </Button>
             </CardFooter>
           </>
         ) : (
@@ -98,8 +99,6 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
           </div>
         )}
 
-
-
         {/* Hidden File Input */}
         <input
           type="file"
@@ -109,32 +108,18 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
           onChange={handleImageChange}
         />
       </Card>
+
+      {/* Dataset Image Info Modal */}
+      {image && (
+        <DatasetImageInfoModal
+          visible={isInfoModalOpen}
+          onClose={() => setIsInfoModalOpen(false)}
+          imageId={image.id}
+          onDeleteSuccess={handleDeleteImage}
+        />
+      )}
     </div>
   );
 };
 
 export default ImageUploadComponent;
-
-
-
-
-//  USAGE  //
-
-{/*
-
-
-const [imageId, setImageId] = useState<number | null>(null);
-
-const handleImageIdReceived = (id: number) => {
-    setImageId(id);
-};
-
-    <div className="p-4">
-      <h1>Upload Image</h1>
-      <ImageUpload onImageIdReceived={handleImageIdReceived} />
-      {imageId && <p>Uploaded Image ID: {imageId}</p>}
-    </div>
-
-
-
-    */}
