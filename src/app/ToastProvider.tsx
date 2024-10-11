@@ -19,8 +19,10 @@ export default function ToastProvider({ children }: ToastProviderProps) {
 	return (
 		<>
 			<Toaster richColors
+			position="top-right"
 				toastOptions={{
 					unstyled: false,
+					
 					// classNames: contextClass,
 				}}
 			/>

@@ -148,9 +148,19 @@ const MealsPage = () => {
 								<PlusIcon className="text-white size-6"></PlusIcon>
 							</Button>
 						)}
-						<Dropdown >
+						<Dropdown>
 							<DropdownTrigger>
-								<Button color='primary' variant="solid"startContent={sortOrder === "date" ? <ArrowUpIcon className="w-5 h-5" /> : <ArrowDownIcon className="w-5 h-5" />}>
+								<Button
+									color="primary"
+									variant="solid"
+									startContent={
+										sortOrder === "date" ? (
+											<ArrowUpIcon className="w-5 h-5" />
+										) : (
+											<ArrowDownIcon className="w-5 h-5" />
+										)
+									}
+								>
 									Sort by {sortOrder === "date" ? "Date" : "Rating"}
 								</Button>
 							</DropdownTrigger>
@@ -179,15 +189,18 @@ const MealsPage = () => {
 						onSelectionChange={handleTabChange}
 						variant="solid"
 						color="primary"
-						className="mb-4"
+						className="mb-4 w-full"
 						fullWidth
 						size="sm"
-
 					>
 						<Tab
 							key="current-week"
 							title={
-								<div className="flex items-center space-x-1">
+								<div
+									className={`flex items-center ${
+										filterType !== "current-week" ? "hidden sm:flex" : "flex"
+									}`}
+								>
 									<CalendarIcon className="w-5 h-5" />
 									<span>Current Week</span>
 								</div>
@@ -196,7 +209,11 @@ const MealsPage = () => {
 						<Tab
 							key="upcoming"
 							title={
-								<div className="flex items-center space-x-1">
+								<div
+									className={`flex items-center ${
+										filterType !== "upcoming" ? "hidden sm:flex" : "flex"
+									}`}
+								>
 									<ClockIcon className="w-5 h-5" />
 									<span>Upcoming Meals</span>
 								</div>
@@ -205,7 +222,11 @@ const MealsPage = () => {
 						<Tab
 							key="past"
 							title={
-								<div className="flex items-center space-x-1">
+								<div
+									className={`flex items-center ${
+										filterType !== "past" ? "hidden sm:flex" : "flex"
+									}`}
+								>
 									<ArrowUpIcon className="w-5 h-5" />
 									<span>Past Meals</span>
 								</div>
@@ -214,7 +235,11 @@ const MealsPage = () => {
 						<Tab
 							key="all"
 							title={
-								<div className="flex items-center space-x-1">
+								<div
+									className={`flex items-center ${
+										filterType !== "all" ? "hidden sm:flex" : "flex"
+									}`}
+								>
 									<span>All Meals</span>
 								</div>
 							}

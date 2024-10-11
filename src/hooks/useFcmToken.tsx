@@ -154,7 +154,7 @@ const useFcmToken = () => {
 				
 				
 		</div>
-	,{duration:Infinity});
+	);
 });
 
 

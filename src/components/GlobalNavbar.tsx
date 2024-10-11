@@ -120,16 +120,19 @@ const GlobalNavbar = () => {
   const BrandIcon = currentApp ? currentApp.icon : MaaniIcon; // Default icon if no match
 
   return (
-    <Navbar
-    position="sticky"
-    isBlurred
-    >
+<Navbar
+  isBlurred
+  className="sm:sticky sm:top-0 fixed bottom-0 top-auto left-0 w-full z-50"
+  classNames={{
+    base: "sm:sticky sm:top-0 fixed bottom-0 left-0 w-full z-50",
+  }}
+>
       <NavbarBrand>
         <Link href={brandLink}>
-          <BrandIcon className="w-10 h-10" />
-          <p className="font-bold text-inherit overflow-clip">
+          <BrandIcon className="w-8 h-8 text-black " />
+          <span className="font-bold  text-black overflow-clip ml-2 hidden sm:inline">
             {navbarBrandName}
-          </p>
+          </span>
         </Link>
       </NavbarBrand>
 
