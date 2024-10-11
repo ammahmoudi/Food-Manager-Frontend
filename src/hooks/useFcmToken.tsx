@@ -5,6 +5,9 @@ import { onMessage, Unsubscribe } from "firebase/messaging";
 import { fetchToken, messaging } from "@/services/firebase";
 import { useRouter } from "next/navigation";
 import { subscribeUser } from "@/services/api";
+import { toast } from "sonner";
+import {Button, Image} from "@nextui-org/react"
+import { LinkIcon } from "@heroicons/react/24/solid";
 
 async function getNotificationPermissionAndToken() {
 	// Step 1: Check if Notifications are supported in the browser.
@@ -93,13 +96,12 @@ const useFcmToken = () => {
 		const setupListener = async () => {
 			if (!token) return; // Exit if no token is available.
 			// Send the FCM token to your backend to subscribe the user
-      try {
-        await subscribeUser(token);
-        console.log('Subscription done');
-      } catch (error) {
-        console.error('Subscription failed:', error);
-      }
-    
+			try {
+				await subscribeUser(token);
+				console.log("Subscription done");
+			} catch (error) {
+				console.error("Subscription failed:", error);
+			}
 
 			console.log(`onMessage registered with token ${token}`);
 			const m = await messaging();
@@ -107,58 +109,78 @@ const useFcmToken = () => {
 
 			// Step 9: Register a listener for incoming FCM messages.
 			const unsubscribe = onMessage(m, (payload) => {
-				if (Notification.permission !== "granted") return;
+	if (Notification.permission !== "granted") return;
 
-				console.log("Foreground push notification received:", payload);
-				const link = payload.fcmOptions?.link || payload.data?.link;
+	console.log("Foreground push notification received:", payload);
+	const link = payload.fcmOptions?.link || payload.data?.link;
+	const imageUrl = payload.notification?.image; // Get the image URL from the notification payload
 
-				if (link) {
-					// toast.info(
-					//   `${payload.notification?.title}: ${payload.notification?.body}`,
-					//   {
-					//     action: {
-					//       label: "Visit",
-					//       onClick: () => {
-					//         const link = payload.fcmOptions?.link || payload.data?.link;
-					//         if (link) {
-					//           router.push(link);
-					//         }
-					//       },
-					//     },
-					//   }
-					// );
-					console.log(payload);
-				} else {
-					console.log(payload);
+	toast(
+		<div className="flex flex-row gap-2 w-full" >
+			
+				{imageUrl && (
+				<Image
+					src={imageUrl}
+					alt="Notification Image"
+					className="rounded-lg h-10 aspect-square w-10 basis-1/4 "
+					classNames={{ wrapper: "w-full h-full aspect-square " }}
 
-					// toast.info(
-					//   `${payload.notification?.title}: ${payload.notification?.body}`
-					// );
-				}
+
+				/>
+			)}
+				<div className="flex flex-col flex-grow w-full">
+				<div className="flex flex-row flex-grow gap-2 w-full">
+				<div className="flex flex-col flex-grow w-full">
+
+				<span className="font-bold flex flex-grow">{payload.notification?.title}</span>
+				<span>{payload.notification?.body}</span>
+</div>
+				{link && (
+					<div className="flex-grow-0">
+					<Button  
+					radius="full"
+					size="sm"
+					isIconOnly
+					className="bg-primary text-white"
+					onClick={() => router.push(link)}
+					>
+						<LinkIcon  className="h-5 w-5" />
+					</Button>
+					</div>
+				)}
+					
+					</div>
+				</div>
+				
+				
+		</div>
+	,{duration:Infinity});
+});
+
 
 				// --------------------------------------------
 				// Disable this if you only want toast notifications.
-				const n = new Notification(
-					payload.notification?.title || "New message",
-					{
-						body: payload.notification?.body || "This is a new message",
-						data: link ? { url: link } : undefined,
-					}
-				);
+				// const n = new Notification(
+				// 	payload.notification?.title || "New message",
+				// 	{
+				// 		body: payload.notification?.body || "This is a new message",
+				// 		data: link ? { url: link } : undefined,
+				// 	}
+				// );
 
-				// Step 10: Handle notification click event to navigate to a link if present.
-				n.onclick = (event) => {
-					event.preventDefault();
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					const link = (event.target as any)?.data?.url;
-					if (link) {
-						router.push(link);
-					} else {
-						console.log("No link found in the notification payload");
-					}
-				};
+				// // Step 10: Handle notification click event to navigate to a link if present.
+				// n.onclick = (event) => {
+				// 	event.preventDefault();
+				// 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				// 	const link = (event.target as any)?.data?.url;
+				// 	if (link) {
+				// 		router.push(link);
+				// 	} else {
+				// 		console.log("No link found in the notification payload");
+				// 	}
+				// };
 				// --------------------------------------------
-			});
+			// });
 
 			return unsubscribe;
 		};

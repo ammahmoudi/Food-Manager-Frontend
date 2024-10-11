@@ -11,8 +11,6 @@ import Dataset from "../../interfaces/Dataset";
 const ResultPage = () => {
   const [dataset, setDataset] = useState<Dataset | null>(null); // Store dataset object
   const [loading, setLoading] = useState<boolean>(true);
-  const [polling, setPolling] = useState<boolean>(true);
-
   const { id: datasetId } = useParams(); // Get the dynamic dataset_id from the URL
 
   // Fetch dataset and start polling jobs
@@ -50,7 +48,6 @@ const ResultPage = () => {
             <Button
               color="primary"
               className="w-full"
-              isDisabled={polling} // Disable if polling is still active
               onClick={() => toast.success("Lora requested!")}
             >
               Request for Lora

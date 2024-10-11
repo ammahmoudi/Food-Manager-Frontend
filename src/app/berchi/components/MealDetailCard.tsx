@@ -54,7 +54,7 @@ export const MealDetailCard: React.FC<MealDetailCardProps> = ({ meal }) => {
 						radius="full"
 						size="sm"
 						as={Link}
-						href={`meals/${meal.date}`}
+						href={`/berchi/meals/${meal.date}`}
 						isExternal
 					>
 						More

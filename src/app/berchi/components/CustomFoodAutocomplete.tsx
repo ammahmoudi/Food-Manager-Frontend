@@ -102,6 +102,8 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({
 	return (
 		<div className="justify-between flex gap-2">
 			<Autocomplete
+			shouldCloseOnBlur
+			autoFocus
 				classNames={{
 					listboxWrapper: "max-h-[320px]",
 					selectorButton: "text-default-500",
@@ -126,8 +128,10 @@ const CustomFoodAutocomplete: FC<CustomFoodAutocompleteProps> = ({
 				listboxProps={{
 					hideSelectedIcon: false,
 					emptyContent: (
-						<Link>
-							<PlusCircleIcon className="size-6"></PlusCircleIcon>Add This Food
+						<Link
+						//  onPress={handleOpenModal}
+						 >
+							<PlusCircleIcon className="size-6"></PlusCircleIcon>Use the Add Button
 						</Link>
 					),
 					itemClasses: {

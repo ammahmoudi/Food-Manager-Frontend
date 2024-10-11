@@ -162,6 +162,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({
 					onClick={() => openEditCommentModal(comment)}
 				/>
 			))}
+			{comments.length===0&&<div className="text-center text-default-500">No comments yet</div>}
 
 			<div className="flex flex-grow flex-row justify-between">
 				{/* Button to show all comments */}

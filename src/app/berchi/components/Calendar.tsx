@@ -95,18 +95,20 @@ const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
 	return (
 		<div className="p-1 w-full h-full">
 			<div className="flex justify-between mb-4 gap-3">
-				<Button className="px-10" onClick={handlePrevMonth}>
+				<Button color="primary" className="px-10" onClick={handlePrevMonth}>
 					Previous Month
 				</Button>
 				<Button
 					disabled
 					disableRipple
-					className="text-large text-white font-bold w-full text-center bg-primary "
+					variant="light"
+					color='primary'
+					className="text-large  font-bold w-full text-center "
 				>
 					{convertPersianMonthToEnglish(format(currentMonthDate, "MMMM yyyy"))}
 				</Button>
 
-				<Button className="px-10" onClick={handleNextMonth}>
+				<Button className="px-10" color='primary' onClick={handleNextMonth}>
 					Next Month
 				</Button>
 			</div>

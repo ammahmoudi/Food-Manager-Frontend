@@ -13,15 +13,15 @@ type Props = {
 export default function Providers({ children }: Props) {
 	const router = useRouter();
 	return (
-				<UserProvider>
 		<ThemeProvider>
+				<UserProvider>
 		<NextUIProvider navigate={router.push}>
 		<ToastProvider>
 				{children}
 		</ToastProvider>
 			</NextUIProvider>
-			</ThemeProvider>
 		</UserProvider>
+			</ThemeProvider>
 
 	);
 }

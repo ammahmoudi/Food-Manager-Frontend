@@ -122,6 +122,7 @@ const GlobalNavbar = () => {
   return (
     <Navbar
     position="sticky"
+    isBlurred
     >
       <NavbarBrand>
         <Link href={brandLink}>

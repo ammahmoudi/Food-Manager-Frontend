@@ -15,6 +15,7 @@ import MealCard from "../berchi/components/MealCard";
 import TopRatedFoodsChart from "../berchi/components/TopRatedFoodsChart";
 import { Meal } from "../berchi/interfaces/Meal";
 import { toast } from "sonner";
+import { CalendarDateRangeIcon } from "@heroicons/react/24/solid";
 
 const HomePage = () => {
 	const [currentDayMeal, setCurrentDayMeal] = useState<Meal | null>(null);
@@ -28,14 +29,12 @@ const HomePage = () => {
 		try {
 			toast.promise(fetchMealPromise, {
 				// loading: "Fetching today's meal...",
-				success: (meal)=>{
+				success: (meal) => {
 					setCurrentDayMeal(meal);
 					return "Today's meal loaded successfully!";
 				},
 				error: "Failed to load today's meal.",
 			});
-
-
 		} catch (error) {
 			console.error("Failed to fetch current day meal:", error);
 		} finally {
@@ -63,17 +62,27 @@ const HomePage = () => {
 						{/* Current Day Meal Card */}
 						{loadingMeal ? (
 							<Skeleton className="h-48 w-full mb-4" /> // Skeleton for meal card
-						) : currentDayMeal ? (
-							<div>
-								<h2 className="text-2xl font-semibold mb-4">Today Meal</h2>
-								<MealCard
-									date={new Date(currentDayMeal.date)}
-									initialMeal={currentDayMeal}
-									onDelete={handleDeleteMeal}
-								/>
-							</div>
 						) : (
-							<p>No meal data available</p>
+
+<Card>
+									<CardBody>
+										<h3 className="font-semibold text-xl mb-4 flex items-center">
+											<CalendarDateRangeIcon className="w-5 h-5 mr-2" />
+											Today Meal
+										</h3>
+
+										{currentDayMeal ? (
+									<MealCard
+										date={new Date(currentDayMeal.date)}
+										initialMeal={currentDayMeal}
+										onDelete={handleDeleteMeal}
+									/>
+								) : (
+									<div className="text-center text-default-500">No Meal has Been set for Today</div>
+								)}									</CardBody>
+								</Card>
+
+	
 						)}
 
 						{/* Admin-Specific Section */}

@@ -75,7 +75,7 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeal }) => {
 					isPressable
 					className={`h-full w-full aspect-square  ${
 						isToday(date)
-							? "shadow-md border-3 border-primary shadow-primary"
+							? "border-primary border-4 bg-primary text-white"
 							: ""
 					}`}
 					onPress={handleOpenModal}
@@ -107,13 +107,13 @@ const MealCell: FC<MealCellProps> = ({ date, initialMeal }) => {
 					isFooterBlurred
 					radius="md"
 					className={`h-full w-full justify-center items-center  ${
-						isToday(date) ? "shadow-md shadow-emerald-800" : ""
+						isToday(date) ? "border-primary border-4 bg-primary text-white" : ""
 					}`}
 					isPressable
 					onPress={isAdmin ? handleOpenModal : () => {}}
 				>
 					<div className="h-full flex items-center justify-center ">
-						<p className="text-medium text-black/60 uppercase font-bold text-center">
+						<p className="text-medium  uppercase font-bold text-center">
 							{format(date, "d")}
 						</p>
 					</div>

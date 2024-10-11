@@ -119,7 +119,7 @@ const FoodsPage = () => {
 					)}
 					<Dropdown>
 						<DropdownTrigger>
-							<Button variant="flat" className="px-10">
+							<Button color="primary" variant='solid' className="px-10">
 								Sort by {sortOrder === "meals" ? "Most Common" : "Rating"}
 							</Button>
 						</DropdownTrigger>

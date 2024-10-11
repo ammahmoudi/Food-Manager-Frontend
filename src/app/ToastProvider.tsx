@@ -15,9 +15,10 @@ export default function ToastProvider({ children }: ToastProviderProps) {
 	// 	closeButton: "bg-lime-400",
 	// };
 
+
 	return (
 		<>
-			<Toaster
+			<Toaster richColors
 				toastOptions={{
 					unstyled: false,
 					// classNames: contextClass,

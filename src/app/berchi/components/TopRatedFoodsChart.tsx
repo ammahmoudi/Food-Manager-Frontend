@@ -197,7 +197,8 @@ const TopRatedFoodsChartJS = () => {
 			{loading ? (
 				<Skeleton className="rounded-lg h-64" />
 			) : (
-				<div style={{ position: "relative", height: `${foods.length * 60}px` }}>
+				foods.length>1 && foods.find((food) => food.avg_rate !== 0) ?
+				(<div style={{ position: "relative", height: `${foods.length * 60}px` }}>
 					<canvas ref={chartRef} />
 					{avatarPositions.map((position, index) => (
 						<Popover key={index} showArrow placement="top">
@@ -223,7 +224,7 @@ const TopRatedFoodsChartJS = () => {
 							</PopoverContent>
 						</Popover>
 					))}
-				</div>
+				</div>):(<div className="text-center text-default-500">No top-rated foods found</div>)
 			)}
 		</div>
 	);

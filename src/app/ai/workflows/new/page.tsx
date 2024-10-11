@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { Card, CardBody, Button, Input, Textarea } from "@nextui-org/react";
 import { fetchNodesFromJson, submitWorkflowInputs } from "../../services/aiApi";
 import { toast } from "sonner";
+import { WorkflowNode } from "../../interfaces/WorkflowNode";
 
 interface InputType {
   type: string;
@@ -47,12 +48,11 @@ interface RequestBody {
 const WorkflowPage = () => {
   const [workflowName, setWorkflowName] = useState<string>(""); // Ensure name is populated
   const [jsonText, setJsonText] = useState<string>("");
-  const [nodes, setNodes] = useState<any[]>([]);
-  const [selectedNodes, setSelectedNodes] = useState<any[]>([]);
+  const [selectedNodes, setSelectedNodes] = useState<WorkflowNode[]>([]);
   const [inputs, setInputs] = useState<InputsState>({}); // Correct typing for inputs
   const [outputs, setOutputs] = useState<OutputsState>({}); // Correct typing for outputs
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [availableNodes, setAvailableNodes] = useState<any[]>([]);
+  const [availableNodes, setAvailableNodes] = useState<WorkflowNode[]>([]);
   const [availableInputs, setAvailableInputs] = useState<string[]>([]);
   const [selectedInput, setSelectedInput] = useState<string | null>(null);
   const [outputName, setOutputName] = useState<string>(""); // Stores the name of the output
@@ -63,7 +63,6 @@ const WorkflowPage = () => {
   const fetchNodes = useCallback(async () => {
     try {
       const fetchedNodes = await fetchNodesFromJson(jsonText);
-      setNodes(fetchedNodes);
       setAvailableNodes(fetchedNodes); // Initialize available nodes
       toast.success("Nodes fetched successfully!");
     } catch (error) {
@@ -80,6 +79,7 @@ const WorkflowPage = () => {
       fetchNodes(); // Fetch nodes after validating the JSON
       setShowSelect(true); // Show the node selection after JSON validation
     } catch (error) {
+      console.error("Invalid JSON format:", error);
       toast.error("Invalid JSON format!");
     }
   };
@@ -96,6 +96,7 @@ const WorkflowPage = () => {
           setJsonText(fileContent); // Set JSON text content
           toast.success("File content loaded successfully!");
         } catch (error) {
+          console.error("Invalid JSON file:", error);
           toast.error("Invalid JSON file!");
         }
       };
@@ -246,7 +247,7 @@ const WorkflowPage = () => {
       }
 
       // Use the raw JSON text directly
-      let json_data: any;
+      let json_data: Record<string, unknown>;
       try {
         json_data = JSON.parse(jsonText); // Parse the jsonText to ensure it's valid JSON
       } catch (error) {

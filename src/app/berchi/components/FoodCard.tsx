@@ -40,8 +40,7 @@ const FoodCard: React.FC<FoodCardProps> = ({
 		<div className="food-card h-full w-full p-0.5">
 			{food ? (
 				<Card
-					isBlurred
-					className="border-none bg-background/60 dark:bg-default-100/50 h-full w-full"
+					className="border-none  dark:bg-grey-100/50 h-full w-full"
 					isPressable
 					{...(isAdmin
 						? { onPress: handleOpenModal }

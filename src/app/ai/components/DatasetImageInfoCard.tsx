@@ -20,7 +20,6 @@ import {
   getJob,
   requestPromptsForImage,
 } from "@/app/ai/services/aiApi";
-import { Job } from "../interfaces/Job";
 import { toast } from "sonner";
 
 interface DatasetImageInfoCardProps {
@@ -35,7 +34,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
   const [imageData, setImageData] = useState<DatasetImage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [job, setJob] = useState<Job | null>(null);
   const [isFetchingPrompts, setIsFetchingPrompts] = useState(false);
   const [polling, setPolling] = useState(false);
 
@@ -72,7 +70,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
   const handleGetPrompts = async () => {
     try {
       setIsFetchingPrompts(true);
-      setJob(null); // Clear previous job data
       const response = await requestPromptsForImage({
         dataset_image_id: imageId,
       });
@@ -99,7 +96,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
     const fetchJobStatus = async () => {
       try {
         const jobData = await getJob(jobId);
-        setJob(jobData); // Store the full job object
 
         if (jobData.status === "completed") {
           setPolling(false);

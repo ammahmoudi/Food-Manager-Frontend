@@ -148,9 +148,9 @@ const MealsPage = () => {
 								<PlusIcon className="text-white size-6"></PlusIcon>
 							</Button>
 						)}
-						<Dropdown>
+						<Dropdown >
 							<DropdownTrigger>
-								<Button variant="flat">
+								<Button color='primary' variant="solid"startContent={sortOrder === "date" ? <ArrowUpIcon className="w-5 h-5" /> : <ArrowDownIcon className="w-5 h-5" />}>
 									Sort by {sortOrder === "date" ? "Date" : "Rating"}
 								</Button>
 							</DropdownTrigger>
@@ -178,9 +178,11 @@ const MealsPage = () => {
 						selectedKey={filterType}
 						onSelectionChange={handleTabChange}
 						variant="solid"
+						color="primary"
 						className="mb-4"
 						fullWidth
 						size="sm"
+
 					>
 						<Tab
 							key="current-week"

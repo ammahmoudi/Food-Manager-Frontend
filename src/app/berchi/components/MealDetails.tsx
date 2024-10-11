@@ -51,8 +51,8 @@ const MealDetails: FC<{ meal:Meal,}> = ({ meal}) => {
               <span className="text-muted-foreground text-sm">({meal.avg_rate})</span>
             </div>
           </div>
-          <div className="text-sm text-muted-foreground">Posted on {format(meal.date,'yyyy/MM/dd')}</div>
-          <Link href={`/foods/${meal.food?.id}`}>
+          <div className="text-sm text-muted-foreground"> {format(meal.date,'yyyy/MM/dd')}</div>
+          <Link href={`/berchi/foods/${meal.food?.id}`}>
             <p className="text-blue-500 hover:underline">View Food Details</p>
           </Link>
         </div>
