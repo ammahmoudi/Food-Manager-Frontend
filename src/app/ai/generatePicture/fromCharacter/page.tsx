@@ -16,37 +16,38 @@ import {
 	getCharacters,
 	sendPromptForCharacter,
 	getJob,
-	getImageById, // Import the API method to fetch image by ID
+	getImageById,
+	requestPromptsForImage,
 } from "../../services/aiApi";
-import { Job } from "../../interfaces/Job";
+import { Job } from '../../interfaces/Job';
 import { toast } from "sonner";
 import Character from "../../interfaces/Character";
 import SeedInput from "../../components/SeedGenerator";
 import AspectRatioDropDown from "../../components/AspectRatioDropDown";
 import LoraUsageSlider from "../../components/StrengthSlider";
 import ImageUploadComponent from "../../components/UploadImage";
-import DatasetImage from "../../interfaces/DatasetImage"; // Import the DatasetImage interface
+import DatasetImage from "../../interfaces/DatasetImage";
+
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
-	const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(
-		null
-	);
+	const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
 	const [selectedLora, setSelectedLora] = useState<string>("");
 	const [characters, setCharacters] = useState<Character[]>([]);
 	const [loras, setLoras] = useState<{ name: string; path: string }[]>([]);
 	const [job, setJob] = useState<Job | null>(null);
 	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false);
-	const [resultImages, setResultImages] = useState<string[]>([]); // For storing images from the new structure
+	const [resultImages, setResultImages] = useState<string[]>([]);
 	const [polling, setPolling] = useState<boolean>(false);
-	const [seed, setSeed] = useState<number>(
-		Math.floor(Math.random() * Math.pow(2, 16))
-	);
+	const [seed, setSeed] = useState<number>(Math.floor(Math.random() * Math.pow(2, 16)));
 	const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>("");
 	const [sliderValue, setSliderValue] = useState<number>(1);
-	const [referenceImage, setReferenceImage] = useState<DatasetImage | null>(
-		null
-	);
+	const [referenceSliderValue, setReferenceSliderValue] = useState<number>(1);
+	const [referenceImage, setReferenceImage] = useState<DatasetImage | null>(null);
+	const [isFetchingPrompts, setIsFetchingPrompts] = useState(false);
+	const [pollingPrompt, setPollingPrompt] = useState(false);
+
+
 
 	// Fetch list of characters from backend on component mount
 	useEffect(() => {
@@ -62,26 +63,25 @@ const PromptPage = () => {
 		fetchCharacters();
 	}, []);
 
-	// Fetch image details when image ID is set
-	useEffect(() => {
-		const fetchImageDetails = async () => {
-			if (referenceImage) {
-				try {
-					const datasetImage: DatasetImage = await getImageById(
-						referenceImage.id
-					);
-					if (datasetImage && datasetImage.tag_prompt) {
-						setPrompt(datasetImage.tag_prompt); // Set the tag_prompt into the textarea
-					}
-				} catch (error) {
-					console.error("Failed to fetch image details:", error);
-					toast.error("Failed to fetch image details.");
-				}
-			}
-		};
 
-		fetchImageDetails();
-	}, [referenceImage]);
+	const handleGetPrompts = async () => {
+		try {
+			setIsFetchingPrompts(true);
+			const response = await requestPromptsForImage({dataset_image_id: referenceImage?.id});
+
+		if (response.job_id) {
+			toast.success("Prompt submitted successfully!");
+			await pollJobStatusForPrompt(response.job_id);
+
+		} else {
+			toast.error("Failed to retrieve job ID.");
+		}
+		} catch (error) {
+			console.error(`Error requesting prompts for image with ID ${referenceImage?.id}:`, error);
+			setIsFetchingPrompts(false);
+		}
+	};
+
 
 	// Handle image ID received from the image upload component
 	const handleImageIdReceived = (image: DatasetImage|null) => {
@@ -94,7 +94,12 @@ const PromptPage = () => {
 	};
 
 	const handleSliderChange = (value: number) => {
+		console.log(value)
 		setSliderValue(value);
+	};
+
+	const handleReferenceSliderChange = (value: number) => {
+		setReferenceSliderValue(value);
 	};
 
 	// Handle character selection and update Loras
@@ -115,6 +120,121 @@ const PromptPage = () => {
 			setLoras([]);
 		}
 	};
+
+	const pollJobStatusForPrompt = async (jobId: number) => {
+		setPollingPrompt(true);
+		let polling = true;
+	
+		const fetchJobStatus = async () => {
+			try {
+				const jobData = await getJob(jobId);
+				if (jobData.status === "completed") {
+					await fetchImageData();
+					setPollingPrompt(false);
+					setIsFetchingPrompts(false);
+					toast.success("Job completed and result is ready!");
+					console.log("Job done!");
+					console.log(referenceImage?.complex_prompt);
+					polling = false; // Stop polling
+				} else if (jobData.status === "failed") {
+					setPollingPrompt(false);
+					setIsFetchingPrompts(false);
+					toast.error("Job failed to complete.");
+					polling = false; // Stop polling
+				}
+			} catch (error) {
+				console.error("Error fetching job status:", error);
+				setPollingPrompt(false);
+				setIsFetchingPrompts(false);
+				toast.error("Error fetching job status.");
+				polling = false; // Stop polling on error
+			}
+		};
+	
+		// Run initial check
+		await fetchJobStatus();
+	
+		// Continue polling until job is completed or fails
+		const intervalId = setInterval(async () => {
+			if (!polling) {
+				clearInterval(intervalId); // Clear interval when polling is done
+			} else {
+				await fetchJobStatus();
+			}
+		}, 5000);
+	};
+	
+	const fetchImageData = async () => {
+		try {
+			const data:DatasetImage = await getImageById(referenceImage?.id);
+			setPrompt(prompt+" ,"+data.complex_prompt)
+			console.log("Fetching image data...");
+			console.log(data);
+			setReferenceImage(data); // Set the new prompt
+			console.log(data);
+		} catch (error) {
+			console.error(`Error fetching image with ID ${referenceImage?.id}:`, error);
+		}
+	};
+	
+
+	// Handle prompt submission to backend
+	const handleSubmitPrompt = async () => {
+		if (!prompt.trim()) {
+			toast.error("Prompt cannot be empty!");
+			return;
+		}
+
+		if (!selectedCharacter) {
+			toast.error("You must select a character.");
+			return;
+		}
+
+		if (!selectedLora) {
+			toast.error("You must select a Lora.");
+			return;
+		}
+
+		try {
+			setIsSubmittingPrompt(true);
+			setJob(null);
+			setResultImages([]); // Clear previous images
+			console.log(sliderValue)
+
+			if(referenceImage){
+
+			const response = await sendPromptForCharacter({
+				prompt,
+				character_id: selectedCharacter.id,
+				lora_name: selectedLora,
+				seed: String(seed),
+				lora_strength: String(sliderValue),
+				aspect_ratio: selectedAspectRatio,
+				reference_strength: String(referenceSliderValue),
+				reference_image: referenceImage?.id
+			});
+
+
+
+
+			toast.success("Prompt submitted successfully!");
+
+			if (response.job_id) {
+				setPolling(true);
+				pollJobStatus(response.job_id);
+			} else {
+				toast.error("Failed to retrieve job ID.");
+			}
+		}
+		} catch (error) {
+			toast.error("Error submitting the prompt.");
+			console.error("Error submitting prompt:", error);
+		} finally {
+			setIsSubmittingPrompt(false);
+		}
+	};
+
+
 
 	// Poll the job status using the jobID and process result_data
 	const pollJobStatus = async (jobId: number) => {
@@ -172,52 +292,7 @@ const PromptPage = () => {
 		}, 5000);
 	};
 
-	// Handle prompt submission to backend
-	const handleSubmitPrompt = async () => {
-		if (!prompt.trim()) {
-			toast.error("Prompt cannot be empty!");
-			return;
-		}
 
-		if (!selectedCharacter) {
-			toast.error("You must select a character.");
-			return;
-		}
-
-		if (!selectedLora) {
-			toast.error("You must select a Lora.");
-			return;
-		}
-
-		try {
-			setIsSubmittingPrompt(true);
-			setJob(null);
-			setResultImages([]); // Clear previous images
-
-			const response = await sendPromptForCharacter({
-				prompt,
-				character_id: selectedCharacter.id,
-				lora_name: selectedLora,
-				seed: String(seed),
-				lora_strength: String(sliderValue),
-				aspect_ratio: selectedAspectRatio,
-			});
-
-			toast.success("Prompt submitted successfully!");
-
-			if (response.job_id) {
-				setPolling(true);
-				pollJobStatus(response.job_id);
-			} else {
-				toast.error("Failed to retrieve job ID.");
-			}
-		} catch (error) {
-			toast.error("Error submitting the prompt.");
-			console.error("Error submitting prompt:", error);
-		} finally {
-			setIsSubmittingPrompt(false);
-		}
-	};
 
 	return (
 		<div className="container xl:w-1/2 mx-auto p-2 items-center">
@@ -232,9 +307,6 @@ const PromptPage = () => {
 										<ImageUploadComponent
 											onImageIdReceived={handleImageIdReceived}
 										/>
-										{referenceImage && (
-											<p>Uploaded Image ID: {referenceImage.id}</p>
-										)}
 									</div>
 
 									<div className="w-full">
@@ -249,6 +321,15 @@ const PromptPage = () => {
 										/>
 									</div>
 								</div>
+								<Button
+									color="primary"
+									onClick={handleGetPrompts}
+									disabled={isFetchingPrompts || pollingPrompt}
+									isLoading={isFetchingPrompts}
+									className="gap-y-2"
+								>
+									{isFetchingPrompts ? "Fetching Prompts..." : "Get Prompts"}
+								</Button>
 							</div>
 
 							{/* Character and Lora Selection */}
@@ -309,6 +390,14 @@ const PromptPage = () => {
 							<div className="flex flex-grow flex-col justify-between w-full space-y-1">
 								<LoraUsageSlider
 									defaultValue={100}
+									onValueChange={handleReferenceSliderChange}
+									label="Reference Strength"
+								/>
+							</div>
+
+							<div className="flex flex-grow flex-col justify-between w-full space-y-1">
+								<LoraUsageSlider
+									defaultValue={80}
 									onValueChange={handleSliderChange}
 									label="Lora Strength"
 								/>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import {
   Card,
@@ -70,6 +71,7 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
   const handleGetPrompts = async () => {
     try {
       setIsFetchingPrompts(true);
+      console.log("pollPrompt")
       const response = await requestPromptsForImage({
         dataset_image_id: imageId,
       });
@@ -98,10 +100,12 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
         const jobData = await getJob(jobId);
 
         if (jobData.status === "completed") {
+          console.log("jobComplete")
+          fetchImageData();
           setPolling(false);
           setIsFetchingPrompts(false);
           clearInterval(intervalId); // Stop polling when job is completed
-          fetchImageData(); // Refresh image data
+           // Refresh image data
           toast.success("Job completed and result is ready!");
         } else if (jobData.status === "failed") {
           setPolling(false);
@@ -167,7 +171,7 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
                 variant="bordered"
                 labelPlacement="outside"
                 placeholder="Enter your description"
-                defaultValue={imageData?.complex_prompt ?? "N/A"}
+                value={imageData?.complex_prompt ?? "N/A"}
                 className="w-full"
               />
               <Textarea
@@ -176,7 +180,7 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
                 variant="bordered"
                 labelPlacement="outside"
                 placeholder="Enter your description"
-                defaultValue={imageData?.tag_prompt ?? "N/A"}
+                value={imageData?.tag_prompt ?? "N/A"}
                 className="w-full"
               />
               <Textarea
@@ -185,7 +189,7 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
                 variant="bordered"
                 labelPlacement="outside"
                 placeholder="Enter your description"
-                defaultValue={imageData?.negative_prompt ?? "N/A"}
+                value={imageData?.negative_prompt ?? "N/A"}
                 className="w-full"
               />
             </CardBody>

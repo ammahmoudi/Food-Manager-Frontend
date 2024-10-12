@@ -111,6 +111,8 @@ export const sendPromptForCharacter = async (data: {
   seed: string;
   lora_strength : string
   aspect_ratio: string
+  reference_image : number
+  reference_strength : string
 }) => {
   try {
     const response = await api.post("/cui/workflow-runners/characters/generate-character-image/",
@@ -162,7 +164,7 @@ export const getUserDatasets = async (): Promise<Dataset[]> => {
 
 // Image Apis
 // Define the function to fetch image details by image ID
-export const getImageById = async (imageId: number) => {
+export const getImageById = async (imageId: number | undefined) => {
   try {
     const response = await api.get(`/cui/dataset-images/${imageId}/`);
     return response.data;
@@ -197,7 +199,7 @@ export const uploadTempImage = async (file: File) => {
   return response.data; // Returns { id: number }
 };
 
-export const requestPromptsForImage = async (data: { dataset_image_id: number }) => {
+export const requestPromptsForImage = async (data: { dataset_image_id: number | undefined }) => {
   try {
     const response = await api.post("/cui/workflow-runners/prompts/get-prompt/", data);
     return response.data;
