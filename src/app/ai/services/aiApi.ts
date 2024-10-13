@@ -47,11 +47,11 @@ export const submitWorkflowInputs = async (inputs: unknown) => {
   }
 };
 
-// Poll the job status by job ID
+// Poll the job by job ID
 export const getJob = async (jobId: number) => {
   try {
     const response = await api.get(`/cui/jobs/${jobId}`);
-    return response.data; // Assuming the response contains the job status and result
+    return response.data;
   } catch (error) {
     console.error("Error getting jobs:", error);
     throw error;
@@ -163,7 +163,7 @@ export const getUserDatasets = async (): Promise<Dataset[]> => {
 
 
 // Image Apis
-// Define the function to fetch image details by image ID
+// fetch image details by image ID
 export const getImageById = async (imageId: number | undefined) => {
   try {
     const response = await api.get(`/cui/dataset-images/${imageId}/`);
@@ -173,6 +173,7 @@ export const getImageById = async (imageId: number | undefined) => {
     throw new Error('Failed to fetch image.');
   }
 };
+
 // Function to delete image by ID
 export const deleteImageById = async (imageId: number) => {
   try {

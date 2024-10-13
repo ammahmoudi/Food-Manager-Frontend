@@ -10,7 +10,7 @@ import {
 	SelectItem,
 	Avatar,
 	Image,
-	Spinner,
+	CircularProgress,
 } from "@nextui-org/react";
 import {
 	getCharacters,
@@ -41,8 +41,8 @@ const PromptPage = () => {
 	const [polling, setPolling] = useState<boolean>(false);
 	const [seed, setSeed] = useState<number>(Math.floor(Math.random() * Math.pow(2, 16)));
 	const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>("");
-	const [sliderValue, setSliderValue] = useState<number>(1);
-	const [referenceSliderValue, setReferenceSliderValue] = useState<number>(1);
+	const [sliderValue, setSliderValue] = useState<number>(0.8);
+	const [referenceSliderValue, setReferenceSliderValue] = useState<number>(0.5);
 	const [referenceImage, setReferenceImage] = useState<DatasetImage | null>(null);
 	const [isFetchingPrompts, setIsFetchingPrompts] = useState(false);
 	const [pollingPrompt, setPollingPrompt] = useState(false);
@@ -90,11 +90,9 @@ const PromptPage = () => {
 
 	const handleAspectRatioSelect = (aspectRatio: string) => {
 		setSelectedAspectRatio(aspectRatio);
-		console.log("Selected aspect ratio:", aspectRatio);
 	};
 
 	const handleSliderChange = (value: number) => {
-		console.log(value)
 		setSliderValue(value);
 	};
 
@@ -124,7 +122,7 @@ const PromptPage = () => {
 	const pollJobStatusForPrompt = async (jobId: number) => {
 		setPollingPrompt(true);
 		let polling = true;
-	
+
 		const fetchJobStatus = async () => {
 			try {
 				const jobData = await getJob(jobId);
@@ -133,8 +131,6 @@ const PromptPage = () => {
 					setPollingPrompt(false);
 					setIsFetchingPrompts(false);
 					toast.success("Job completed and result is ready!");
-					console.log("Job done!");
-					console.log(referenceImage?.complex_prompt);
 					polling = false; // Stop polling
 				} else if (jobData.status === "failed") {
 					setPollingPrompt(false);
@@ -150,10 +146,10 @@ const PromptPage = () => {
 				polling = false; // Stop polling on error
 			}
 		};
-	
+
 		// Run initial check
 		await fetchJobStatus();
-	
+
 		// Continue polling until job is completed or fails
 		const intervalId = setInterval(async () => {
 			if (!polling) {
@@ -161,22 +157,19 @@ const PromptPage = () => {
 			} else {
 				await fetchJobStatus();
 			}
-		}, 5000);
+		},2000);
 	};
-	
+
 	const fetchImageData = async () => {
 		try {
 			const data:DatasetImage = await getImageById(referenceImage?.id);
 			setPrompt(prompt+" ,"+data.complex_prompt)
-			console.log("Fetching image data...");
-			console.log(data);
 			setReferenceImage(data); // Set the new prompt
-			console.log(data);
 		} catch (error) {
 			console.error(`Error fetching image with ID ${referenceImage?.id}:`, error);
 		}
 	};
-	
+
 
 	// Handle prompt submission to backend
 	const handleSubmitPrompt = async () => {
@@ -198,8 +191,8 @@ const PromptPage = () => {
 		try {
 			setIsSubmittingPrompt(true);
 			setJob(null);
-			setResultImages([]); // Clear previous images
-			console.log(sliderValue)
+			setResultImages([]);
+
 
 			if(referenceImage){
 
@@ -289,7 +282,7 @@ const PromptPage = () => {
 		// Set up the interval for subsequent polling
 		const intervalId = setInterval(async () => {
 			await fetchJobStatus();
-		}, 5000);
+		}, 2000);
 	};
 
 
@@ -303,35 +296,37 @@ const PromptPage = () => {
 							{/* Image Upload and Textarea */}
 							<div className="container mx-auto p-4">
 								<div className="flex flex-col lg:flex-row gap-4 w-full items-start">
-									<div className="w-full lg:w-1/2">
+									<div className="w-full lg:w-1/2 flex flex-col gap-4">
 										<ImageUploadComponent
 											onImageIdReceived={handleImageIdReceived}
 										/>
+										{ referenceImage &&  <>
+											<Button
+												color="primary"
+												onClick={handleGetPrompts}
+												disabled={isFetchingPrompts || pollingPrompt}
+												isLoading={isFetchingPrompts}>
+												{isFetchingPrompts ? "Fetching Prompts..." : "Get Prompts"}
+											</Button>
+											<LoraUsageSlider
+												defaultValue={50}
+												onValueChange={handleReferenceSliderChange}
+												label="Reference Strength"
+											/>
+										</>}
 									</div>
-
-									<div className="w-full">
 										<Textarea
 											label="Prompt"
 											placeholder="Enter your prompt"
 											fullWidth
 											value={prompt}
 											onChange={(e) => setPrompt(e.target.value)}
-											className="w-full"
+											className="w-full "
+											size="lg"
 											minRows={8}
 										/>
-									</div>
 								</div>
-								<Button
-									color="primary"
-									onClick={handleGetPrompts}
-									disabled={isFetchingPrompts || pollingPrompt}
-									isLoading={isFetchingPrompts}
-									className="gap-y-2"
-								>
-									{isFetchingPrompts ? "Fetching Prompts..." : "Get Prompts"}
-								</Button>
 							</div>
-
 							{/* Character and Lora Selection */}
 							<div className="">
 								<Select
@@ -361,7 +356,6 @@ const PromptPage = () => {
 									))}
 								</Select>
 							</div>
-
 							<div className="">
 								<Select<{ name: string; path: string }>
 									items={loras}
@@ -382,19 +376,9 @@ const PromptPage = () => {
 									)}
 								</Select>
 							</div>
-
 							<div className="flex flex-grow flex-col justify-between w-full space-y-2">
 								<SeedInput seed={seed} setSeed={setSeed} />
 							</div>
-
-							<div className="flex flex-grow flex-col justify-between w-full space-y-1">
-								<LoraUsageSlider
-									defaultValue={100}
-									onValueChange={handleReferenceSliderChange}
-									label="Reference Strength"
-								/>
-							</div>
-
 							<div className="flex flex-grow flex-col justify-between w-full space-y-1">
 								<LoraUsageSlider
 									defaultValue={80}
@@ -406,7 +390,6 @@ const PromptPage = () => {
 							</div>
 						</div>
 					</CardBody>
-
 					<CardFooter>
 						<div className="flex flex-col w-full h-full">
 							<Button
@@ -424,8 +407,12 @@ const PromptPage = () => {
 				{/* Image Rendering */}
 				{job?.status === "pending" || job?.status === "running" ? (
 					<Card className="w-full h-full gap-1 flex justify-center items-center p-10">
-						<Spinner color="primary" size="lg" />
-						<p className="text-gray-500 ">{job?.status}</p>
+						<CircularProgress
+						color="success"
+						label={job.status}
+						size="lg"
+						showValueLabel
+						value={job.progress * 100 } />
 					</Card>
 				) : (
 					resultImages.length > 0 && (

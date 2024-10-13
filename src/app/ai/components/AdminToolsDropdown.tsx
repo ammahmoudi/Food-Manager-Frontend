@@ -15,13 +15,13 @@ import {
 
 const AdminToolsDropdown = () => {
     return (
-        
+
         <Dropdown placement="bottom-end" shouldCloseOnBlur>
             <DropdownTrigger>
                 <Button
                     as={Link}
                     variant="light"
-                    startContent={<WrenchScrewdriverIconOutline className="text-grey size-6" />} // Button properties
+                    startContent={<WrenchScrewdriverIconOutline className="text-grey size-6" />}
                 >
                     <span className="hidden sm:inline">Admin Tools</span>
                 </Button>
