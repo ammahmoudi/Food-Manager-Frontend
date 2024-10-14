@@ -7,7 +7,7 @@ export interface Job {
     result_data: {
         [node_id: string]: {
             [input_name: string]: {
-                id: string;
+                id: number;
                 type: string;
                 value: string; // imageURL
             };

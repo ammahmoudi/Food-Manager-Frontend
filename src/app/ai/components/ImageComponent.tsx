@@ -9,14 +9,18 @@ import { Job } from "../interfaces/Job";
 interface ImageProps {
   src_id: number;
   src_variant: "job" | "datasetImage";
+  className?: string;
 }
 
-const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant }) => {
+const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }) => {
   const [image, setImage] = useState<DatasetImage | null>(null);
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
-  const [selectedImage,setSelectedImage]= useState<number|null>(null);
+  const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const [imageError, setImageError] = useState(false); // Track image load errors
+
+  const fallbackImage = "/images/ai/manani_fallback_square.png"; // Fallback image from the public folder
 
   // Poll the image or job based on the variant and src_id
   useEffect(() => {
@@ -26,12 +30,10 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant }) => {
         if (src_variant === "job") {
           const fetchedJob = await getJob(src_id);
           setJob(fetchedJob);
-
         } else if (src_variant === "datasetImage") {
           const fetchedImage = await getImageById(src_id);
           setImage(fetchedImage);
         }
-        toast.success("Data fetched successfully!");
       } catch (error) {
         console.error(`Error fetching data for ${src_variant} with ID ${src_id}:`, error);
         toast.error(`Failed to fetch ${src_variant} data.`);
@@ -50,89 +52,91 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant }) => {
   };
 
   const handleOpenInfoModal = (id: number) => {
-    setSelectedImage(id)
-    setIsInfoModalOpen(true)
-  }
+    setSelectedImage(id);
+    setIsInfoModalOpen(true);
+  };
+
+  // Find the first image from job result_data if job mode is active
+  const getFirstJobImage = () => {
+    if (job && job.result_data) {
+      for (const nodeId of Object.keys(job.result_data)) {
+        for (const inputName of Object.keys(job.result_data[nodeId])) {
+          const output = job.result_data[nodeId][inputName];
+          if (output.type === "image") {
+            return output; // Return the output itself (as it contains both value and id)
+          }
+        }
+      }
+    }
+    return null;
+  };
+
+  const firstJobImage = src_variant === "job" ? getFirstJobImage() : null;
+
+  // Unified Image Component for both modes with fallback handling
+  const RenderImage = (props: { src: string | null; id: number }) => {
+    const [imageSrc, setImageSrc] = useState<string | null>(props.src);
+
+    const handleImageError = () => {
+      setImageSrc(fallbackImage); // Use fallback if image fails to load
+      setImageError(true); // Set error flag
+    };
+
+    return (
+      <Image
+        src={imageSrc || fallbackImage} // Use fallback if the image source is null
+        alt="Rendered Image"
+        className="w-full h-full object-contain rounded-none"
+        classNames={{ wrapper: "w-full h-full aspect-square" }}
+        onClick={() => handleOpenInfoModal(props.id)}
+        style={{ objectFit: "contain" }}
+        onError={handleImageError} // Handle 404 or other loading errors
+      />
+    );
+  };
 
   return (
-    <div className="relative w-full h-full">
-      {/* Blurred Image in the background */}
-
-      {image && (<>
+    <>
+      {(image || firstJobImage) && (
+        <Card className={`relative flex flex-col items-center justify-center w-full aspect-square ${className}`}>
+          {/* Blurred Background Image */}
           <div className="absolute inset-0 z-0">
             <Image
-              alt="Background Image"
-              className="w-full h-full object-cover blur-md"
+              alt="Blurred Background"
+              src={image ? image.image : firstJobImage?.value || fallbackImage}
+              className="w-full h-full object-cover rounded-none filter blur-sm"
+
               classNames={{ wrapper: "w-full h-full aspect-square" }}
-              src={image.image}
+              onError={() => (imageError ? (e: { currentTarget: { src: string; }; }) => (e.currentTarget.src = fallbackImage) : undefined)} // Apply fallback for background image on error
             />
           </div>
 
-
-        <div className="relative z-10">
-          <Card
-            isPressable
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            className={`w-full aspect-square bg-gray-200 relative items-center justify-center ${
-              image ? "bg-transparent" : ""
-            }`}
-          >
-            {loading ? (
-              <div className="flex justify-center items-center w-full h-full">
-                <Spinner color="primary" size="lg" />
-              </div>
-            ) : image ? (
-              <Image src={image.image} alt="Uploaded Image"
-                onClick={()=>handleOpenInfoModal(image.id)}
-                className="w-full h-full object-cover" />
-            ) : (
-              <div className="flex flex-col items-center justify-center w-full h-full">
-                <p className="text-gray-500">No Image Available</p>
-              </div>
-            )}
-          </Card>
-        </div>
-      </>)}
-
-      {/* Handle multiple images in a job */}
-
-      {job && job.result_data && (
-  <Card className="flex flex-col items-center justify-center w-full h-full">
-    <div className="flex flex-row">
-      {Object.keys(job.result_data).map((nodeId) =>
-        Object.keys(job.result_data[nodeId]).map((inputName) => {
-          const output = job.result_data[nodeId][inputName];
-
-          return output.type === "image" ? (
-            <div key={output.id} >
-              <Image
-                src={output.value}
-                alt="Job Image"
-                className="w-full h-auto object-cover"
-                onClick={() => handleOpenInfoModal(parseInt(output.id))}
-              />
+          {loading ? (
+            <div className="flex justify-center items-center w-full h-full z-10">
+              <Spinner color="primary" size="lg" />
             </div>
-          ) : null;
-        })
+          ) : image ? (
+            <RenderImage src={image.image} id={image.id} />
+          ) : firstJobImage ? (
+            <RenderImage src={firstJobImage.value} id={firstJobImage.id} />
+          ) : (
+            <div className="flex flex-col items-center justify-center w-full h-full z-10">
+              <p className="text-gray-500">No Image Available</p>
+            </div>
+          )}
+        </Card>
       )}
-    </div>
-  </Card>
-)}
-
-
 
       {/* Dataset Image Info Modal */}
       {selectedImage && (
         <DatasetImageInfoModal
           visible={isInfoModalOpen}
           onClose={() => setIsInfoModalOpen(false)}
-          imageId={selectedImage }
+          imageId={selectedImage}
           onDeleteSuccess={handleDeleteImage}
         />
       )}
-    </div>
+    </>
   );
 };
 

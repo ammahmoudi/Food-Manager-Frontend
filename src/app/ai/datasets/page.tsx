@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Spinner } from "@nextui-org/react";
+import { Link, Spinner } from "@nextui-org/react";
 import DatasetAlbum from "../components/DatasetAlbum"; // This is the ImageDisplayComponent
 import { getUserDatasets } from "../services/aiApi"; // API function to fetch datasets
 import Dataset from "../interfaces/Dataset";
@@ -40,8 +40,12 @@ const UserDatasetsPage = () => {
         </div>
       ) : datasets.length > 0 ? (
         datasets.map((dataset) => (
-          <div key={dataset.id} className="mb-6">
-            <h3 className="text-xl font-semibold mb-2">{dataset.name}</h3>
+          <div key={dataset.id} className="mb-6"> <Link href={`/ai/datasets/${dataset.id}`}>
+          <a className="text-lg font-bold mb-2 hover:underline"><h3 className="text-xl font-semibold mb-2">            {dataset.name} (ID: {dataset.id})
+          </h3>
+          </a>
+        </Link>
+           <Link> </Link>
             <p className="text-sm mb-4">
               Created At: {new Date(dataset.created_at).toLocaleString()}
             </p>
