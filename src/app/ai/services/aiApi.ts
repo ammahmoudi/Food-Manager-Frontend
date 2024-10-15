@@ -227,8 +227,29 @@ export const updateCharacter = async (id: number, character: CharacterFormData) 
 };
 
 export const deleteCharacter = async (id: number) => {
-	const response = await api.delete(`/cui/characters/{id}//${id}/`);
+	const response = await api.delete(`/cui/characters/${id}/`);
 	return response.data;
 };
 
 
+// Lora Api
+
+export const getLoraRequest = async (id: number) => {
+  try {
+    const response = await api.get(`/cui/lora-requests/${id}/`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching Lora request with ID ${id}:`, error);
+    throw error;
+  }
+};
+
+export const cancelLoraRequest = async (id: number) => {
+  try {
+    const response = await api.delete(`/cui/lora-requests/${id}/`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error canceling Lora request with ID ${id}:`, error);
+    throw error;
+  }
+};

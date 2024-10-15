@@ -19,6 +19,7 @@ import { PlusIcon } from "@heroicons/react/24/solid";
 import { toast } from "sonner";
 import Character from "../interfaces/Character";
 import CharacterModal from "./modals/CharacterModal";
+import { getCharacters } from "../services/aiApi";
 
 
 interface CustomCharacterAutocompleteProps {
@@ -35,6 +36,7 @@ const CustomCharacterAutocomplete: FC<CustomCharacterAutocompleteProps> = ({
 	onUpdateComplete,
 }) => {
 	const [characters, setCharacters] = useState<Character[]>([]);
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [inputValue, setInputValue] = useState("");
 	const [modalVisible, setModalVisible] = useState(false);
 
@@ -94,7 +96,7 @@ const CustomCharacterAutocomplete: FC<CustomCharacterAutocompleteProps> = ({
 				}}
 				variant="flat"
 				defaultItems={characters}
-				defaultInputValue={inputValue}
+				inputValue={selectedCharacter?.name}
 				onInputChange={setInputValue}
 				onSelectionChange={(key) => {
 					if (key !== null) {
@@ -102,7 +104,7 @@ const CustomCharacterAutocomplete: FC<CustomCharacterAutocompleteProps> = ({
 						onCharacterSelect(selected || null);
 					}
 				}}
-				selectedKey={selectedCharacter?.id.toString() || ""}
+				selectedKey={selectedCharacter?.id}
 				inputProps={{
 					classNames: {
 						input: "ml-1",

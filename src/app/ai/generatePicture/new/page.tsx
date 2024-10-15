@@ -21,9 +21,9 @@ import {
 import { Job } from "../../interfaces/Job";
 import { toast } from "sonner";
 import SeedInput from "../../components/SeedGenerator";
-import CharacterForm from "../../components/CharacterForm";
-import Character from "../../interfaces/Character";
+
 import CustomCharacterAutocomplete from "../../components/CustomCharacterAutoComplete";
+import Character from "../../interfaces/Character";
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
@@ -32,6 +32,7 @@ const PromptPage = () => {
 	const [isSubmittingFinal, setIsSubmittingFinal] = useState<boolean>(false);
 	const [polling, setPolling] = useState<boolean>(false);
 	const [isCropModalOpen, setCropModalOpen] = useState(false);
+	const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null)
 	const router = useRouter();
 	const [seed, setSeed] = useState<number>(
 		Math.floor(Math.random() * Math.pow(2, 16))
@@ -283,9 +284,11 @@ const PromptPage = () => {
 					</CardBody>
 
 
-					<CustomCharacterAutocomplete selectedCharacter={null} onCharacterSelect={function (): void {
-						throw new Error("Function not implemented.");
-					} } shouldUpdate={false} onUpdateComplete={function (): void {
+					<CustomCharacterAutocomplete
+					selectedCharacter={selectedCharacter}
+					onCharacterSelect={setSelectedCharacter}
+					shouldUpdate={false}
+					onUpdateComplete={function (): void {
 						throw new Error("Function not implemented.");
 					} }/>
 
