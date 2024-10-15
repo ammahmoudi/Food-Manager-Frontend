@@ -26,12 +26,19 @@ const HumaaniDropdown = () => {
                     <span className="hidden sm:inline">Humaani</span>
                 </Button>
             </DropdownTrigger>
-            <DropdownMenu aria-label="Profile Actions" variant="flat">
+            <DropdownMenu
+                aria-label="Profile Actions"
+                className="w-[340px]"
+                itemClasses={{
+                    base: "gap-4",
+                }}
+            >
                 <DropdownItem
                     textValue="Characters"
                     key="Characters"
                     href="/ai/characters/"
                     startContent={<UserIcon className="text-grey size-5" />}
+                    description="View all created characters and manage their details."
                 >
                     Characters
                 </DropdownItem>
@@ -40,6 +47,7 @@ const HumaaniDropdown = () => {
                     key="NewCharacter"
                     href="/ai/generatePicture/new/"
                     startContent={<PlusIcon className="text-grey size-5" />}
+                    description="Create a new character from scratch."
                 >
                     New Character
                 </DropdownItem>
@@ -48,6 +56,7 @@ const HumaaniDropdown = () => {
                     key="generatePictureFromCharacter"
                     href="/ai/generatePicture/fromCharacter/"
                     startContent={<PhotoIcon className="text-grey size-5" />}
+                    description="Generate images based on an existing character."
                 >
                     Generate Image from Character
                 </DropdownItem>
