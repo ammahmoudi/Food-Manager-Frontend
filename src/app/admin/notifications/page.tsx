@@ -94,12 +94,10 @@ const NotificationPage = () => {
 					error:(response)=>{
 						console.log("Notification response:", response);
 						return 	"Failed to send notification";
-					} 
-					
+					}
 				,
 				}
 			);
-		
 		} catch (error) {
 			console.error("Error sending notification:", error);
 		}
