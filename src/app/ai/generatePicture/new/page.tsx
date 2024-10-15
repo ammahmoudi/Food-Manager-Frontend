@@ -21,6 +21,9 @@ import {
 import { Job } from "../../interfaces/Job";
 import { toast } from "sonner";
 import SeedInput from "../../components/SeedGenerator";
+import CharacterForm from "../../components/CharacterForm";
+import Character from "../../interfaces/Character";
+import CustomCharacterAutocomplete from "../../components/CustomCharacterAutoComplete";
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
@@ -278,6 +281,15 @@ const PromptPage = () => {
 							</div>
 						</div>
 					</CardBody>
+
+
+					<CustomCharacterAutocomplete selectedCharacter={null} onCharacterSelect={function (): void {
+						throw new Error("Function not implemented.");
+					} } shouldUpdate={false} onUpdateComplete={function (): void {
+						throw new Error("Function not implemented.");
+					} }/>
+
+
 					<CardFooter>
 						<div className="flex w-full justify-center">
 							<Button

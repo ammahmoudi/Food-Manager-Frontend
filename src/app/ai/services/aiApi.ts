@@ -1,6 +1,7 @@
 "use client";
 import { api } from "../../../services/api";
 import Dataset from "../interfaces/Dataset";
+import { CharacterFormData } from '../interfaces/CharacterFormData';
 
 //Workflow apis
 
@@ -90,18 +91,6 @@ export const submitFinalData = async (imageId: number) => {
 
 
 
-// Fetch characters and their associated Loras from backend
-export const getCharacters = async () => {
-  console.log("i'm here");
-  try {
-    const response = await api.get("/cui/characters/");
-    console.log(response.data);
-    return response.data; // Assuming response contains the characters and loras
-  } catch (error) {
-    console.error("Failed to fetch characters and loras:", error);
-    throw error;
-  }
-};
 
 // Send prompt with selected character and lora to the backend
 export const sendPromptForCharacter = async (data: {
@@ -118,7 +107,7 @@ export const sendPromptForCharacter = async (data: {
     const response = await api.post("/cui/workflow-runners/characters/generate-character-image/",
       data
     );
-    return response.data; // Assuming this returns job_id in response
+    return response.data;
   } catch (error) {
     console.error("Failed to submit prompt:", error);
     throw error;
@@ -127,7 +116,6 @@ export const sendPromptForCharacter = async (data: {
 
 //Dataset Apis
 
-// Define the function to fetch dataset details by dataset ID
 export const getDatasets = async () => {
   try {
     const response = await api.get(`/cui/datasets/`);
@@ -138,10 +126,9 @@ export const getDatasets = async () => {
   }
 };
 
-// Function to get a dataset by its ID
 export const getDataset = async (datasetId: number) => {
   try {
-    const response = await api.get(`/cui/datasets/${datasetId}/`); // Replace with the correct API endpoint
+    const response = await api.get(`/cui/datasets/${datasetId}/`);
     console.log(response.data);
     return response.data;
   } catch (error) {
@@ -150,7 +137,6 @@ export const getDataset = async (datasetId: number) => {
   }
 };
 
-// Fetch all datasets for the user
 export const getUserDatasets = async (): Promise<Dataset[]> => {
   try {
     const response = await api.get(`/cui/datasets/my-datasets/`);
@@ -163,7 +149,7 @@ export const getUserDatasets = async (): Promise<Dataset[]> => {
 
 
 // Image Apis
-// fetch image details by image ID
+
 export const getImageById = async (imageId: number | undefined) => {
   try {
     const response = await api.get(`/cui/dataset-images/${imageId}/`);
@@ -174,7 +160,6 @@ export const getImageById = async (imageId: number | undefined) => {
   }
 };
 
-// Function to delete image by ID
 export const deleteImageById = async (imageId: number) => {
   try {
     const response = await api.delete(`/cui/dataset-images/${imageId}/`);
@@ -186,7 +171,6 @@ export const deleteImageById = async (imageId: number) => {
 };
 
 
-// Fetch Image ID From Picture
 export const uploadTempImage = async (file: File) => {
   const formData = new FormData();
   formData.append("image", file);
@@ -197,7 +181,7 @@ export const uploadTempImage = async (file: File) => {
     },
   });
 
-  return response.data; // Returns { id: number }
+  return response.data;
 };
 
 export const requestPromptsForImage = async (data: { dataset_image_id: number | undefined }) => {
@@ -209,3 +193,42 @@ export const requestPromptsForImage = async (data: { dataset_image_id: number | 
     throw error;
   }
 };
+
+
+//Character Form Apis
+
+export const getCharacters = async () => {
+  try {
+    const response = await api.get("/cui/characters/");
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch characters and loras:", error);
+    throw error;
+  }
+};
+
+export const addCharacter = async (character: CharacterFormData) => {
+	const response = await api.post("/cui/characters/", character, {
+		headers: {
+			"Content-Type": "multipart/form-data",
+		},
+	});
+
+	return response.data;
+};
+
+export const updateCharacter = async (id: number, character: CharacterFormData) => {
+	const response = await api.put(`/cui/characters/${id}/`, character, {
+		headers: {
+			"Content-Type": "multipart/form-data",
+		},
+	});
+	return response.data;
+};
+
+export const deleteCharacter = async (id: number) => {
+	const response = await api.delete(`/cui/characters/{id}//${id}/`);
+	return response.data;
+};
+
+
