@@ -3,104 +3,104 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardBody, Image, Button } from "@nextui-org/react";
 import { LoraRequest } from "../interfaces/LoraRequest";
+import { useUser } from "@/context/UserContext";
 import { toast } from "sonner";
-import { cancelLoraRequest, getLoraRequest } from "../services/aiApi";
+import { updateLoraRequestStatus } from "@/app/berchi/services/api"; // Adjust this import according to your file structure
 
 interface LoraRequestCardProps {
 	loraRequestId: number;
-	onCancel: (loraRequestId: number) => void;
+	onStatusChange: (loraRequestId: number, status: string) => void;
 }
 
 const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 	loraRequestId,
-	onCancel,
+	onStatusChange,
 }): JSX.Element => {
 	const [loraRequest, setLoraRequest] = useState<LoraRequest | null>(null);
-	const [loading, setLoading] = useState(false);
+	const { isAdmin } = useUser();
 
-	// Fetch LoraRequest data based on the passed loraRequestId
-	const fetchLoraRequest = async (id: number) => {
+	// Fetch LoraRequest data
+	const fetchLoraRequest = async () => {
 		try {
-			setLoading(true);
-			const data = await getLoraRequest(id);
+			const response = await fetch(`/cui/lora-requests/${loraRequestId}/`);
+			const data = await response.json();
 			setLoraRequest(data);
 		} catch (error) {
-			toast.error("Failed to load Lora request."+error);
-		} finally {
-			setLoading(false);
+			console.error("Failed to fetch LoRA request:", error);
+			toast.error("Failed to fetch LoRA request");
 		}
 	};
 
 	useEffect(() => {
-		fetchLoraRequest(loraRequestId);
+		fetchLoraRequest();
 	}, [loraRequestId]);
 
-	const handleCancelRequest = async () => {
+	// Generic method to handle both Cancel and Accept requests
+	const handleStatusChange = async (status: 'canceled' | 'accepted') => {
 		try {
-			await cancelLoraRequest(loraRequestId);
-			onCancel(loraRequestId); // Trigger the cancel callback
-			toast.success("Lora request canceled successfully.");
+			toast.promise(
+				updateLoraRequestStatus(loraRequestId, status),
+				{
+					loading: `${status === 'canceled' ? 'Cancelling' : 'Accepting'} request...`,
+					success: () => {
+						onStatusChange(loraRequestId, status);
+						return `Request ${status === 'canceled' ? 'cancelled' : 'accepted'} successfully!`;
+					},
+					error: `Failed to ${status === 'canceled' ? 'cancel' : 'accept'} request`,
+				}
+			);
 		} catch (error) {
-			toast.error("Failed to cancel Lora request."+error);
+			console.error(`Failed to ${status === 'canceled' ? 'cancel' : 'accept'} request:`, error);
 		}
 	};
 
 	return (
 		<div className="lora-request-card h-full w-full p-0.5">
 			{loraRequest ? (
-				<Card
-					className="border-none dark:bg-grey-100/50 h-full w-full"
-					shadow="sm"
-				>
+				<Card className="border-none dark:bg-grey-100/50 h-full w-full" shadow="sm">
 					<CardBody>
-						<div className="flex items-center gap-4">
-							<div className="relative flex-shrink-0 aspect-square">
-								{/* Character Image */}
+						{/* Flex container to align all four parts in a row */}
+						<div className="flex flex-row justify-between items-center gap-4">
+							{/* First part - Character image with blur */}
+							<div className="relative flex-shrink-0">
 								<Image
-									alt={loraRequest.name}
-									className="z-0 w-full h-full object-cover aspect-square"
-									classNames={{
-										wrapper: "w-full h-full max-w-full max-h-full",
-									}}
+									alt={loraRequest.character.name}
+									className="z-0 w-32 h-32 object-cover"
+									src={loraRequest.character.image ?? "/images/character-placeholder.jpg"}
 									shadow="md"
-									height={120}
-									width={120}
-									src={loraRequest.character?.image ?? "/images/character-placeholder.jpg"}
 								/>
+								<div className="absolute inset-0 bg-black opacity-30 blur-sm"></div> {/* Blurred background */}
 							</div>
 
-							{/* LoraRequest Details */}
-							<div className="flex flex-col overflow-hidden">
-								<h1 className="font-black text-foreground/90">{loraRequest.name}</h1>
-								<p className="text-small text-foreground/80 mt-1">
-									Character name: <strong>{loraRequest.character.name}</strong>
-								</p>
-								<p className="text-small text-foreground/80 mt-1">
-									Status: <strong>{loraRequest.status}</strong>
-								</p>
-								<p className="text-small text-foreground/80 mt-1">
-									Created At:{loraRequest.created_at}
-								</p>
-								<p className="text-small text-foreground/80 mt-1">
-									Created By: <strong>User #{loraRequest.user}</strong>
-								</p>
-								<p className="text-small text-foreground/80 mt-1">
-									Lora Type:{" "}
-									<strong>{loraRequest.lora_type?.name ?? "N/A"}</strong>
-								</p>
-								<p className="text-small text-foreground/80 mt-1">
-									Trigger Word: <strong>{loraRequest.trigger_word}</strong>
-								</p>
+							{/* Second part - Character details */}
+							<div className="flex flex-col justify-between w-1/4">
+								<h1 className="font-black text-foreground/90">{loraRequest.character.name}</h1>
+								<p className="text-small text-foreground/80">ID: {loraRequest.character.id}</p>
+							</div>
 
-								{/* Cancel Button */}
-								<Button
-									isDisabled={loraRequest.status === "canceled" || loading}
-									color="primary"
-									className="mt-3"
-									onPress={handleCancelRequest}
-								>
-									{loraRequest.status === "canceled" ? "Request Canceled" : "Cancel Request"}
+							{/* Third part - LoRARequest details */}
+							<div className="flex flex-col justify-between w-1/4">
+								<p>Status: {loraRequest.status}</p>
+								<p>Created at: {new Date(loraRequest.created_at).toLocaleString()}</p>
+								<p>Created by: {loraRequest.user.name}</p>
+								<p>LoRA Type: {loraRequest.lora_type.name}</p>
+								<p>Trigger Word: {loraRequest.trigger_word}</p>
+							</div>
+
+							{/* Fourth part - Action buttons */}
+							<div className="flex flex-col justify-between w-1/4">
+								<Button color="danger" onPress={() => handleStatusChange('canceled')}>
+									Cancel Request
 								</Button>
+								{isAdmin && (
+									<Button
+										color="success"
+										className="mt-2" // Add margin to the top for padding
+										onPress={() => handleStatusChange('accepted')}
+									>
+										Accept Request
+									</Button>
+								)}
 							</div>
 						</div>
 					</CardBody>
@@ -110,10 +110,11 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 					isFooterBlurred
 					radius="md"
 					className="h-full w-full justify-center items-center"
+					isPressable
 				>
-					<div className="h-full flex items-center justify-center ">
+					<div className="h-full flex items-center justify-center">
 						<p className="text-medium text-black/60 uppercase font-bold text-center">
-							Loading Lora Request...
+							Loading...
 						</p>
 					</div>
 				</Card>

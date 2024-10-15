@@ -74,7 +74,9 @@ const CharacterListPage = () => {
           ))}
         </div>
       )}
-      <LoraRequestCard loraRequestId={1} onCancel={handleCancel} />
+      <LoraRequestCard loraRequestId={1} onCancel={handleCancel} onAccept={function (loraRequestId: number): void {
+        throw new Error("Function not implemented.");
+      } } />
 
     </div>
   );
