@@ -5,6 +5,7 @@ import DatasetImage from "../interfaces/DatasetImage";
 import DatasetImageInfoModal from "./modals/DatasetImageInfoModal";
 import { getJob, getImageById } from "../services/aiApi"; // Assuming these methods are implemented
 import { Job } from "../interfaces/Job";
+import { set } from "date-fns-jalali";
 
 interface ImageProps {
   src_id: number;
@@ -48,6 +49,7 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
   // Handle image deletion
   const handleDeleteImage = () => {
     setImage(null);
+    setJob(null)
     toast.success("Image deleted successfully.");
   };
 

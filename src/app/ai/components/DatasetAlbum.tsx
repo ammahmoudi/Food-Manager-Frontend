@@ -23,7 +23,7 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ dataset }) => {
         ) : dataset.jobs && dataset.jobs.length > 0 ? (
           // Displaying job images
           dataset.jobs.map((jobId) => (
-            <ImageComponent className="w-40 h-40" key={jobId} src_id={jobId} src_variant="job" />
+            <ImageComponent className="w-40 h-40" key={jobId} src_id={jobId} src_variant="job"  />
           ))
         ) : (
           <p>No images or jobs available in this dataset.</p>
