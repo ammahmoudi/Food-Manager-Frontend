@@ -40,7 +40,7 @@ const PromptPage = () => {
 	const [resultImages, setResultImages] = useState<string[]>([]);
 	const [polling, setPolling] = useState<boolean>(false);
 	const [seed, setSeed] = useState<number>(Math.floor(Math.random() * Math.pow(2, 16)));
-	const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>("");
+	const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>("1:1");
 	const [sliderValue, setSliderValue] = useState<number>(0.8);
 	const [referenceSliderValue, setReferenceSliderValue] = useState<number>(0.5);
 	const [referenceImage, setReferenceImage] = useState<DatasetImage | null>(null);
@@ -163,7 +163,7 @@ const PromptPage = () => {
 	const fetchImageData = async () => {
 		try {
 			const data:DatasetImage = await getImageById(referenceImage?.id);
-			setPrompt(prompt+" ,"+data.complex_prompt)
+			setPrompt(prompt+", "+data.complex_prompt)
 			setReferenceImage(data); // Set the new prompt
 		} catch (error) {
 			console.error(`Error fetching image with ID ${referenceImage?.id}:`, error);
@@ -187,14 +187,13 @@ const PromptPage = () => {
 			toast.error("You must select a Lora.");
 			return;
 		}
-
 		try {
 			setIsSubmittingPrompt(true);
 			setJob(null);
 			setResultImages([]);
 
 
-			if(referenceImage){
+			
 
 			const response = await sendPromptForCharacter({
 				prompt,
@@ -203,7 +202,7 @@ const PromptPage = () => {
 				seed: String(seed),
 				lora_strength: String(sliderValue),
 				aspect_ratio: selectedAspectRatio,
-				reference_strength: String(referenceSliderValue),
+				reference_strength: referenceImage?String(referenceSliderValue):undefined,
 				reference_image: referenceImage?.id
 			});
 
@@ -218,7 +217,7 @@ const PromptPage = () => {
 			} else {
 				toast.error("Failed to retrieve job ID.");
 			}
-		}
+		
 		} catch (error) {
 			toast.error("Error submitting the prompt.");
 			console.error("Error submitting prompt:", error);

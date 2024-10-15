@@ -100,8 +100,8 @@ export const sendPromptForCharacter = async (data: {
   seed: string;
   lora_strength : string
   aspect_ratio: string
-  reference_image : number
-  reference_strength : string
+  reference_image? : number
+  reference_strength? : string
 }) => {
   try {
     const response = await api.post("/cui/workflow-runners/characters/generate-character-image/",
