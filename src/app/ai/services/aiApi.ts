@@ -244,9 +244,9 @@ export const getLoraRequest = async (id: number) => {
   }
 };
 
-export const cancelLoraRequest = async (id: number) => {
+export const updateLoraRequestStatus = async (id: number,status: 'canceled' | 'accepted' | 'denied') => {
   try {
-    const response = await api.delete(`/cui/lora-requests/${id}/`);
+    const response = await api.post(`/cui/lora-requests/${id}/update-status/`, {"status": status});
     return response.data;
   } catch (error) {
     console.error(`Error canceling Lora request with ID ${id}:`, error);

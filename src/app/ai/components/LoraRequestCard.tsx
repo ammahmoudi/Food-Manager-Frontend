@@ -5,7 +5,8 @@ import { Card, CardBody, Image, Button } from "@nextui-org/react";
 import { LoraRequest } from "../interfaces/LoraRequest";
 import { useUser } from "@/context/UserContext";
 import { toast } from "sonner";
-import { updateLoraRequestStatus } from "@/app/berchi/services/api"; // Adjust this import according to your file structure
+
+import { getLoraRequest, updateLoraRequestStatus } from "../services/aiApi";
 
 interface LoraRequestCardProps {
 	loraRequestId: number;
@@ -22,9 +23,8 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 	// Fetch LoraRequest data
 	const fetchLoraRequest = async () => {
 		try {
-			const response = await fetch(`/cui/lora-requests/${loraRequestId}/`);
-			const data = await response.json();
-			setLoraRequest(data);
+			const response = await getLoraRequest(loraRequestId);
+			setLoraRequest(response);
 		} catch (error) {
 			console.error("Failed to fetch LoRA request:", error);
 			toast.error("Failed to fetch LoRA request");
@@ -36,17 +36,18 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 	}, [loraRequestId]);
 
 	// Generic method to handle both Cancel and Accept requests
-	const handleStatusChange = async (status: 'canceled' | 'accepted') => {
+	const handleStatusChange = async (status: 'canceled' | 'accepted' | 'denied' ) => {
 		try {
 			toast.promise(
 				updateLoraRequestStatus(loraRequestId, status),
 				{
-					loading: `${status === 'canceled' ? 'Cancelling' : 'Accepting'} request...`,
-					success: () => {
-						onStatusChange(loraRequestId, status);
+					loading: "loading",
+					success: ()=>{
 						return `Request ${status === 'canceled' ? 'cancelled' : 'accepted'} successfully!`;
 					},
-					error: `Failed to ${status === 'canceled' ? 'cancel' : 'accept'} request`,
+					error: ()=>{
+						return `Failed to ${status === 'canceled' ? 'cancel' : 'accept'} request`;
+					},
 				}
 			);
 		} catch (error) {
@@ -60,14 +61,15 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 				<Card className="border-none dark:bg-grey-100/50 h-full w-full" shadow="sm">
 					<CardBody>
 						{/* Flex container to align all four parts in a row */}
-						<div className="flex flex-row justify-between items-center gap-4">
+						<div className="flex flex-row justify-between items-center">
 							{/* First part - Character image with blur */}
 							<div className="relative flex-shrink-0">
 								<Image
 									alt={loraRequest.character.name}
+									width={400}
 									className="z-0 w-32 h-32 object-cover"
 									src={loraRequest.character.image ?? "/images/character-placeholder.jpg"}
-									shadow="md"
+									shadow="lg"
 								/>
 								<div className="absolute inset-0 bg-black opacity-30 blur-sm"></div> {/* Blurred background */}
 							</div>
