@@ -12,6 +12,7 @@ import {
     UserIcon,
     PlusIcon,
     PhotoIcon,
+    DocumentIcon, // Assuming this icon represents LoRA requests, you can change it if needed
 } from "@heroicons/react/24/outline";
 
 const HumaaniDropdown = () => {
@@ -59,6 +60,15 @@ const HumaaniDropdown = () => {
                     description="Generate images based on an existing character."
                 >
                     Generate Image from Character
+                </DropdownItem>
+                <DropdownItem
+                    textValue="LoRA Requests"
+                    key="loraRequests"
+                    href="/ai/lora/requests"
+                    startContent={<DocumentIcon className="text-grey size-5" />}
+                    description="Manage and view LoRA training requests."
+                >
+                    LoRA Requests
                 </DropdownItem>
             </DropdownMenu>
         </Dropdown>

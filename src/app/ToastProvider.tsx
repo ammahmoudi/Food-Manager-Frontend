@@ -20,6 +20,7 @@ export default function ToastProvider({ children }: ToastProviderProps) {
 		<>
 			<Toaster richColors
 			position="top-right"
+			closeButton
 				toastOptions={{
 					unstyled: false,
 					
