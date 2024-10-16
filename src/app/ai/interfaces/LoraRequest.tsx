@@ -1,7 +1,7 @@
 // Interface for the User data in the LoRARequest
 export interface LoraRequestUser {
     id: number;
-    name: string;
+    full_name: string;
     user_image: string; // Assuming 'user_image' is a URL or a string representing the image path
   }
   

@@ -1,7 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, CardBody, Image, Button } from "@nextui-org/react";
+import {
+	Card,
+	CardBody,
+	Image,
+	Button,
+	CardFooter,
+	CardHeader,
+	Spinner,
+} from "@nextui-org/react";
 import { LoraRequest } from "../interfaces/LoraRequest";
 import { useUser } from "@/context/UserContext";
 import { toast } from "sonner";
@@ -35,75 +43,169 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 		fetchLoraRequest();
 	}, [loraRequestId]);
 
-	// Generic method to handle both Cancel and Accept requests
-	const handleStatusChange = async (status: 'canceled' | 'accepted' | 'denied' ) => {
+	// Generic method to handle status changes
+	const handleStatusChange = async (
+		status: "canceled" | "accepted" | "denied"
+	) => {
 		try {
-			toast.promise(
-				updateLoraRequestStatus(loraRequestId, status),
-				{
-					loading: "loading",
-					success: ()=>{
-						return `Request ${status === 'canceled' ? 'cancelled' : 'accepted'} successfully!`;
-					},
-					error: ()=>{
-						return `Failed to ${status === 'canceled' ? 'cancel' : 'accept'} request`;
-					},
-				}
-			);
+			toast.promise(updateLoraRequestStatus(loraRequestId, status), {
+				loading: "loading",
+				success: () =>
+					`Request ${
+						status === "canceled" ? "cancelled" : status
+					} successfully!`,
+				error: () =>
+					`Failed to ${status === "canceled" ? "cancel" : status} request`,
+			});
+			onStatusChange(loraRequestId, status); // Notify parent about status change
 		} catch (error) {
-			console.error(`Failed to ${status === 'canceled' ? 'cancel' : 'accept'} request:`, error);
+			console.error(`Failed to ${status} request:`, error);
 		}
+	};
+
+	const renderStatusButton = (status: string, classNames?: string) => {
+		// Define the color and variant types explicitly
+		type ButtonColor =
+			| "default"
+			| "primary"
+			| "secondary"
+			| "success"
+			| "warning"
+			| "danger"
+			| undefined;
+		type ButtonVariant = "solid" | "light" | "bordered" | "ghost" | undefined;
+
+		// Mapping for statuses
+		const statusMapping: {
+			[key: string]: {
+				color: ButtonColor;
+				label: string;
+				variant: ButtonVariant;
+			};
+		} = {
+			waiting: { color: "warning", label: "Waiting", variant: "light" },
+			accepted: { color: "secondary", label: "Accepted", variant: "light" },
+			running: { color: "primary", label: "Running", variant: "light" },
+			completed: { color: "success", label: "Completed", variant: "light" },
+			failed: { color: "danger", label: "Failed", variant: "light" },
+			denied: { color: "danger", label: "Denied", variant: "light" },
+			canceled: { color: "danger", label: "Canceled", variant: "light" },
+		};
+
+		// Destructure or fallback to defaults
+		const {
+			color = "default",
+			label = "Unknown Status",
+			variant = "light",
+		} = statusMapping[status] || {};
+
+		// Single return with dynamic color, label, and variant
+		return (
+			<Button color={color} variant={variant} className={classNames}>
+				{label}
+			</Button>
+		);
 	};
 
 	return (
 		<div className="lora-request-card h-full w-full p-0.5">
 			{loraRequest ? (
-				<Card className="border-none dark:bg-grey-100/50 h-full w-full" shadow="sm">
+				<Card
+					className="border-none dark:bg-grey-100/50 h-full w-full"
+					shadow="sm"
+				>
 					<CardBody>
 						{/* Flex container to align all four parts in a row */}
-						<div className="flex flex-row justify-between items-center">
+						<div className="flex flex-row  gap-4 items-center">
 							{/* First part - Character image with blur */}
-							<div className="relative flex-shrink-0">
-								<Image
-									alt={loraRequest.character.name}
-									width={400}
-									className="z-0 w-32 h-32 object-cover"
-									src={loraRequest.character.image ?? "/images/character-placeholder.jpg"}
-									shadow="lg"
-								/>
-								<div className="absolute inset-0 bg-black opacity-30 blur-sm"></div> {/* Blurred background */}
+							<div className="flex flex-grow-0 flex-col gap-2 items-center">
+								<Card isFooterBlurred radius="lg" className="border-none">
+									<CardHeader className="absolute z-10 top-1 flex-col !items-start">
+										<h4 className="text-white font-medium text-large">
+											{loraRequest.character.name}
+										</h4>
+									</CardHeader>
+									<Image
+										alt={loraRequest.character.name}
+										width={400}
+										className="z-0 w-32 h-32 object-cover"
+										src={
+											loraRequest.character.image ??
+											"/images/character-placeholder.jpg"
+										}
+										shadow="lg"
+									/>
+									<CardFooter className="justify-between before:bg-white/10 border-white/20 border-1 overflow-hidden py-0 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
+										{/* <p className="text-tiny text-white/80">{loraRequest.character.name}</p> */}
+										{renderStatusButton(loraRequest.status, "w-full")}
+									</CardFooter>
+								</Card>
 							</div>
 
-							{/* Second part - Character details */}
+							{/* Second part - Character details
 							<div className="flex flex-col justify-between w-1/4">
 								<h1 className="font-black text-foreground/90">{loraRequest.character.name}</h1>
 								<p className="text-small text-foreground/80">ID: {loraRequest.character.id}</p>
-							</div>
+							</div> */}
 
 							{/* Third part - LoRARequest details */}
-							<div className="flex flex-col justify-between w-1/4">
-								<p>Status: {loraRequest.status}</p>
-								<p>Created at: {new Date(loraRequest.created_at).toLocaleString()}</p>
-								<p>Created by: {loraRequest.user.name}</p>
+							<div className="flex flex-col flex-grow justify-between w-1/4">
+								{/* Status Button */}
+								<p>
+									Created at:{" "}
+									{new Date(loraRequest.created_at).toLocaleString()}
+								</p>
+								<p>Created by: {loraRequest.user.full_name}</p>
 								<p>LoRA Type: {loraRequest.lora_type.name}</p>
 								<p>Trigger Word: {loraRequest.trigger_word}</p>
 							</div>
 
 							{/* Fourth part - Action buttons */}
-							<div className="flex flex-col justify-between w-1/4">
-								<Button color="danger" onPress={() => handleStatusChange('canceled')}>
-									Cancel Request
-								</Button>
-								{isAdmin && (
-									<Button
-										color="success"
-										className="mt-2" // Add margin to the top for padding
-										onPress={() => handleStatusChange('accepted')}
-									>
-										Accept Request
-									</Button>
-								)}
-							</div>
+							{loraRequest.status !== "completed" && (
+								<div className="flex flex-col justify-between w-1/4">
+									{/* Users can cancel requests if they are waiting (not admin) or running */}
+									{!isAdmin &&
+										(loraRequest.status === "waiting" ||
+											loraRequest.status === "running") && (
+											<Button
+												color="danger"
+												onPress={() => handleStatusChange("canceled")}
+											>
+												Cancel Request
+											</Button>
+										)}
+
+									{/* Admin can only cancel a running request */}
+									{isAdmin && loraRequest.status === "running" && (
+										<Button
+											color="danger"
+											onPress={() => handleStatusChange("canceled")}
+										>
+											Cancel Request
+										</Button>
+									)}
+
+									{/* Admin-only actions based on the status */}
+									{isAdmin && loraRequest.status === "waiting" && (
+										<>
+											<Button
+												color="success"
+												className="mt-2"
+												onPress={() => handleStatusChange("accepted")}
+											>
+												Accept Request
+											</Button>
+											<Button
+												color="danger"
+												className="mt-2"
+												onPress={() => handleStatusChange("denied")}
+											>
+												Deny Request
+											</Button>
+										</>
+									)}
+								</div>
+							)}
 						</div>
 					</CardBody>
 				</Card>
@@ -114,10 +216,8 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 					className="h-full w-full justify-center items-center"
 					isPressable
 				>
-					<div className="h-full flex items-center justify-center">
-						<p className="text-medium text-black/60 uppercase font-bold text-center">
-							Loading...
-						</p>
+					<div className="h-full min-h-20 flex items-center justify-center">
+						<Spinner />
 					</div>
 				</Card>
 			)}
