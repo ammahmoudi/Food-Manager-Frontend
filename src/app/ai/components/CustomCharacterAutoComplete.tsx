@@ -87,11 +87,11 @@ const CustomCharacterAutocomplete: FC<CustomCharacterAutocompleteProps> = ({
 	};
 
 	return (
-		<div className="justify-between flex gap-2">
+		<div className="justify-between flex gap-2 w-full">
 			<Autocomplete
 				shouldCloseOnBlur
 				classNames={{
-					listboxWrapper: "max-h-[320px]",
+		
 					selectorButton: "text-default-500",
 				}}
 				variant="flat"

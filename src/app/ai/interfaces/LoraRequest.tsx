@@ -4,20 +4,20 @@ export interface LoraRequestUser {
     full_name: string;
     user_image: string; // Assuming 'user_image' is a URL or a string representing the image path
   }
-  
+
   // Interface for the Character data in the LoRARequest
   export interface LoraRequestCharacter {
     id: number;
     name: string;
     image: string; // Assuming 'image' is a URL or a string representing the image path
   }
-  
+
   // Interface for the LoRA type in the LoRARequest
   export interface LoraRequestType {
     id: number;
     name: string;
   }
-  
+
   // Interface for the main LoRARequest
   export interface LoraRequest {
     id: number;

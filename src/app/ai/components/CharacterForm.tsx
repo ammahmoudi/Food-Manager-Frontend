@@ -227,7 +227,7 @@ const CharacterForm: FC<CharacterFormProps> = ({
 			<ImageCropModal
 				isOpen={isCropModalOpen}
 				onClose={closeCropModal}
-				imageSrc={image as string} // Send the image URL to the crop modal
+				imageSrc={image as string}
 				onCropComplete={handleCropComplete}
 			/>
 		</div>
