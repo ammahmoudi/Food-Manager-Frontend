@@ -48,16 +48,18 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 		status: "canceled" | "accepted" | "denied"
 	) => {
 		try {
-			toast.promise(updateLoraRequestStatus(loraRequestId, status), {
+			await toast.promise(updateLoraRequestStatus(loraRequestId, status), {
 				loading: "loading",
-				success: () =>
-					`Request ${
+				success: () => {
+					fetchLoraRequest(); // Re-fetch the LoRA request after status change
+					return `Request ${
 						status === "canceled" ? "cancelled" : status
-					} successfully!`,
+					} successfully!`;
+				},
 				error: () =>
 					`Failed to ${status === "canceled" ? "cancel" : status} request`,
 			});
-			onStatusChange(loraRequestId, status); // Notify parent about status change
+			// onStatusChange(loraRequestId, status); // Notify parent about status change
 		} catch (error) {
 			console.error(`Failed to ${status} request:`, error);
 		}
@@ -84,7 +86,7 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 			};
 		} = {
 			waiting: { color: "warning", label: "Waiting", variant: "light" },
-			accepted: { color: "secondary", label: "Accepted", variant: "light" },
+			accepted: { color: "success", label: "Accepted", variant: "light" },
 			running: { color: "primary", label: "Running", variant: "light" },
 			completed: { color: "success", label: "Completed", variant: "light" },
 			failed: { color: "danger", label: "Failed", variant: "light" },
@@ -136,21 +138,13 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 										shadow="lg"
 									/>
 									<CardFooter className="justify-between before:bg-white/10 border-white/20 border-1 overflow-hidden py-0 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
-										{/* <p className="text-tiny text-white/80">{loraRequest.character.name}</p> */}
 										{renderStatusButton(loraRequest.status, "w-full")}
 									</CardFooter>
 								</Card>
 							</div>
 
-							{/* Second part - Character details
-							<div className="flex flex-col justify-between w-1/4">
-								<h1 className="font-black text-foreground/90">{loraRequest.character.name}</h1>
-								<p className="text-small text-foreground/80">ID: {loraRequest.character.id}</p>
-							</div> */}
-
 							{/* Third part - LoRARequest details */}
 							<div className="flex flex-col flex-grow justify-between w-1/4">
-								{/* Status Button */}
 								<p>
 									Created at:{" "}
 									{new Date(loraRequest.created_at).toLocaleString()}
