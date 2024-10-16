@@ -226,8 +226,8 @@ export const updateCharacter = async (id: number, character: CharacterFormData) 
 	return response.data;
 };
 
-export const deleteCharacter = async () => {
-	const response = await api.delete(`/cui/lora-requests//`);
+export const deleteCharacter = async (id: number) => {
+	const response = await api.delete(`/cui/lora-requests/${id}/`);
 	return response.data;
 };
 
@@ -260,6 +260,36 @@ export const updateLoraRequestStatus = async (id: number,status: 'canceled' | 'a
     return response.data;
   } catch (error) {
     console.error(`Error canceling Lora request with ID ${id}:`, error);
+    throw error;
+  }
+};
+
+
+export const getLoraTypes = async () => {
+  try {
+    const response = await api.get(`/cui/lora-types/`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching Lora requests:`, error);
+    throw error;
+  }
+};
+
+
+export const newLoraRequest = async (data: {
+    name: string;
+    trigger_word: string;
+    character: number;
+    dataset: number;
+    lora_type: number;
+}) => {
+  try {
+    const response = await api.post("/cui/lora-requests/",
+      data
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to submit prompt:", error);
     throw error;
   }
 };
