@@ -6,13 +6,11 @@ import { Card, CardFooter, Image, Button, Spinner } from "@nextui-org/react";
 import { toast } from "sonner";
 import { getCharacters } from "../services/aiApi";
 import Character from "../interfaces/Character";
-import LoraRequestCard from "../components/LoraRequestCard";
 
 const CharacterListPage = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch list of characters from backend on component mount
   useEffect(() => {
     const fetchCharacters = async () => {
       try {
@@ -28,9 +26,6 @@ const CharacterListPage = () => {
     fetchCharacters();
   }, []);
 
-  function handleCancel(loraRequestId: number): void {
-    throw new Error("Function not implemented.");
-  }
 
   return (
 <div className="container xl:w-1/2 mx-auto p-2 items-center">
@@ -74,10 +69,6 @@ const CharacterListPage = () => {
           ))}
         </div>
       )}
-      <LoraRequestCard loraRequestId={1} onCancel={handleCancel} onAccept={function (loraRequestId: number): void {
-        throw new Error("Function not implemented.");
-      } } />
-
     </div>
   );
 };

@@ -284,13 +284,13 @@ const PromptPage = () => {
 					</CardBody>
 
 
-					<CustomCharacterAutocomplete
+					{/* <CustomCharacterAutocomplete
 					selectedCharacter={selectedCharacter}
 					onCharacterSelect={setSelectedCharacter}
 					shouldUpdate={false}
 					onUpdateComplete={function (): void {
 						throw new Error("Function not implemented.");
-					} }/>
+					} }/> */}
 
 
 					<CardFooter>
