@@ -20,23 +20,24 @@ interface LoraFormProps {
 
 const LoraForm: FC<LoraFormProps> = ({ datasetId, onSave }) => {
 	const [name, setName] = useState<string>("");
-	const [loraTypes, setLoraTypes] = useState<LoraRequestType[]>([]); // Array to hold the LoRA types from the API
-	const [selectedLoraType, setSelectedLoraType] = useState<LoraRequestType | null>(null);
+	const [loraTypes, setLoraTypes] = useState<LoraRequestType[]>([]);
+	const [selectedLoraType, setSelectedLoraType] = useState<string | null>(null);
 	const [triggerWord, setTriggerWord] = useState<string>("");
 	const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null); // Handle the selected character from the autocomplete component
 
-	const handleLoraSelectionSelection = (
-		e: React.ChangeEvent<HTMLSelectElement>
-	) => {
-		const loraType = loraTypes.find(
-			(char) => char.id === parseInt(e.target.value)
-		);
-		if (loraType) {
-			setSelectedLoraType(loraType);
-		} else {
-			setLoraTypes([]);
-		}
-	};
+	// const handleLoraTypeSelection = (
+	// 	e: React.ChangeEvent<HTMLSelectElement>
+	// ) => {
+	// 	const loraType = loraTypes.find(
+	// 		(char) => char.id === parseInt(e.target.value)
+	// 	);
+	// 	console.log(loraType)
+	// 	if (loraType) {
+	// 		setSelectedLoraType(loraType);
+	// 	} else {
+	// 		setLoraTypes([]);
+	// 	}
+	// };
 
 	// Fetch the LoRA types on component load
 	const fetchLoraTypes = async () => {
@@ -96,12 +97,17 @@ const LoraForm: FC<LoraFormProps> = ({ datasetId, onSave }) => {
 			{/* Second Row - LoRA Type Dropdown and Character Autocomplete */}
 			<div className="flex flex-row justify-between gap-4">
 				<Select
+					items={loraTypes}
+					variant="bordered"
 					label="LoRA Type"
 					placeholder="Select LoRA Type"
 					fullWidth
-					selectedKeys={String(loraTypes)}
-					onChange={handleLoraSelectionSelection}
-					isRequired
+					onSelectionChange={(selectedKeys) =>
+						setSelectedLoraType(Array.from(selectedKeys)[0] as string)
+					}
+					selectedKeys={
+						selectedLoraType ? new Set([selectedLoraType]) : new Set()
+					}
 
 				>
 					{loraTypes.map((type) => (

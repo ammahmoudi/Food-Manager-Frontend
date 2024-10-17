@@ -355,12 +355,12 @@ const PromptPage = () => {
 									))}
 								</Select>
 							</div>
-							<div className="">
+							<div>
 								<Select<{ name: string; path: string }>
 									items={loras}
-									label="Choose a Lora"
+									label="Choose a LoRA"
 									variant="bordered"
-									placeholder="Select a Lora"
+									placeholder="Select a LoRA"
 									onSelectionChange={(selectedKeys) =>
 										setSelectedLora(Array.from(selectedKeys)[0] as string)
 									}

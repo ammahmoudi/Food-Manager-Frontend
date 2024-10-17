@@ -91,7 +91,6 @@ const CustomCharacterAutocomplete: FC<CustomCharacterAutocompleteProps> = ({
 			<Autocomplete
 				shouldCloseOnBlur
 				classNames={{
-		
 					selectorButton: "text-default-500",
 				}}
 				variant="flat"
