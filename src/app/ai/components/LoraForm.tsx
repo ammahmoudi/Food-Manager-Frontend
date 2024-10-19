@@ -1,58 +1,35 @@
 "use client";
 
-import { FC, useState, useEffect } from "react";
+import { FC, useState } from "react";
 import {
 	Input,
 	Button,
-	Select,
-	SelectItem,
+	Link,
 } from "@nextui-org/react";
 import { toast } from "sonner";
 import CustomCharacterAutocomplete from "./CustomCharacterAutoComplete";
 import Character from "../interfaces/Character";
-import { LoraRequestType } from "../interfaces/LoraRequest";
-import { getLoraTypes, newLoraRequest } from "../services/aiApi";
+import { newLoraRequest } from "../services/aiApi";
+import LoraTypeComponent from "./LoraTypeComponent";
 
 interface LoraFormProps {
-	datasetId: number; // Pass the datasetId from the page using this form
+	datasetId: number | null;
 	onSave: (loraRequest: unknown) => void;
 }
 
 const LoraForm: FC<LoraFormProps> = ({ datasetId, onSave }) => {
 	const [name, setName] = useState<string>("");
-	const [loraTypes, setLoraTypes] = useState<LoraRequestType[]>([]);
 	const [selectedLoraType, setSelectedLoraType] = useState<string | null>(null);
 	const [triggerWord, setTriggerWord] = useState<string>("");
-	const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null); // Handle the selected character from the autocomplete component
+	const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
 
-	// const handleLoraTypeSelection = (
-	// 	e: React.ChangeEvent<HTMLSelectElement>
-	// ) => {
-	// 	const loraType = loraTypes.find(
-	// 		(char) => char.id === parseInt(e.target.value)
-	// 	);
-	// 	console.log(loraType)
-	// 	if (loraType) {
-	// 		setSelectedLoraType(loraType);
-	// 	} else {
-	// 		setLoraTypes([]);
-	// 	}
-	// };
 
-	// Fetch the LoRA types on component load
-	const fetchLoraTypes = async () => {
-		try {
-			const types = await getLoraTypes();
-			setLoraTypes(types);
-		} catch (error) {
-			console.error("Failed to fetch LoRA types:", error);
-			toast.error("Failed to load LoRA types.");
-		}
+
+
+	const handleSelectionChange = (LoraType: string) => {
+		setSelectedLoraType(LoraType);
 	};
 
-	useEffect(() => {
-		fetchLoraTypes();
-	}, []);
 
 	// Handle saving the new LoRA request
 	const handleSave = async () => {
@@ -61,12 +38,13 @@ const LoraForm: FC<LoraFormProps> = ({ datasetId, onSave }) => {
 			return;
 		}
 
-		const loraData = {
-			name,
+		const loraData =  {
+			name: name,
 			lora_type: selectedLoraType,
 			trigger_word: triggerWord,
 			character: selectedCharacter.id,
 			dataset: datasetId,
+
 		};
 
 		try {
@@ -96,26 +74,10 @@ const LoraForm: FC<LoraFormProps> = ({ datasetId, onSave }) => {
 
 			{/* Second Row - LoRA Type Dropdown and Character Autocomplete */}
 			<div className="flex flex-row justify-between gap-4">
-				<Select
-					items={loraTypes}
-					variant="bordered"
-					label="LoRA Type"
-					placeholder="Select LoRA Type"
-					fullWidth
-					onSelectionChange={(selectedKeys) =>
-						setSelectedLoraType(Array.from(selectedKeys)[0] as string)
-					}
-					selectedKeys={
-						selectedLoraType ? new Set([selectedLoraType]) : new Set()
-					}
 
-				>
-					{loraTypes.map((type) => (
-						<SelectItem key={type.id} value={type.id}>
-							{type.name}
-						</SelectItem>
-					))}
-				</Select>
+				<div className="w-full">
+					<LoraTypeComponent onSelect={handleSelectionChange}/>
+				</div>
 
 				{/* Custom Character Autocomplete */}
 				<CustomCharacterAutocomplete
@@ -138,7 +100,8 @@ const LoraForm: FC<LoraFormProps> = ({ datasetId, onSave }) => {
 
 			{/* Save Button */}
 			<div className="flex justify-left gap-2">
-				<Button
+				<Button as={Link}
+					href="/ai/lora/requests"
 					color="primary"
 					isDisabled={!name || !selectedLoraType || !triggerWord || !selectedCharacter}
 					onPress={handleSave}

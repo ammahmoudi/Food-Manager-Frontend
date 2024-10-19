@@ -1,13 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { useEffect, useState } from "react";
-import { Button, Spinner } from "@nextui-org/react";
-import { useParams } from "next/navigation";
+import { Button, Link, Spinner } from "@nextui-org/react";
 import { getDataset } from "../../services/aiApi";
 import React from "react";
 import { toast } from "sonner";
 import DatasetAlbum from "../../components/DatasetAlbum"; // Import the DatasetAlbum component
 import Dataset from "../../interfaces/Dataset";
+import { useParams } from "next/navigation";
+
+
 
 const ResultPage = () => {
   const [dataset, setDataset] = useState<Dataset | null>(null); // Store dataset object
@@ -46,10 +48,10 @@ const ResultPage = () => {
 
           {/* Request for Lora Button */}
           <div className="mt-6">
-            <Button
+            <Button as={Link}
+              href={`/ai/lora/new?datasetId=${datasetId}`}
               color="primary"
               className="w-full"
-              onClick={() => toast.success("Lora requested!")}
             >
               Request for Lora
             </Button>

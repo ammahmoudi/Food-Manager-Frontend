@@ -6,6 +6,7 @@ import { Card, CardFooter, Image, Button, Spinner } from "@nextui-org/react";
 import { toast } from "sonner";
 import { getCharacters } from "../services/aiApi";
 import Character from "../interfaces/Character";
+import CharacterCard from "../components/CharacterCard";
 
 const CharacterListPage = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
@@ -28,9 +29,8 @@ const CharacterListPage = () => {
 
 
   return (
-<div className="container xl:w-1/2 mx-auto p-2 items-center">
+<div className="flex flex-col xl:w-1/2 mx-auto p-2 items-center">
       <h2 className="text-2xl font-semibold mb-4">Characters</h2>
-
       {loading ? (
         <div className="flex justify-center">
           <Spinner color="primary" size="lg" />
@@ -38,34 +38,9 @@ const CharacterListPage = () => {
       ) : (
         <div className="flex flex-wrap gap-4">
           {characters.map((character) => (
-            <Card
-              key={character.id}
-              isFooterBlurred
-              radius="lg"
-              className="border-none"
-            >
-              <Image
-                alt={character.name}
-                className="object-cover"
-                height={300}
-                src={character.image}
-                width={200}
-              />
-              <CardFooter className="justify-between before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10">
-                <p className="text-tiny text-white/80">{character.name}</p>
-                <Button
-                  className="text-tiny text-white bg-black/20"
-                  variant="flat"
-                  color="default"
-                  radius="lg"
-                  size="sm"
-                >
-                  {character.datasets.length > 0
-                    ? `${character.datasets.length} datasets available`
-                    : "Available soon"}
-                </Button>
-              </CardFooter>
-            </Card>
+            <div key={character.id} className="">
+              <CharacterCard id ={character.id}/>
+            </div>
           ))}
         </div>
       )}

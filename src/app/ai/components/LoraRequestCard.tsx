@@ -173,6 +173,7 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 									{isAdmin && loraRequest.status === "running" && (
 										<Button
 											color="danger"
+											variant="shadow"
 											onPress={() => handleStatusChange("canceled")}
 										>
 											Cancel Request
@@ -184,13 +185,14 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 										<>
 											<Button
 												color="success"
-												className="mt-2"
+												variant="shadow"
 												onPress={() => handleStatusChange("accepted")}
 											>
 												Accept Request
 											</Button>
 											<Button
 												color="danger"
+												variant="shadow"
 												className="mt-2"
 												onPress={() => handleStatusChange("denied")}
 											>

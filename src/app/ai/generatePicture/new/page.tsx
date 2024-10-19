@@ -21,9 +21,7 @@ import {
 import { Job } from "../../interfaces/Job";
 import { toast } from "sonner";
 import SeedInput from "../../components/SeedGenerator";
-
-import CustomCharacterAutocomplete from "../../components/CustomCharacterAutoComplete";
-import Character from "../../interfaces/Character";
+import LoraTypeComponent from "../../components/LoraTypeComponent";
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
@@ -32,7 +30,7 @@ const PromptPage = () => {
 	const [isSubmittingFinal, setIsSubmittingFinal] = useState<boolean>(false);
 	const [polling, setPolling] = useState<boolean>(false);
 	const [isCropModalOpen, setCropModalOpen] = useState(false);
-	const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null)
+	const [selectedLoraType, setSelectedLoraType] = useState<string | null>(null);
 	const router = useRouter();
 	const [seed, setSeed] = useState<number>(
 		Math.floor(Math.random() * Math.pow(2, 16))
@@ -120,7 +118,7 @@ const PromptPage = () => {
 		try {
 			setIsSubmittingFinal(true);
 
-			const response = await submitFinalData(job.images[0]); // Send job.id
+			const response = await submitFinalData(job.images[0],selectedLoraType); // Send job.id
 
 			if (response.dataset_id) {
 				toast.success("Final submission successful!");
@@ -163,6 +161,10 @@ const PromptPage = () => {
 			console.log("croppedImage", croppedImage);
 		}
 		setCropModalOpen(false);
+	};
+
+	const handleSelectionChange = (LoraType: string) => {
+		setSelectedLoraType(LoraType);
 	};
 
 	// Handle image deletion
@@ -255,7 +257,7 @@ const PromptPage = () => {
 						/>
 
 						{/* Prompt Input Field and Submit Button */}
-						<div className="flex flex-grow flex-col justify-between w-full space-y-2">
+						<div className="flex flex-grow flex-col justify-between w-full">
 							<Textarea
 								label="Prompt"
 								className=""
@@ -264,10 +266,15 @@ const PromptPage = () => {
 								value={prompt}
 								onChange={(e) => setPrompt(e.target.value)}
 							/>
-							<div className="flex flex-col items-center justify-center w-full h-full bg-gray-100 rounded-lg">
-								<div>
+							<div className="flex flex-col items-center justify-center w-full h-full  gap-4">
+								<div className="w-full bg-gray-100 rounded-lg">
 									<SeedInput seed={seed} setSeed={setSeed} />
 								</div>
+
+								<div className="w-full bg-gray-100 rounded-lg">
+									<LoraTypeComponent onSelect={handleSelectionChange}/>
+								</div>
+
 							</div>
 							<div className="flex w-full">
 								<Button
@@ -284,13 +291,7 @@ const PromptPage = () => {
 					</CardBody>
 
 
-					{/* <CustomCharacterAutocomplete
-					selectedCharacter={selectedCharacter}
-					onCharacterSelect={setSelectedCharacter}
-					shouldUpdate={false}
-					onUpdateComplete={function (): void {
-						throw new Error("Function not implemented.");
-					} }/> */}
+
 
 
 					<CardFooter>

@@ -18,6 +18,10 @@ const SeedInput: React.FC<SeedInputProps> = ({ seed, setSeed }) => {
   return (
     <div>
       <Input
+        radius="sm"
+        
+        color="default"
+        variant="bordered"
         type="number"
         label="Seed"
         placeholder="Seed"
@@ -25,7 +29,10 @@ const SeedInput: React.FC<SeedInputProps> = ({ seed, setSeed }) => {
         onChange={(e) => setSeed(Number(e.target.value))}
         endContent={
           <Button
-            className="mx-w-10"
+            isIconOnly
+            radius="full"
+            variant="ghost"
+            size="sm"
             onPress={generateRandomNumber}
           >
             <ArrowPathRoundedSquareIcon/>

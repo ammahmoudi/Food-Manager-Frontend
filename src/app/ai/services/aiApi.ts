@@ -75,11 +75,14 @@ export const sendPromptToBackend = async (data: { prompt: string , seed : string
 };
 
 // Function to submit the final data (using job ID) and get dataset ID
-export const submitFinalData = async (imageId: number) => {
+export const submitFinalData = async (imageId: number,loraType: string | null) => {
   try {
     const response = await api.post(
       `/cui/workflow-runners/characters/generate-character-samples/`,
-      { dataset_image_id: imageId }
+      {
+        dataset_image_id: imageId,
+        lora_type: loraType
+      }
     );
     console.log(response.data);
     return response.data;
@@ -232,6 +235,14 @@ export const deleteCharacter = async (id: number) => {
 };
 
 
+export const getCharacter = async (id: number) => {
+	const response = await api.get(`/cui/characters/${id}/`);
+	return response.data;
+};
+
+
+
+
 // Lora Api
 
 export const getLoraRequests = async () => {
@@ -280,8 +291,8 @@ export const newLoraRequest = async (data: {
     name: string;
     trigger_word: string;
     character: number;
-    dataset: number;
-    lora_type: number;
+    dataset: number | null;
+    lora_type: string;
 }) => {
   try {
     const response = await api.post("/cui/lora-requests/",

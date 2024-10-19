@@ -1,28 +1,30 @@
 "use client";
 
-import { useRouter } from "next/navigation"; // To get query parameters
+import { useSearchParams } from "next/navigation"; // To get query parameters
 import { useState, useEffect } from "react";
-import { Button, Card, CardBody } from "@nextui-org/react";
+import { Button, Card, CardBody, Link } from "@nextui-org/react";
 
 import { toast } from "sonner";
 import LoraForm from "../../components/LoraForm";
 
 const NewLoraPage = () => {
-	const router = useRouter();
-	// const { datasetId } = ; // Get datasetId from the query parameters
+	const searchParams = useSearchParams()
+	const datasetId = searchParams.get('datasetId')
+
 	const [validDatasetId, setValidDatasetId] = useState<number | null>(null);
+	
 
 	// Check if the datasetId is valid on page load
-	// useEffect(() => {
-	// 	if (datasetId) {
-	// 		const parsedId = parseInt(datasetId as string);
-	// 		if (!isNaN(parsedId)) {
-	// 			setValidDatasetId(parsedId);
-	// 		} else {
-	// 			toast.error("Invalid dataset ID.");
-	// 		}
-	// 	}
-	// }, [datasetId]);
+	useEffect(() => {
+		if (datasetId) {
+			const parsedId = parseInt(datasetId as string);
+			if (!isNaN(parsedId)) {
+				setValidDatasetId(parsedId);
+			} else {
+				toast.error("Invalid dataset ID.");
+			}
+		}
+	}, [datasetId]);
 
 	// Handle saving the LoRA request
 	const handleLoraSave = () => {
@@ -38,7 +40,7 @@ const NewLoraPage = () => {
 
 					{/* Render the form only if the datasetId is valid */}
 					{true ? (
-						<LoraForm datasetId={1} onSave={handleLoraSave} />
+						<LoraForm datasetId={validDatasetId} onSave={handleLoraSave} />
 					) : (
 						<p>Invalid or missing dataset ID. Please return to the previous page.</p>
 					)}
@@ -47,7 +49,10 @@ const NewLoraPage = () => {
 
 			{/* Back Button */}
 			<div className="mt-4">
-				<Button onPress={() => router.push(`/cui/datasets/${datasetId}/`)}>Back to Datasets</Button>
+				<Button as={Link} 
+				href={`/ai/datasets/${datasetId}/`}>
+					Back
+				</Button>
 			</div>
 		</div>
 	);

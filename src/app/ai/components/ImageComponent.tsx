@@ -5,7 +5,7 @@ import DatasetImage from "../interfaces/DatasetImage";
 import DatasetImageInfoModal from "./modals/DatasetImageInfoModal";
 import { getJob, getImageById } from "../services/aiApi"; // Assuming these methods are implemented
 import { Job } from "../interfaces/Job";
-import { set } from "date-fns-jalali";
+
 
 interface ImageProps {
   src_id: number;
