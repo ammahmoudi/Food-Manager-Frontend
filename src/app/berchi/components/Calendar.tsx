@@ -2,157 +2,159 @@
 
 import { Button, Skeleton } from "@nextui-org/react";
 import {
-	addMonths,
-	addWeeks,
-	eachDayOfInterval,
-	endOfMonth,
-	endOfWeek,
-	format,
-	isSameDay,
-	isSameMonth,
-	newDate,
-	startOfMonth,
-	startOfWeek,
-	subMonths,
+  addMonths,
+  addWeeks,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isSameDay,
+  isSameMonth,
+  newDate,
+  startOfMonth,
+  startOfWeek,
+  subMonths,
 } from "date-fns-jalali";
 import { FC, useEffect, useState } from "react";
 import { getMealsForCurrentMonth } from "@/app/berchi/services/berchiApi";
 import { CalendarProps, MealCellData } from "@/interfaces/Calendar";
-import { convertPersianMonthToEnglish } from "@/utils/dateUtils";
+import { convertPersianMonthToEnglish } from "@/app/utils/dateUtils";
 import MealCell from "@/app/berchi/components/MealCell";
 import { Food } from "@/app/berchi/interfaces/Food";
 
 const Calendar: FC<CalendarProps> = ({ year, month, onMonthChange }) => {
-	const [currentYear, setCurrentYear] = useState(year);
-	const [currentMonth, setCurrentMonth] = useState(month);
-	const [cells, setCells] = useState<MealCellData[]>([]);
-	const [loading, setLoading] = useState<boolean>(true);
+  const [currentYear, setCurrentYear] = useState(year);
+  const [currentMonth, setCurrentMonth] = useState(month);
+  const [cells, setCells] = useState<MealCellData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
-	const currentMonthDate = newDate(currentYear, currentMonth - 1, 1);
-	const firstDayOfMonth = startOfMonth(currentMonthDate);
-	const lastDayOfMonth = endOfMonth(currentMonthDate);
+  const currentMonthDate = newDate(currentYear, currentMonth - 1, 1);
+  const firstDayOfMonth = startOfMonth(currentMonthDate);
+  const lastDayOfMonth = endOfMonth(currentMonthDate);
 
-	useEffect(() => {
-		const fetchMeals = async () => {
-			try {
-				setLoading(true);
-				const response = await getMealsForCurrentMonth(
-					currentYear,
-					currentMonth
-				);
-				const mealCells = response.map(
-					(day: { date: Date; food: Food; rating: number }) => ({
-						date: day.date,
-						meals: [day],
-					})
-				);
-				setCells(mealCells);
-			} catch (error) {
-				console.error("Failed to fetch meals:", error);
-				// showToast('error','Failed to get current month meals.')
-			} finally {
-				setLoading(false);
-			}
-		};
+  useEffect(() => {
+    const fetchMeals = async () => {
+      try {
+        setLoading(true);
+        const response = await getMealsForCurrentMonth(
+          currentYear,
+          currentMonth
+        );
+        const mealCells = response.map(
+          (day: { date: Date; food: Food; rating: number }) => ({
+            date: day.date,
+            meals: [day],
+          })
+        );
+        setCells(mealCells);
+      } catch (error) {
+        console.error("Failed to fetch meals:", error);
+        // showToast('error','Failed to get current month meals.')
+      } finally {
+        setLoading(false);
+      }
+    };
 
-		fetchMeals();
-	}, [currentYear, currentMonth]);
+    fetchMeals();
+  }, [currentYear, currentMonth]);
 
-	const weeks = [];
-	let currentWeek = startOfWeek(firstDayOfMonth, { weekStartsOn: 6 });
+  const weeks = [];
+  let currentWeek = startOfWeek(firstDayOfMonth, { weekStartsOn: 6 });
 
-	while (currentWeek <= lastDayOfMonth) {
-		const weekDays = eachDayOfInterval({
-			start: currentWeek,
-			end: endOfWeek(currentWeek, { weekStartsOn: 6 }),
-		});
-		weeks.push(weekDays);
-		currentWeek = addWeeks(currentWeek, 1);
-	}
+  while (currentWeek <= lastDayOfMonth) {
+    const weekDays = eachDayOfInterval({
+      start: currentWeek,
+      end: endOfWeek(currentWeek, { weekStartsOn: 6 }),
+    });
+    weeks.push(weekDays);
+    currentWeek = addWeeks(currentWeek, 1);
+  }
 
-	const handlePrevMonth = () => {
-		const prevMonth = subMonths(currentMonthDate, 1);
-		const newYear = parseInt(format(prevMonth, "yyyy"), 10);
-		const newMonth = parseInt(format(prevMonth, "MM"), 10);
-		if (newYear !== currentYear || newMonth !== currentMonth) {
-			setCurrentYear(newYear);
-			setCurrentMonth(newMonth);
-			if (onMonthChange) onMonthChange(newYear, newMonth);
-		}
-	};
+  const handlePrevMonth = () => {
+    const prevMonth = subMonths(currentMonthDate, 1);
+    const newYear = parseInt(format(prevMonth, "yyyy"), 10);
+    const newMonth = parseInt(format(prevMonth, "MM"), 10);
+    if (newYear !== currentYear || newMonth !== currentMonth) {
+      setCurrentYear(newYear);
+      setCurrentMonth(newMonth);
+      if (onMonthChange) onMonthChange(newYear, newMonth);
+    }
+  };
 
-	const handleNextMonth = () => {
-		const nextMonth = addMonths(currentMonthDate, 1);
-		const newYear = parseInt(format(nextMonth, "yyyy"), 10);
-		const newMonth = parseInt(format(nextMonth, "MM"), 10);
-		if (newYear !== currentYear || newMonth !== currentMonth) {
-			setCurrentYear(newYear);
-			setCurrentMonth(newMonth);
-			if (onMonthChange) onMonthChange(newYear, newMonth);
-		}
-	};
+  const handleNextMonth = () => {
+    const nextMonth = addMonths(currentMonthDate, 1);
+    const newYear = parseInt(format(nextMonth, "yyyy"), 10);
+    const newMonth = parseInt(format(nextMonth, "MM"), 10);
+    if (newYear !== currentYear || newMonth !== currentMonth) {
+      setCurrentYear(newYear);
+      setCurrentMonth(newMonth);
+      if (onMonthChange) onMonthChange(newYear, newMonth);
+    }
+  };
 
-	return (
-		<div className="p-1 w-full h-full">
-			<div className="flex justify-between mb-4 gap-3">
-				<Button color="primary" className="px-10" onClick={handlePrevMonth}>
-					Previous Month
-				</Button>
-				<Button
-					disabled
-					disableRipple
-					variant="light"
-					color='primary'
-					className="text-large  font-bold w-full text-center "
-				>
-					{convertPersianMonthToEnglish(format(currentMonthDate, "MMMM yyyy"))}
-				</Button>
+  return (
+    <div className="p-1 w-full h-full">
+      <div className="flex justify-between mb-4 gap-3">
+        <Button color="primary" className="px-10" onClick={handlePrevMonth}>
+          Previous Month
+        </Button>
+        <Button
+          disabled
+          disableRipple
+          variant="light"
+          color="primary"
+          className="text-large  font-bold w-full text-center "
+        >
+          {convertPersianMonthToEnglish(format(currentMonthDate, "MMMM yyyy"))}
+        </Button>
 
-				<Button className="px-10" color='primary' onClick={handleNextMonth}>
-					Next Month
-				</Button>
-			</div>
-			{loading ? (
-				<Skeleton isLoaded={!loading} className=" rounded-xl" />
-			) : (
-				<div className="grid grid-cols-7 gap-0 bg-primary rounded-xl mb-2">
-					{["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"].map((day) => (
-						<div key={day} className="text-center text-white py-2 font-bold">{day}</div>
-					))}
-				</div>
-			)}
+        <Button className="px-10" color="primary" onClick={handleNextMonth}>
+          Next Month
+        </Button>
+      </div>
+      {loading ? (
+        <Skeleton isLoaded={!loading} className=" rounded-xl" />
+      ) : (
+        <div className="grid grid-cols-7 gap-0 bg-primary rounded-xl mb-2">
+          {["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"].map((day) => (
+            <div key={day} className="text-center text-white py-2 font-bold">
+              {day}
+            </div>
+          ))}
+        </div>
+      )}
 
-			<div className="grid grid-cols-7 gap-1">
-				{weeks.map((week, i) =>
-					week.map((day, j) => {
-						const cellMeal =
-							cells.find((cell) => isSameDay(cell.date, day))?.meals || null;
+      <div className="grid grid-cols-7 gap-1">
+        {weeks.map((week, i) =>
+          week.map((day, j) => {
+            const cellMeal =
+              cells.find((cell) => isSameDay(cell.date, day))?.meals || null;
 
-						return loading ? (
-							<Skeleton
-								className="meal-cell aspect-square h-full w-full p-0.5 rounded-md"
-								key={i+j}
-							/>
-						) : (
-							<div
-								key={i+j}
-								className="flex flex-col items-center justify-start aspect-square"
-							>
-								{isSameMonth(day, currentMonthDate) ? (
-									<MealCell
-										date={day}
-										initialMeal={
-											cellMeal && cellMeal.length !== 0 ? cellMeal[0] : null
-										}
-									/>
-								) : null}
-							</div>
-						);
-					})
-				)}
-			</div>
-		</div>
-	);
+            return loading ? (
+              <Skeleton
+                className="meal-cell aspect-square h-full w-full p-0.5 rounded-md"
+                key={i + j}
+              />
+            ) : (
+              <div
+                key={i + j}
+                className="flex flex-col items-center justify-start aspect-square"
+              >
+                {isSameMonth(day, currentMonthDate) ? (
+                  <MealCell
+                    date={day}
+                    initialMeal={
+                      cellMeal && cellMeal.length !== 0 ? cellMeal[0] : null
+                    }
+                  />
+                ) : null}
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default Calendar;

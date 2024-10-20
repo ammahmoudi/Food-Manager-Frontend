@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardFooter, Image, Button, Spinner } from "@nextui-org/react";
+import { Spinner } from "@nextui-org/react";
 
 import { toast } from "sonner";
 import { getCharacters } from "../services/aiApi";

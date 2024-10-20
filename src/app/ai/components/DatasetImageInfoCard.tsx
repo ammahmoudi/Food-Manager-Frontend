@@ -21,6 +21,7 @@ import {
 	deleteImageById,
 	getJob,
 	requestPromptsForImage,
+	updatePromptsForImage,
 	
 } from "@/app/ai/services/aiApi";
 import { toast } from "sonner";
@@ -40,10 +41,9 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 }) => {
 	const [imageData, setImageData] = useState<DatasetImage | null>(null);
 	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [isFetchingPrompts, setIsFetchingPrompts] = useState(false);
+	const [isUpdatingPrompts, setIsUpdatingPrompts] = useState(false);
 	const [polling, setPolling] = useState(false);
-	const [imageError, setImageError] = useState(false);
 	const [complexPrompt, setComplexPrompt] = useState<string >("");
 	const [tagPrompt, setTagPrompt] = useState<string >("");
 	const [negativePrompt, setNegativePrompt] = useState<string>("");
@@ -62,7 +62,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 			onDeleteSuccess();
 		} catch (error) {
 			console.error(`Error deleting image with ID ${imageId}:`, error);
-			setError("Failed to delete image.");
 		} finally {
 			closeDeleteModal();
 		}
@@ -86,15 +85,13 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 				`Error requesting prompts for image with ID ${imageId}:`,
 				error
 			);
-			setError("Failed to request prompts.");
 			setIsFetchingPrompts(false);
 		}
 	};
 
+	// update textarea fields
 	const handleUpdateImageDataFields = (updatedImageData: DatasetImage) => {
 		setImageData(updatedImageData);
-		
-		
 		if (updatedImageData.complex_prompt){
 			setComplexPrompt(updatedImageData.complex_prompt)
 		}else{
@@ -112,52 +109,59 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 		}
 	}
 
+	const handleUpdatePrompts = async () => {
+		try {
+			setIsUpdatingPrompts(true);
+			const response = await updatePromptsForImage(
+				imageId, 
+				imageData?.complex_prompt,
+				imageData?.negative_prompt,
+				imageData?.tag_prompt
+			);
+
+			if (response) {
+				toast.success("Prompt Updated successfully!");
+			} else {
+				toast.error("Failed to Update Prompt.");
+			}
+		} catch (error) {
+			console.error(
+				`Error requesting prompts for image with ID ${imageId}:`,
+				error
+			);
+			setIsUpdatingPrompts(false);
+		}
+	}
+
 	const pollJobStatus = async (jobId: number) => {
 		setPolling(true);
 		const fetchJobStatus = async () => {
 		try {
 			const jobData = await getJob(jobId);
-			console.log("asdasdasd")
-
 			if (jobData.status === "completed") {
 				setPolling(false);
 				setIsFetchingPrompts(false);
 				toast.success("Job completed and result is ready!");
-				clearInterval(intervalId); // Stop polling when job is completed
-				// Fetch the latest image data to update prompts
+				clearInterval(intervalId);
 				const updatedImageData = await getImageById(imageId);
-				console.log("asdasdasd")
-				 // Update state with new prompts
 				handleUpdateImageDataFields(updatedImageData);
 			} else if (jobData.status === "failed") {
 				setPolling(false);
 				setIsFetchingPrompts(false);
 				toast.error("Job failed to complete.");
-			clearInterval(intervalId); // Stop polling if job failed
+			clearInterval(intervalId);
 			}
 		} catch (error) {
 			console.error("Error fetching job status:", error);
 			setPolling(false);
 			setIsFetchingPrompts(false);
-			clearInterval(intervalId); // Stop polling in case of an error
+			clearInterval(intervalId);
 			toast.error("Error fetching job status.");
 		}
     };
-
-	// update textarea fields
-
-    // Poll every 5 seconds
-    const intervalId = setInterval(fetchJobStatus, 5000); // Save interval ID
-
-    // Initial fetch
+    const intervalId = setInterval(fetchJobStatus, 5000);
     await fetchJobStatus(); 
-
-    // Ensure the interval is cleaned up on component unmount or when polling stops
     return () => clearInterval(intervalId);
-
-
-
-	
 };
 
 
@@ -166,17 +170,16 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 		const [imageSrc, setImageSrc] = useState<string | null>(props.src);
 
 		const handleImageError = () => {
-			setImageSrc(fallbackImage); // Use fallback if image fails to load
-			setImageError(true); // Set error flag
+			setImageSrc(fallbackImage);
 		};
 
 		return (
 			<Image
-				src={imageSrc || fallbackImage} // Use fallback if the image source is null
+				src={imageSrc || fallbackImage}
 				alt={props.alt}
 				className="z-10 h-full w-full aspect-square rounded-md object-contain"
 				classNames={{ wrapper: "w-full h-full aspect-square" }}
-				onError={handleImageError} // Handle 404 or other loading errors
+				onError={handleImageError}
 			/>
 		);
 	};
@@ -192,7 +195,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 				handleUpdateImageDataFields(data)
 			} catch (error) {
 				console.error(`Error fetching image with ID ${imageId}:`, error);
-				setError("Failed to load image data.");
 			} finally {
 				setLoading(false);
 			}
@@ -213,7 +215,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 								src={imageData?.image || fallbackImage}
 								className="w-full h-full object-cover blur-md"
 								classNames={{ wrapper: "w-full h-full aspect-square" }}
-								onError={() => setImageError(true)}
 							/>
 						</div>
 						{/* Main Image */}
@@ -290,12 +291,21 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 						{isFetchingPrompts ? "Fetching Prompts..." : "Get Prompts"}
 					</Button>
 					<Button
+						color="secondary"
+						onClick={handleUpdatePrompts}
+						disabled={isUpdatingPrompts}
+						isLoading={isUpdatingPrompts}
+					>
+						{isUpdatingPrompts ? "Updating Prompts..." : "Update Prompts"}
+					</Button>
+					<Button
 						color="danger"
 						onClick={openDeleteModal}
 						className="bg-red-500 hover:bg-red-600"
 					>
 						Delete Image
 					</Button>
+
 				</CardFooter>
 			</Card>
 

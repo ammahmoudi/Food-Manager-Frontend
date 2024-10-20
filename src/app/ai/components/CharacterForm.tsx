@@ -41,7 +41,6 @@ const CharacterForm: FC<CharacterFormProps> = ({
 	const [name, setName] = useState(initialData?.name || "");
 	const [description, setDescription] = useState(initialData?.description || "");
 	const [image, setImage] = useState<File | string | null>(initialData?.image || null);
-	cons
 
 	const {
 		isOpen: isDeleteModalOpen,

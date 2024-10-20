@@ -23,7 +23,6 @@ interface LoraRequestCardProps {
 
 const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 	loraRequestId,
-	onStatusChange,
 }): JSX.Element => {
 	const [loraRequest, setLoraRequest] = useState<LoraRequest | null>(null);
 	const { isAdmin } = useUser();

@@ -5,6 +5,10 @@
       // This allows Serwist to type `window.serwist`.
       "@serwist/next/typings"
     ],
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["./*"]
+    },
     "lib": ["dom", "dom.iterable", "esnext", "webworker"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -22,9 +26,7 @@
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules","src/app/sw.ts"]

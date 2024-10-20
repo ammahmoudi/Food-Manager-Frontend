@@ -187,11 +187,12 @@ export const uploadTempImage = async (file: File) => {
   return response.data;
 };
 
-export const updatePromptsForImage = async (dataset_image_id: number, data: { 
-    complex_prompt: string | undefined
-    negative_prompt: string | undefined
-    tag_prompt: string | undefined
-}) => {
+export const updatePromptsForImage = async (dataset_image_id: number, complex_prompt: string | null | undefined, negative_prompt: string | null | undefined ,tag_prompt: string | null | undefined) => {
+  const data = {
+    complex_prompt,
+    negative_prompt,
+    tag_prompt
+  } 
   try {
     const response = await api.post(`/cui/dataset-images/${dataset_image_id}/`, data);
     return response.data;

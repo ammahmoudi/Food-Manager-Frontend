@@ -36,7 +36,7 @@ const MainPage: React.FC = () => {
         </div>
 
         {/* Motto */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 text-white text-3xl font-bold text-center uppercase font-orbitron">
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 text-white text-3xl font-bold text-center uppercase font-orbitron mx-auto">
           <h5>Art redefined: Your vision, our AI</h5>
         </div>
 
