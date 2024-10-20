@@ -17,6 +17,7 @@ import {
 
 import {CharacterFormData} from "../interfaces/CharacterFormData";
 
+
 import { TrashIcon } from "@heroicons/react/24/solid";
 import ImageCropModal from "@/components/ImageCropModal"; // Import ImageCropModal
 import React from "react";
@@ -40,6 +41,7 @@ const CharacterForm: FC<CharacterFormProps> = ({
 	const [name, setName] = useState(initialData?.name || "");
 	const [description, setDescription] = useState(initialData?.description || "");
 	const [image, setImage] = useState<File | string | null>(initialData?.image || null);
+	cons
 
 	const {
 		isOpen: isDeleteModalOpen,
@@ -130,6 +132,7 @@ const CharacterForm: FC<CharacterFormProps> = ({
 								alt="Character Image"
 								className="z-0 w-full h-full object-cover"
 								classNames={{ wrapper: "w-full h-full aspect-square " }}
+								
 								src={
 									image instanceof File
 										? URL.createObjectURL(image as File)
@@ -146,6 +149,7 @@ const CharacterForm: FC<CharacterFormProps> = ({
 											}}
 											radius="full"
 											size="sm"
+											
 											className="w-full h-full aspect-square bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
 										>
 											<TrashIcon className="h-5 w-5" />
@@ -183,7 +187,7 @@ const CharacterForm: FC<CharacterFormProps> = ({
 				placeholder="Enter character description"
 				fullWidth
 				value={description}
-				onChange={(e) => setDescription(e.target.value)}
+				onChange={(e) => setDescription(e.target.value)}			
 			/>
 
 			<div className="flex justify-left gap-2">

@@ -3,7 +3,7 @@ import { Image, Card, Spinner } from "@nextui-org/react";
 import { toast } from "sonner";
 import DatasetImage from "../interfaces/DatasetImage";
 import DatasetImageInfoModal from "./modals/DatasetImageInfoModal";
-import { getJob, getImageById } from "../services/aiApi"; // Assuming these methods are implemented
+import { getJob, getImageById } from "../services/aiApi";
 import { Job } from "../interfaces/Job";
 
 
@@ -19,9 +19,9 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
   const [loading, setLoading] = useState<boolean>(true);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
-  const [imageError, setImageError] = useState(false); // Track image load errors
+  const [imageError, setImageError] = useState(false);
 
-  const fallbackImage = "/images/ai/manani_fallback_square.png"; // Fallback image from the public folder
+  const fallbackImage = "/images/ai/manani_fallback_square.png";
 
   // Poll the image or job based on the variant and src_id
   useEffect(() => {
@@ -42,7 +42,6 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
         setLoading(false);
       }
     };
-
     fetchData();
   }, [src_id, src_variant]);
 
@@ -65,7 +64,7 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
         for (const inputName of Object.keys(job.result_data[nodeId])) {
           const output = job.result_data[nodeId][inputName];
           if (output.type === "image") {
-            return output; // Return the output itself (as it contains both value and id)
+            return output;
           }
         }
       }
@@ -80,19 +79,19 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
     const [imageSrc, setImageSrc] = useState<string | null>(props.src);
 
     const handleImageError = () => {
-      setImageSrc(fallbackImage); // Use fallback if image fails to load
-      setImageError(true); // Set error flag
+      setImageSrc(fallbackImage);
+      setImageError(true);
     };
 
     return (
       <Image
-        src={imageSrc || fallbackImage} // Use fallback if the image source is null
+        src={imageSrc || fallbackImage}
         alt="Rendered Image"
         className="w-full h-full object-contain rounded-none"
         classNames={{ wrapper: "w-full h-full aspect-square" }}
         onClick={() => handleOpenInfoModal(props.id)}
         style={{ objectFit: "contain" }}
-        onError={handleImageError} // Handle 404 or other loading errors
+        onError={handleImageError}
       />
     );
   };
@@ -109,7 +108,7 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
               className="w-full h-full object-cover rounded-none filter blur-sm"
 
               classNames={{ wrapper: "w-full h-full aspect-square" }}
-              onError={() => (imageError ? (e: { currentTarget: { src: string; }; }) => (e.currentTarget.src = fallbackImage) : undefined)} // Apply fallback for background image on error
+              onError={() => (imageError ? (e: { currentTarget: { src: string; }; }) => (e.currentTarget.src = fallbackImage) : undefined)}
             />
           </div>
 

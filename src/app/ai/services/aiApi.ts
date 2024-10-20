@@ -187,6 +187,21 @@ export const uploadTempImage = async (file: File) => {
   return response.data;
 };
 
+export const updatePromptsForImage = async (dataset_image_id: number, data: { 
+    complex_prompt: string | undefined
+    negative_prompt: string | undefined
+    tag_prompt: string | undefined
+}) => {
+  try {
+    const response = await api.post(`/cui/dataset-images/${dataset_image_id}/`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to request prompts for image:", error);
+    throw error;
+  }
+};
+
+
 export const requestPromptsForImage = async (data: { dataset_image_id: number | undefined }) => {
   try {
     const response = await api.post("/cui/workflow-runners/prompts/get-prompt/", data);
@@ -196,6 +211,7 @@ export const requestPromptsForImage = async (data: { dataset_image_id: number | 
     throw error;
   }
 };
+
 
 
 //Character Form Apis

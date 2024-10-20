@@ -38,7 +38,7 @@ const CharacterListPage = () => {
       ) : (
         <div className="flex flex-wrap gap-4">
           {characters.map((character) => (
-            <div key={character.id} className="">
+            <div key={character.id}>
               <CharacterCard id ={character.id}/>
             </div>
           ))}

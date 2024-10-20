@@ -21,6 +21,7 @@ import {
 	deleteImageById,
 	getJob,
 	requestPromptsForImage,
+	
 } from "@/app/ai/services/aiApi";
 import { toast } from "sonner";
 
@@ -42,7 +43,10 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 	const [error, setError] = useState<string | null>(null);
 	const [isFetchingPrompts, setIsFetchingPrompts] = useState(false);
 	const [polling, setPolling] = useState(false);
-	const [imageError, setImageError] = useState(false); // Track image load errors
+	const [imageError, setImageError] = useState(false);
+	const [complexPrompt, setComplexPrompt] = useState<string >("");
+	const [tagPrompt, setTagPrompt] = useState<string >("");
+	const [negativePrompt, setNegativePrompt] = useState<string>("");
 
 	const {
 		isOpen: isDeleteModalOpen,
@@ -50,22 +54,7 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 		onClose: closeDeleteModal,
 	} = useDisclosure();
 
-	useEffect(() => {
-		const fetchImageData = async () => {
-			setLoading(true);
-			try {
-				const data = await getImageById(imageId);
-				setImageData(data);
-			} catch (error) {
-				console.error(`Error fetching image with ID ${imageId}:`, error);
-				setError("Failed to load image data.");
-			} finally {
-				setLoading(false);
-			}
-		};
 
-		fetchImageData();
-	}, [imageId]);
 
 	const handleDelete = async () => {
 		try {
@@ -102,46 +91,75 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 		}
 	};
 
-  const pollJobStatus = async (jobId: number) => {
-    setPolling(true);
-  
-    const fetchJobStatus = async () => {
-      try {
-        const jobData = await getJob(jobId);
-  
-        if (jobData.status === "completed") {
-          setPolling(false);
-          setIsFetchingPrompts(false);
-          toast.success("Job completed and result is ready!");
-          clearInterval(intervalId); // Stop polling when job is completed
-          // Fetch the latest image data to update prompts
-          const updatedImageData = await getImageById(imageId);
-          setImageData(updatedImageData); // Update state with new prompts
-        } else if (jobData.status === "failed") {
-          setPolling(false);
-          setIsFetchingPrompts(false);
-          toast.error("Job failed to complete.");
-          clearInterval(intervalId); // Stop polling if job failed
-        }
-      } catch (error) {
-        console.error("Error fetching job status:", error);
-        setPolling(false);
-        setIsFetchingPrompts(false);
-        clearInterval(intervalId); // Stop polling in case of an error
-        toast.error("Error fetching job status.");
-      }
+	const handleUpdateImageDataFields = (updatedImageData: DatasetImage) => {
+		setImageData(updatedImageData);
+		
+		
+		if (updatedImageData.complex_prompt){
+			setComplexPrompt(updatedImageData.complex_prompt)
+		}else{
+			setComplexPrompt("N/A")
+		}
+		if (updatedImageData.tag_prompt){
+			setTagPrompt(updatedImageData?.tag_prompt)
+		}else{
+			setTagPrompt("N/A")
+		}
+		if (updatedImageData.negative_prompt){
+			setNegativePrompt(updatedImageData?.negative_prompt)
+		}else{
+			setNegativePrompt("N/A")
+		}
+	}
+
+	const pollJobStatus = async (jobId: number) => {
+		setPolling(true);
+		const fetchJobStatus = async () => {
+		try {
+			const jobData = await getJob(jobId);
+			console.log("asdasdasd")
+
+			if (jobData.status === "completed") {
+				setPolling(false);
+				setIsFetchingPrompts(false);
+				toast.success("Job completed and result is ready!");
+				clearInterval(intervalId); // Stop polling when job is completed
+				// Fetch the latest image data to update prompts
+				const updatedImageData = await getImageById(imageId);
+				console.log("asdasdasd")
+				 // Update state with new prompts
+				handleUpdateImageDataFields(updatedImageData);
+			} else if (jobData.status === "failed") {
+				setPolling(false);
+				setIsFetchingPrompts(false);
+				toast.error("Job failed to complete.");
+			clearInterval(intervalId); // Stop polling if job failed
+			}
+		} catch (error) {
+			console.error("Error fetching job status:", error);
+			setPolling(false);
+			setIsFetchingPrompts(false);
+			clearInterval(intervalId); // Stop polling in case of an error
+			toast.error("Error fetching job status.");
+		}
     };
-  
+
+	// update textarea fields
+
     // Poll every 5 seconds
     const intervalId = setInterval(fetchJobStatus, 5000); // Save interval ID
-  
+
     // Initial fetch
     await fetchJobStatus(); 
-  
+
     // Ensure the interval is cleaned up on component unmount or when polling stops
     return () => clearInterval(intervalId);
-  };
-  
+
+
+
+	
+};
+
 
 	// Unified Image Component for both modes with fallback handling
 	const RenderImage = (props: { src: string | null; alt: string }) => {
@@ -162,6 +180,26 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 			/>
 		);
 	};
+
+
+
+	useEffect(() => {
+		const fetchImageData = async () => {
+			setLoading(true);
+			try {
+				const data = await getImageById(imageId);
+				setImageData(data);
+				handleUpdateImageDataFields(data)
+			} catch (error) {
+				console.error(`Error fetching image with ID ${imageId}:`, error);
+				setError("Failed to load image data.");
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchImageData();
+	}, []);
 
 	return (
 		<>
@@ -206,35 +244,33 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 								<Skeleton isLoaded={!isFetchingPrompts}>
 									{" "}
 									<Textarea
-										isReadOnly
 										label="Complex Prompt"
 										variant="bordered"
 										labelPlacement="outside"
-										placeholder="Enter your description"
-										value={imageData?.complex_prompt ?? "N/A"}
+										value={complexPrompt}
+										onValueChange={setComplexPrompt}
 										className="w-full"
 									/>
 								</Skeleton>
 								<Skeleton isLoaded={!isFetchingPrompts}>
 									<Textarea
-										isReadOnly
+										radius= "full"
 										label="Tag Prompt"
 										variant="bordered"
 										labelPlacement="outside"
-										placeholder="Enter your description"
-										value={imageData?.tag_prompt ?? "N/A"}
+										value={tagPrompt}
+										onValueChange={setTagPrompt}
 										className="w-full"
 									/>
 								</Skeleton>
 
 								<Skeleton isLoaded={!isFetchingPrompts}>
 									<Textarea
-										isReadOnly
 										label="Negative Prompt"
 										variant="bordered"
 										labelPlacement="outside"
-										placeholder="Enter your description"
-										value={imageData?.negative_prompt ?? "N/A"}
+										value={negativePrompt}
+										onValueChange={setNegativePrompt}
 										className="w-full"
 									/>
 								</Skeleton>
