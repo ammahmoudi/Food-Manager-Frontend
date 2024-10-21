@@ -5,7 +5,8 @@ import { jwtDecode, JwtPayload } from "jwt-decode"; // To decode JWT and check e
 import { UpdateUserData } from "@/interfaces/UpdateUserData";
 import { SignUpData } from "@/interfaces/SignUpData";
 
-const API_BASE_URL =  process.env.NEXT_PUBLIC_API_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://web:8000";
+
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

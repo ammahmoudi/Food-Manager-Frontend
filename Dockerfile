@@ -4,17 +4,17 @@ FROM node:18-alpine
 # Set working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the container
+# Install dependencies first to take advantage of Docker layer caching
 COPY package.json package-lock.json ./
-
-# Install dependencies
-RUN npm i
+RUN npm i   # Use npm ci for faster, clean install of dependencies
 
 # Copy the rest of the application code to the container
 COPY . .
 
 # Build the Next.js application
 RUN npm run build
+# Install only production dependencies
+# RUN npm prune --production
 
 # Expose the port that Next.js will run on
 EXPOSE 3000
