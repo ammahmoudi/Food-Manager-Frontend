@@ -194,7 +194,7 @@ export const updatePromptsForImage = async (dataset_image_id: number, complex_pr
     tag_prompt
   } 
   try {
-    const response = await api.post(`/cui/dataset-images/${dataset_image_id}/`, data);
+    const response = await api.patch(`/cui/dataset-images/${dataset_image_id}/`, data);
     return response.data;
   } catch (error) {
     console.error("Failed to request prompts for image:", error);

@@ -6,18 +6,24 @@ WORKDIR /app
 
 # Install dependencies first to take advantage of Docker layer caching
 COPY package.json package-lock.json ./
-RUN npm i   # Use npm ci for faster, clean install of dependencies
+RUN npm install
 
 # Copy the rest of the application code to the container
 COPY . .
 
-# Build the Next.js application
-RUN npm run build
-# Install only production dependencies
-# RUN npm prune --production
+# Install development dependencies
+RUN npm install --legacy-peer-deps
 
 # Expose the port that Next.js will run on
 EXPOSE 3000
 
-# Start the Next.js application
-CMD ["npm", "run", "start"]
+# Use the value of NODE_ENV to decide the mode (production or development)
+ARG NODE_ENV
+ENV NODE_ENV=${NODE_ENV}
+
+# If production, run the build and start in production mode
+# If development, run the development server
+RUN if [ "$NODE_ENV" = "production" ]; then npm run build; fi
+
+# Start the appropriate command based on the environment
+CMD ["sh", "-c", "if [ \"$NODE_ENV\" = \"production\" ]; then npm run start; else npm run dev; fi"]

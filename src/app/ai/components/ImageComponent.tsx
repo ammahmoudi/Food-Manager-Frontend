@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Image, Card, Spinner } from "@nextui-org/react";
+import { Image, Card, CircularProgress } from "@nextui-org/react";
 import { toast } from "sonner";
 import DatasetImage from "../interfaces/DatasetImage";
 import DatasetImageInfoModal from "./modals/DatasetImageInfoModal";
 import { getJob, getImageById } from "../services/aiApi";
 import { Job } from "../interfaces/Job";
-
 
 interface ImageProps {
   src_id: number;
@@ -17,20 +16,39 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
   const [image, setImage] = useState<DatasetImage | null>(null);
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isPolling, setIsPolling] = useState<boolean>(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
-  const [imageError, setImageError] = useState(false);
 
   const fallbackImage = "/images/ai/manani_fallback_square.png";
 
-  // Poll the image or job based on the variant and src_id
+  // Poll the job based on the variant and src_id
   useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+
     const fetchData = async () => {
       setLoading(true);
       try {
         if (src_variant === "job") {
+          setIsPolling(true);
           const fetchedJob = await getJob(src_id);
           setJob(fetchedJob);
+
+          // Poll every 5 seconds if the job status is not final (e.g., completed, failed)
+          if (!["completed", "failed", "canceled"].includes(fetchedJob.status)) {
+            intervalId = setInterval(async () => {
+              const updatedJob = await getJob(src_id);
+              setJob(updatedJob);
+
+              // Stop polling when the job status becomes final
+              if (["completed", "failed", "canceled"].includes(updatedJob.status)) {
+                clearInterval(intervalId as NodeJS.Timeout);
+                setIsPolling(false);
+              }
+            }, 1000);
+          } else {
+            setIsPolling(false);
+          }
         } else if (src_variant === "datasetImage") {
           const fetchedImage = await getImageById(src_id);
           setImage(fetchedImage);
@@ -42,13 +60,20 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
         setLoading(false);
       }
     };
+
     fetchData();
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId); // Cleanup polling interval on component unmount
+      }
+    };
   }, [src_id, src_variant]);
 
   // Handle image deletion
   const handleDeleteImage = () => {
     setImage(null);
-    setJob(null)
+    setJob(null);
     toast.success("Image deleted successfully.");
   };
 
@@ -74,57 +99,61 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
 
   const firstJobImage = src_variant === "job" ? getFirstJobImage() : null;
 
-  // Unified Image Component for both modes with fallback handling
-  const RenderImage = (props: { src: string | null; id: number }) => {
-    const [imageSrc, setImageSrc] = useState<string | null>(props.src);
+  // Unified Image Component for both modes with background handling
+  const RenderImage = (props: { src: string | null; id: number | null }) => {
+    const showBackgroundImage = (src_variant === "datasetImage") || (src_variant === "job" && job && job.status === "completed");
 
-    const handleImageError = () => {
-      setImageSrc(fallbackImage);
-      setImageError(true);
-    };
+    if (loading || (src_variant === "job" && job && job.status === "running")) {
+      return (
+        <div className="flex flex-col items-center">
+          <CircularProgress
+            color="success"
+            label={job?.status}
+            size="lg"
+            showValueLabel
+            value={(job?.progress || 0) * 100}
+          />
+        </div>
+      );
+    }
+
+    if (showBackgroundImage && props.src) {
+      return (
+        <>
+          <div className="absolute inset-0 z-0">
+            <Image
+              alt="Blurred Background"
+              src={props.src || fallbackImage}
+              className="w-full h-full object-cover rounded-none filter blur-sm"
+              classNames={{ wrapper: "w-full h-full aspect-square" }}
+            />
+          </div>
+          <Image
+            src={props.src || fallbackImage}
+            alt="Rendered Image"
+            className="w-full h-full object-cover filter rounded-none"
+            classNames={{ wrapper: "w-full h-full aspect-square" }}
+            onClick={() => handleOpenInfoModal(props.id as number)}
+            style={{ objectFit: "contain" }}
+          />
+        </>
+      );
+    }
 
     return (
-      <Image
-        src={imageSrc || fallbackImage}
-        alt="Rendered Image"
-        className="w-full h-full object-contain rounded-none"
-        classNames={{ wrapper: "w-full h-full aspect-square" }}
-        onClick={() => handleOpenInfoModal(props.id)}
-        style={{ objectFit: "contain" }}
-        onError={handleImageError}
-      />
+      <div className="flex flex-col items-center justify-center w-full h-full">
+        <p className="text-gray-500">No Image Available</p>
+      </div>
     );
   };
 
   return (
     <>
       {(image || firstJobImage) && (
-        <Card className={`relative flex flex-col items-center justify-center w-full aspect-square ${className}`}>
-          {/* Blurred Background Image */}
-          <div className="absolute inset-0 z-0">
-            <Image
-              alt="Blurred Background"
-              src={image ? image.image : firstJobImage?.value || fallbackImage}
-              className="w-full h-full object-cover rounded-none filter blur-sm"
-
-              classNames={{ wrapper: "w-full h-full aspect-square" }}
-              onError={() => (imageError ? (e: { currentTarget: { src: string; }; }) => (e.currentTarget.src = fallbackImage) : undefined)}
-            />
-          </div>
-
-          {loading ? (
-            <div className="flex justify-center items-center w-full h-full z-10">
-              <Spinner color="primary" size="lg" />
-            </div>
-          ) : image ? (
-            <RenderImage src={image.image} id={image.id} />
-          ) : firstJobImage ? (
-            <RenderImage src={firstJobImage.value} id={firstJobImage.id} />
-          ) : (
-            <div className="flex flex-col items-center justify-center w-full h-full z-10">
-              <p className="text-gray-500">No Image Available</p>
-            </div>
-          )}
+        <Card 
+        className={`relative flex flex-col items-center justify-center w-full aspect-square bg-null ${className}`}
+        >
+          <RenderImage src={image ? image.image : firstJobImage?.value || null} id={firstJobImage?.id || null} />
         </Card>
       )}
 
@@ -133,7 +162,7 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
         <DatasetImageInfoModal
           visible={isInfoModalOpen}
           onClose={() => setIsInfoModalOpen(false)}
-          imageId={selectedImage}
+          imageId={selectedImage as number}
           onDeleteSuccess={handleDeleteImage}
         />
       )}

@@ -8,6 +8,7 @@ import {
 	CardBody,
 	Textarea,
 	Spinner,
+	CircularProgress,
 } from "@nextui-org/react";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import ImageCropModal from "@/components/ImageCropModal";
@@ -73,7 +74,7 @@ const PromptPage = () => {
 		// Set up the interval for subsequent polling
 		const intervalId = setInterval(async () => {
 			await fetchJobStatus();
-		}, 5000); // Poll every 5 seconds
+		}, 1000); // Poll every 5 seconds
 	};
 
 	// Handle prompt submission to backend
@@ -238,8 +239,15 @@ const PromptPage = () => {
 								</>
 							) : job?.status === "pending" || job?.status === "running" ? (
 								<div className="flex justify-center items-center w-full h-full bg-gray-200">
-									<Spinner color="primary" size="lg" />
-									<p className="text-gray-500 ml-4">{job?.status}</p>
+									<div className="flex flex-col items-center">
+										<CircularProgress
+											color="success"
+											label={job?.status}
+											size="lg"
+											showValueLabel
+											value={(job?.progress || 0) * 100}
+										/>
+									</div>
 								</div>
 							) : (
 								<div className="flex flex-col items-center justify-center w-full h-full bg-gray-200">

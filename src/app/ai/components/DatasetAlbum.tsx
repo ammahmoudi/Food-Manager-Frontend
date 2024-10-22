@@ -10,7 +10,7 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ dataset }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap gap-4">
+      <div className="flex flex-wrap gap-4 transparent">
         {dataset.images && dataset.images.length > 0 ? (
           // Displaying dataset images
           dataset.images.map((imageId) => (
