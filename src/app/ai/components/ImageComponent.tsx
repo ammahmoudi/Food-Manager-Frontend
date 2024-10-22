@@ -16,11 +16,11 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
   const [image, setImage] = useState<DatasetImage | null>(null);
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [isPolling, setIsPolling] = useState<boolean>(false);
   const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
 
   const fallbackImage = "/images/ai/manani_fallback_square.png";
+
 
   // Poll the job based on the variant and src_id
   useEffect(() => {
@@ -30,7 +30,6 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
       setLoading(true);
       try {
         if (src_variant === "job") {
-          setIsPolling(true);
           const fetchedJob = await getJob(src_id);
           setJob(fetchedJob);
 
@@ -43,11 +42,9 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
               // Stop polling when the job status becomes final
               if (["completed", "failed", "canceled"].includes(updatedJob.status)) {
                 clearInterval(intervalId as NodeJS.Timeout);
-                setIsPolling(false);
+
               }
             }, 1000);
-          } else {
-            setIsPolling(false);
           }
         } else if (src_variant === "datasetImage") {
           const fetchedImage = await getImageById(src_id);

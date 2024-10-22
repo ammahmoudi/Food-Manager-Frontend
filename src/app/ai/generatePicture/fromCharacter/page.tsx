@@ -11,7 +11,6 @@ import {
 	Avatar,
 	Image,
 	CircularProgress,
-	
 } from "@nextui-org/react";
 import {
 	getCharacters,
@@ -193,9 +192,6 @@ const PromptPage = () => {
 			setJob(null);
 			setResultImages([]);
 
-
-			
-
 			const response = await sendPromptForCharacter({
 				prompt,
 				character_id: selectedCharacter.id,
@@ -207,9 +203,6 @@ const PromptPage = () => {
 				reference_image: referenceImage?.id
 			});
 
-
-
-
 			toast.success("Prompt submitted successfully!");
 
 			if (response.job_id) {
@@ -218,7 +211,6 @@ const PromptPage = () => {
 			} else {
 				toast.error("Failed to retrieve job ID.");
 			}
-		
 		} catch (error) {
 			toast.error("Error submitting the prompt.");
 			console.error("Error submitting prompt:", error);

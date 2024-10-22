@@ -60,7 +60,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
           src={image?.image}
         />
       </div>
-  
+
       {/* Unblurred Image in the foreground */}
       <div className="relative z-10">
         <Card
@@ -89,7 +89,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
                 >
                   <InformationCircleIcon className="h-5 w-5" />
                 </Button>
-  
+
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -108,13 +108,13 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
               <p className="text-gray-500">Click to upload an image</p>
             </div>
           )}
-  
+
           {loading && (
             <div className="flex justify-center items-center w-full h-full bg-gray-100">
               <Spinner color="primary" size="lg" />
             </div>
           )}
-  
+
           <input
             type="file"
             id="user-image-input"

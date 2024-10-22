@@ -7,7 +7,6 @@ import {
 	Image,
 	CardBody,
 	Textarea,
-	Spinner,
 	CircularProgress,
 } from "@nextui-org/react";
 import { TrashIcon } from "@heroicons/react/24/solid";
