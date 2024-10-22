@@ -1,27 +1,27 @@
 "use client";
-import { useState, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import {
 	Button,
 	Card,
 	CardFooter,
-	Image,
 	CardBody,
 	Textarea,
-	CircularProgress,
 } from "@nextui-org/react";
-import { TrashIcon } from "@heroicons/react/24/solid";
 import ImageCropModal from "@/components/ImageCropModal";
-import { useRouter } from "next/navigation"; // For navigation
+import { useRouter, useSearchParams } from "next/navigation"; // For navigation and search params
 import React from "react";
 import {
 	getJob,
 	sendPromptToBackend,
 	submitFinalData,
+	getImageById, // Assuming you have this API call for fetching image by ID
 } from "../../services/aiApi";
 import { Job } from "../../interfaces/Job";
 import { toast } from "sonner";
 import SeedInput from "../../components/SeedGenerator";
 import LoraTypeComponent from "../../components/LoraTypeComponent";
+import ImageUploadComponent from "../../components/UploadImage";
+import DatasetImage from "../../interfaces/DatasetImage";
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
@@ -29,9 +29,11 @@ const PromptPage = () => {
 	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false);
 	const [isSubmittingFinal, setIsSubmittingFinal] = useState<boolean>(false);
 	const [polling, setPolling] = useState<boolean>(false);
+	const [referenceImage, setReferenceImage] = useState<number | null>(null);
 	const [isCropModalOpen, setCropModalOpen] = useState(false);
 	const [selectedLoraType, setSelectedLoraType] = useState<string | null>(null);
 	const router = useRouter();
+	const searchParams = useSearchParams(); // Hook for accessing search params
 	const [seed, setSeed] = useState<number>(
 		Math.floor(Math.random() * Math.pow(2, 16))
 	);
@@ -44,6 +46,7 @@ const PromptPage = () => {
 			try {
 				const jobData = await getJob(jobId);
 				setJob(jobData); // Store the full job object
+				setReferenceImage(jobData.images[0]);
 
 				if (jobData.status === "completed") {
 					setPolling(false);
@@ -110,27 +113,36 @@ const PromptPage = () => {
 
 	// Handle final submission of data
 	const handleFinalSubmit = async () => {
-		if (!job) {
-			toast.error("No job available to submit.");
+		if (!referenceImage) {
+			toast.error("No image available to submit.");
 			return;
 		}
 
 		try {
 			setIsSubmittingFinal(true);
 
-			const response = await submitFinalData(job.images[0],selectedLoraType); // Send job.id
+			if (referenceImage) {
+				const response = await submitFinalData(referenceImage, selectedLoraType); // Send job.id
 
-			if (response.dataset_id) {
-				toast.success("Final submission successful!");
-				router.push(`/ai/datasets/${response.dataset_id}`);
-			} else {
-				toast.error("Failed to retrieve dataset.");
+				if (response.dataset_id) {
+					toast.success("Final submission successful!");
+					router.push(`/ai/datasets/${response.dataset_id}`);
+				} else {
+					toast.error("Failed to retrieve dataset.");
+				}
 			}
 		} catch (error) {
 			toast.error("Failed to submit final data.");
 			console.error("Final submission error:", error);
 		} finally {
 			setIsSubmittingFinal(false);
+		}
+	};
+
+	// Handle image ID received from the image upload component
+	const handleImageIdReceived = (image: DatasetImage | null) => {
+		if (image) {
+			setReferenceImage(image.id);
 		}
 	};
 
@@ -142,11 +154,7 @@ const PromptPage = () => {
 			return;
 		}
 		if (file) {
-			// setJob({
-			// 	...job,
-			// 	images: [URL.createObjectURL(file)], // Simulate image being added
-			// } as Job);F
-			// setCropModalOpen(true);
+			// Handle image change logic here if needed
 			console.log("file", file);
 		}
 	};
@@ -154,10 +162,6 @@ const PromptPage = () => {
 	// Handle crop complete and set the cropped image
 	const handleCropComplete = (croppedImage: File) => {
 		if (job) {
-			// setJob({
-			// 	...job,
-			// 	images: [URL.createObjectURL(croppedImage)],
-			// });
 			console.log("croppedImage", croppedImage);
 		}
 		setCropModalOpen(false);
@@ -167,40 +171,24 @@ const PromptPage = () => {
 		setSelectedLoraType(LoraType);
 	};
 
-	// Handle image deletion
-	const handleDeleteImage = () => {
-		if (job) {
-			setJob({
-				...job,
-				images: [],
-			});
-		}
-	};
-
-	// Render result images from job.result_data
-	const renderResultImages = () => {
-		if (!job || !job.result_data) return null;
-
-		// Iterate over the result_data structure and extract images
-		return Object.keys(job.result_data).map((nodeId) =>
-			Object.keys(job.result_data[nodeId]).map((inputName) => {
-				const output = job.result_data[nodeId][inputName];
-				if (output.type === "image") {
-					return (
-						<>
-							<Image
-								src={output.value} // Use the full URL for the image
-								alt={`Result from ${inputName}`}
-								className="z-0 w-full h-full object-cover"
-								classNames={{ wrapper: "w-full h-full aspect-square" }}
-							/>
-						</>
-					);
+	// Use searchParams to get the image ID from the URL
+	useEffect(() => {
+		const imageId = searchParams.get("id");
+		if (imageId) {
+			// Fetch the image from the backend using the imageId
+			const loadImageById = async (id: string) => {
+				try {
+					const image = await getImageById(parseInt(id)); // Assuming getImageById fetches the image details
+					setReferenceImage(image);
+				} catch (error) {
+					toast.error("Error loading image.");
+					console.error("Error loading image with ID:", id, error);
 				}
-				return null;
-			})
-		);
-	};
+			};
+
+			loadImageById(imageId); // Call the loadImageById function with the imageId
+		}
+	}, [searchParams]); // This will run whenever the searchParams change
 
 	return (
 		<div className="container xl:w-1/2 mx-auto p-2 items-center">
@@ -208,52 +196,8 @@ const PromptPage = () => {
 				<Card className="w-[700px] h-auto gap-1">
 					<CardBody className="flex flex-col md:flex md:flex-row gap-2">
 						{/* Image Section */}
-						<Card
-							isPressable
-							onClick={() =>
-								document.getElementById("user-image-input")?.click()
-							}
-							className="w-full aspect-square bg-pink-500 relative"
-						>
-							{job && renderResultImages() ? (
-								<>
-									{renderResultImages()}
-									<CardFooter className="absolute bottom-0 z-10">
-										<div className="flex items-center">
-											<div className="flex flex-col">
-												<Button
-													onClick={(e) => {
-														e.stopPropagation();
-														handleDeleteImage();
-													}}
-													radius="full"
-													size="sm"
-													className="w-full h-full aspect-square bg-gradient-to-tr from-pink-500 to-yellow-500 text-white shadow-lg"
-												>
-													<TrashIcon className="h-5 w-5" />
-												</Button>
-											</div>
-										</div>
-									</CardFooter>
-								</>
-							) : job?.status === "pending" || job?.status === "running" ? (
-								<div className="flex justify-center items-center w-full h-full bg-gray-200">
-									<div className="flex flex-col items-center">
-										<CircularProgress
-											color="success"
-											label={job?.status}
-											size="lg"
-											showValueLabel
-											value={(job?.progress || 0) * 100}
-										/>
-									</div>
-								</div>
-							) : (
-								<div className="flex flex-col items-center justify-center w-full h-full bg-gray-200">
-									<p className="text-gray-500">Click to upload an image</p>
-								</div>
-							)}
-						</Card>
+						<ImageUploadComponent onImageIdReceived={handleImageIdReceived} />
+
 						<input
 							placeholder="image"
 							type="file"
@@ -273,15 +217,14 @@ const PromptPage = () => {
 								value={prompt}
 								onChange={(e) => setPrompt(e.target.value)}
 							/>
-							<div className="flex flex-col items-center justify-center w-full h-full  gap-4">
+							<div className="flex flex-col items-center justify-center w-full h-full gap-4">
 								<div className="w-full bg-gray-100 rounded-lg">
 									<SeedInput seed={seed} setSeed={setSeed} />
 								</div>
 
 								<div className="w-full bg-gray-100 rounded-lg">
-									<LoraTypeComponent onSelect={handleSelectionChange}/>
+									<LoraTypeComponent onSelect={handleSelectionChange} />
 								</div>
-
 							</div>
 							<div className="flex w-full">
 								<Button
@@ -297,16 +240,12 @@ const PromptPage = () => {
 						</div>
 					</CardBody>
 
-
-
-
-
 					<CardFooter>
 						<div className="flex w-full justify-center">
 							<Button
 								color="secondary"
 								className="w-full"
-								isDisabled={!job || polling || isSubmittingFinal}
+								isDisabled={!referenceImage || polling || isSubmittingFinal}
 								onPress={handleFinalSubmit}
 								isLoading={isSubmittingFinal}
 							>
@@ -320,9 +259,7 @@ const PromptPage = () => {
 				<ImageCropModal
 					isOpen={isCropModalOpen}
 					onClose={() => setCropModalOpen(false)}
-					imageSrc={
-						job && job.images?.length > 0 ? job.images[0].toString() : ""
-					}
+					imageSrc={job && job.images?.length > 0 ? job.images[0].toString() : ""}
 					onCropComplete={handleCropComplete}
 				/>
 			</div>

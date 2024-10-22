@@ -23,7 +23,6 @@ import {
 	getJob,
 	requestPromptsForImage,
 	updatePromptsForImage,
-	
 } from "@/app/ai/services/aiApi";
 import { toast } from "sonner";
 
@@ -131,7 +130,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 				`Error requesting prompts for image with ID ${imageId}:`,
 				error
 			);
-			
 		}
 	}
 
@@ -162,7 +160,7 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 		}
     };
     const intervalId = setInterval(fetchJobStatus, 5000);
-    await fetchJobStatus(); 
+    await fetchJobStatus();
     return () => clearInterval(intervalId);
 };
 
@@ -229,7 +227,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 								alt={imageData?.name ?? "Image"}
 							/>
 							</Card>
-							
 						)}
 					</div>
 					<div className="w-full flex flex-col flex-1">
@@ -244,7 +241,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 								Character ID: {imageData?.character ?? "N/A"}
 							</p>
 
-	
 						</CardBody>
 					</div>
 				</CardHeader>
@@ -252,8 +248,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 
 					<div className="w-full flex flex-col flex-1">
 						<CardBody className="p-0 flex flex-col gap-2">
-							
-
 							<>
 								<Skeleton isLoaded={!isFetchingPrompts}>
 									{" "}

@@ -20,6 +20,7 @@ const ResultPage = () => {
   const fetchDataset = async () => {
     if (!datasetId) return;
 
+
     try {
       setLoading(true);
       const fetchedDataset = await getDataset(datasetId as unknown as number);

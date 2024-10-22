@@ -21,7 +21,6 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
 
   const fallbackImage = "/images/ai/manani_fallback_square.png";
 
-
   // Poll the job based on the variant and src_id
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
@@ -42,9 +41,9 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
               // Stop polling when the job status becomes final
               if (["completed", "failed", "canceled"].includes(updatedJob.status)) {
                 clearInterval(intervalId as NodeJS.Timeout);
-
               }
             }, 1000);
+          } else {
           }
         } else if (src_variant === "datasetImage") {
           const fetchedImage = await getImageById(src_id);
@@ -98,7 +97,6 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
 
   // Unified Image Component for both modes with background handling
   const RenderImage = (props: { src: string | null; id: number | null }) => {
-    const showBackgroundImage = (src_variant === "datasetImage") || (src_variant === "job" && job && job.status === "completed");
 
     if (loading || (src_variant === "job" && job && job.status === "running")) {
       return (
@@ -114,7 +112,7 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
       );
     }
 
-    if (showBackgroundImage && props.src) {
+    if (props.src) {
       return (
         <>
           <div className="absolute inset-0 z-0">
@@ -146,11 +144,14 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
 
   return (
     <>
-      {(image || firstJobImage) && (
-        <Card 
-        className={`relative flex flex-col items-center justify-center w-full aspect-square bg-null ${className}`}
-        >
-          <RenderImage src={image ? image.image : firstJobImage?.value || null} id={firstJobImage?.id || null} />
+      {(image) && (
+        <Card className={`relative flex flex-col items-center justify-center w-full aspect-square bg-null ${className}`}>
+          <RenderImage src={image.image} id={image.id} />
+        </Card>
+      )}
+      {(firstJobImage) && (
+        <Card className={`relative flex flex-col items-center justify-center w-full aspect-square bg-null ${className}`}>
+          <RenderImage src={firstJobImage.value} id={firstJobImage.id} />
         </Card>
       )}
 
