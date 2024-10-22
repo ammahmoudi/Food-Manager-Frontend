@@ -115,13 +115,14 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 			setIsUpdatingPrompts(true);
 			const response = await updatePromptsForImage(
 				imageId, 
-				imageData?.complex_prompt,
-				imageData?.negative_prompt,
-				imageData?.tag_prompt
+				complexPrompt,
+				negativePrompt,
+				tagPrompt
 			);
 
 			if (response) {
 				toast.success("Prompt Updated successfully!");
+				setIsUpdatingPrompts(false);
 			} else {
 				toast.error("Failed to Update Prompt.");
 			}
@@ -130,7 +131,7 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 				`Error requesting prompts for image with ID ${imageId}:`,
 				error
 			);
-			setIsUpdatingPrompts(false);
+			
 		}
 	}
 

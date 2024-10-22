@@ -11,6 +11,7 @@ import {
 	Avatar,
 	Image,
 	CircularProgress,
+	
 } from "@nextui-org/react";
 import {
 	getCharacters,

@@ -3,7 +3,6 @@
 
 import OrbAnimation from "./animated/OrbAnimation";
 
-
 const MainPage: React.FC = () => {
   return (
     <>
@@ -54,3 +53,5 @@ const MainPage: React.FC = () => {
 };
 
 export default MainPage;
+
+

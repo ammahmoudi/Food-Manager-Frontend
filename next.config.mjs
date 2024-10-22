@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 import withSerwistInit from "@serwist/next";
-const revision = crypto.randomUUID();
+// const revision = crypto.randomUUID();
 
 const nextConfig = {
 	reactStrictMode: false, // Enable React strict mode for improved error handling
@@ -19,7 +19,7 @@ const withSerwist = withSerwistInit({
   cacheOnNavigation: true,
   reloadOnOnline: true,
   disable:true,
-  additionalPrecacheEntries: [{ url: "/fallback", revision }],
+  // additionalPrecacheEntries: [{ url: "/fallback", revision }],
 
   
 
