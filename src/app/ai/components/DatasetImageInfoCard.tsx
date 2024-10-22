@@ -13,6 +13,7 @@ import {
 	Textarea,
 	Spinner,
 	Skeleton,
+	CardHeader,
 } from "@nextui-org/react";
 import { useDisclosure } from "@nextui-org/react";
 import DatasetImage from "@/app/ai/interfaces/DatasetImage";
@@ -177,8 +178,8 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 			<Image
 				src={imageSrc || fallbackImage}
 				alt={props.alt}
-				className="z-10 h-full w-full aspect-square rounded-md object-contain"
-				classNames={{ wrapper: "w-full h-full aspect-square" }}
+				className="z-10 h-full w-full aspect-square rounded-md object-contain min-h-0"
+				classNames={{ wrapper: "w-full h-full aspect-square min-h-0" }}
 				onError={handleImageError}
 			/>
 		);
@@ -205,11 +206,16 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 
 	return (
 		<>
-			<Card className="mx-auto shadow-none w-full">
-				<div className="flex flex-col lg:flex-row gap-4 w-full items-start">
-					<Card className=" h-full w-full aspect-square lg:w-1/2">
-						{/* Blurred Background */}
-						<div className="absolute inset-0 z-0">
+			<Card className="mx-auto  w-full shadow-none">
+				<CardHeader className="flex flex-col sm:flex-row gap-4 w-full items-start">
+				<div className="w-full aspect-square sm:w-1/4">
+						{loading ? (
+							<div className="flex justify-center items-center w-full h-full z-10">
+								<Spinner color="primary" size="lg" />
+							</div>
+						) : (
+							<Card>
+							<div className="absolute inset-0 z-0 w-full">
 							<Image
 								alt="Blurred Background"
 								src={imageData?.image || fallbackImage}
@@ -217,18 +223,14 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 								classNames={{ wrapper: "w-full h-full aspect-square" }}
 							/>
 						</div>
-						{/* Main Image */}
-						{loading ? (
-							<div className="flex justify-center items-center w-full h-full z-10">
-								<Spinner color="primary" size="lg" />
-							</div>
-						) : (
-							<RenderImage
+						<RenderImage
 								src={imageData?.image ?? null}
 								alt={imageData?.name ?? "Image"}
 							/>
+							</Card>
+							
 						)}
-					</Card>
+					</div>
 					<div className="w-full flex flex-col flex-1">
 						<div className="mb-4">
 							<p className="text-xl font-bold">{imageData?.name}</p>
@@ -240,6 +242,16 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 							<p className="text-sm">
 								Character ID: {imageData?.character ?? "N/A"}
 							</p>
+
+	
+						</CardBody>
+					</div>
+				</CardHeader>
+				<CardBody className="flex flex-col sm:flex-row gap-4 w-full items-start">
+
+					<div className="w-full flex flex-col flex-1">
+						<CardBody className="p-0 flex flex-col gap-2">
+							
 
 							<>
 								<Skeleton isLoaded={!isFetchingPrompts}>
@@ -278,7 +290,7 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
 							</>
 						</CardBody>
 					</div>
-				</div>
+				</CardBody>
 
 				<CardFooter className="flex justify-end gap-4">
 					<Button
