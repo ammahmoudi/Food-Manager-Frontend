@@ -168,6 +168,7 @@ const PromptPage = () => {
 	};
 
 	const handleSelectionChange = (LoraType: string) => {
+		console.log(LoraType)
 		setSelectedLoraType(LoraType);
 	};
 

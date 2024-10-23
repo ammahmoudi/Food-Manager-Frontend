@@ -18,10 +18,10 @@ const LoraTypeComponent: FC<LoraFormProps> = ({onSelect}) => {
 	const [selectedLoraType, setSelectedLoraType] = useState<string | null>(null);
 
     const handleSelectionChange = (selectedKeys: Iterable<unknown> | ArrayLike<unknown>) => {
-		setSelectedLoraType(Array.from(selectedKeys)[0] as string)
-        if (selectedLoraType){
-            onSelect(selectedLoraType)
-        }
+		const selectedLoRAType = Array.from(selectedKeys)[0] as string
+		setSelectedLoraType(selectedLoRAType)
+		onSelect(selectedLoRAType)
+
 	};
 
 
@@ -52,12 +52,8 @@ const LoraTypeComponent: FC<LoraFormProps> = ({onSelect}) => {
 					label="LoRA Type"
 					placeholder="Select LoRA Type"
 					fullWidth
-					onSelectionChange={
-                        handleSelectionChange
-					}
-					selectedKeys={
-						selectedLoraType ? new Set([selectedLoraType]) : new Set()
-					}
+					onSelectionChange={handleSelectionChange}
+					selectedKeys={selectedLoraType ? new Set([selectedLoraType]) : new Set()}
 				>
 					{loraTypes.map((type) => (
 						<SelectItem key={type.id} value={type.id}>

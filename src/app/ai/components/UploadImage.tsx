@@ -7,7 +7,7 @@ import DatasetImage from "../interfaces/DatasetImage";
 import DatasetImageInfoModal from "./modals/DatasetImageInfoModal";
 
 interface ImageUploadProps {
-  onImageIdReceived: (image: DatasetImage | null) => void; // Callback prop to pass imageId to the parent componenta
+  onImageIdReceived: (image: DatasetImage | null) => void; // Callback prop to pass imageId to the parent component
 }
 
 const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived }) => {
@@ -51,18 +51,35 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
 
   return (
     <div className="relative w-full h-full">
-      {/* Blurred Image in the background */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          alt="User Image"
-          className="w-full h-full object-cover blur-md"
-          classNames={{ wrapper: "w-full h-full aspect-square " }}
-          src={image?.image}
-        />
-      </div>
+      {/* Show the spinner or the image when loading or after image is uploaded */}
+      {(loading  || image) && (
+        <div className="absolute inset-0 z-20 flex justify-center items-center w-full h-full bg-gray-100 bg-opacity-70">
+          {loading ? (
+            <Spinner color="primary" size="lg" />
+          ) : (
+            <Image
+              src={image?.image}
+              alt="Uploaded Image"
+              className="w-full h-full object-cover"
+            />
+          )}
+        </div>
+      )}
 
-      {/* Unblurred Image in the foreground */}
-      <div className="relative z-10">
+      {/* Blurred Image in the background */}
+      {image && !loading && (
+        <div className="absolute inset-0 z-10">
+          <Image
+            alt="User Image"
+            className="w-full h-full object-cover blur-md"
+            classNames={{ wrapper: "w-full h-full aspect-square " }}
+            src={image?.image}
+          />
+        </div>
+      )}
+
+      {/* Buttons should always be on top */}
+      <div className="relative z-30">
         <Card
           isPressable
           onClick={() => document.getElementById("user-image-input")?.click()}
@@ -70,49 +87,38 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
             image ? "bg-transparent" : ""
           }`}
         >
-          {image ? (
-            <>
-              <Image
-                src={image.image}
-                alt="User Image"
-                className="w-full h-full object-cover"
-              />
-              <CardFooter className="absolute bottom-0 z-10 flex justify-between w-full p-2">
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsInfoModalOpen(true); // Open info modal
-                  }}
-                  radius="full"
-                  size="sm"
-                  className="w-10 h-10 bg-blue-500 text-white shadow-lg"
-                >
-                  <InformationCircleIcon className="h-5 w-5" />
-                </Button>
-
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteImage();
-                  }}
-                  radius="full"
-                  size="sm"
-                  className="w-10 h-10 bg-red-500 text-white shadow-lg"
-                >
-                  <TrashIcon className="h-5 w-5" />
-                </Button>
-              </CardFooter>
-            </>
-          ) : (
+          {!loading && !image && (
             <div className="flex flex-col items-center justify-center w-full h-full">
               <p className="text-gray-500">Click to upload an image</p>
             </div>
           )}
 
-          {loading && (
-            <div className="flex justify-center items-center w-full h-full bg-gray-100">
-              <Spinner color="primary" size="lg" />
-            </div>
+          {image && (
+            <CardFooter className="absolute bottom-0 z-40 flex justify-between w-full p-2">
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsInfoModalOpen(true);
+                }}
+                radius="full"
+                size="sm"
+                className="w-10 h-10 bg-blue-500 text-white shadow-lg"
+              >
+                <InformationCircleIcon className="h-5 w-5" />
+              </Button>
+
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteImage();
+                }}
+                radius="full"
+                size="sm"
+                className="w-10 h-10 bg-red-500 text-white shadow-lg"
+              >
+                <TrashIcon className="h-5 w-5" />
+              </Button>
+            </CardFooter>
           )}
 
           <input
@@ -136,7 +142,6 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
       )}
     </div>
   );
-
 };
 
 export default ImageUploadComponent;
