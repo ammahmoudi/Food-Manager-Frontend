@@ -47,7 +47,7 @@ interface AppNav {
 }
 
 const GlobalNavbar = () => {
-  const { isLoading, isAuthenticated } = useUser();
+  const { isLoading, isAuthenticated, isAdmin } = useUser();
   const pathName = usePathname();
   // Define structured navigation items for different applications, including app icons
   const navItems: AppNav[] = [
@@ -63,7 +63,8 @@ const GlobalNavbar = () => {
           outlineIcon: PhotoIconOutline,
         },
       ],
-      dropdowns: [<HumaaniDropdown key="humaani" />, <AdminToolsDropdown key="cui" />],
+      dropdowns: [<HumaaniDropdown key="humaani" />,(isAdmin) && (
+          <AdminToolsDropdown key="cui" />)],
     },
     {
       app: "Berchi",
