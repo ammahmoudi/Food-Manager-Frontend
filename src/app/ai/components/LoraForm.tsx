@@ -33,6 +33,11 @@ const LoraForm: FC<LoraFormProps> = ({ datasetId, onSave }) => {
 
 	// Handle saving the new LoRA request
 	const handleSave = async () => {
+		console.log(name)
+		console.log(selectedLoraType)
+		console.log(triggerWord)
+		console.log(selectedLoraType)
+
 		if (!name || !selectedLoraType || !triggerWord || !selectedCharacter) {
 			toast.error("Please fill in all required fields.");
 			return;

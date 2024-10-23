@@ -1,7 +1,7 @@
 export interface Job {
     id: number;
     workflow: number;
-    status: 'pending' | 'completed' | 'failed' | 'running';
+    status: 'pending' | 'completed' | 'failed' | 'running' | 'canceled';
     runtime: string;
     images: number[];
     result_data: {

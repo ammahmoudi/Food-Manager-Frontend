@@ -25,8 +25,7 @@ const ResultPage = () => {
       setLoading(true);
       const fetchedDataset = await getDataset(datasetId as unknown as number);
       setDataset(fetchedDataset);
-    } catch (error) {
-      console.error("Error fetching dataset:", error);
+    } catch {
       toast.error("Failed to load dataset.");
     } finally {
       setLoading(false);

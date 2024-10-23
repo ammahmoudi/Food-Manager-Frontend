@@ -32,13 +32,11 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
           const fetchedJob = await getJob(src_id);
           setJob(fetchedJob);
 
-          // Poll every 5 seconds if the job status is not final (e.g., completed, failed)
           if (!["completed", "failed", "canceled"].includes(fetchedJob.status)) {
             intervalId = setInterval(async () => {
               const updatedJob = await getJob(src_id);
               setJob(updatedJob);
 
-              // Stop polling when the job status becomes final
               if (["completed", "failed", "canceled"].includes(updatedJob.status)) {
                 clearInterval(intervalId as NodeJS.Timeout);
               }
@@ -61,12 +59,12 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
 
     return () => {
       if (intervalId) {
-        clearInterval(intervalId); // Cleanup polling interval on component unmount
+        clearInterval(intervalId);
       }
     };
   }, [src_id, src_variant]);
 
-  // Handle image deletion
+
   const handleDeleteImage = () => {
     setImage(null);
     setJob(null);
@@ -78,8 +76,9 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
     setIsInfoModalOpen(true);
   };
 
-  // Find the first image from job result_data if job mode is active
+
   const getFirstJobImage = () => {
+    console.log()
     if (job && job.result_data) {
       for (const nodeId of Object.keys(job.result_data)) {
         for (const inputName of Object.keys(job.result_data[nodeId])) {
@@ -95,10 +94,10 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
 
   const firstJobImage = src_variant === "job" ? getFirstJobImage() : null;
 
-  // Unified Image Component for both modes with background handling
+
   const RenderImage = (props: { src: string | null; id: number | null }) => {
 
-    if (loading || (src_variant === "job" && job && job.status === "running")) {
+    if ( (src_variant === "job" && job && (job.status === "running" || job.status === "pending"))) {
       return (
         <div className="flex flex-col items-center">
           <CircularProgress
@@ -112,7 +111,7 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
       );
     }
 
-    if (props.src) {
+    if (props.src && !loading) {
       return (
         <>
           <div className="absolute inset-0 z-0">
@@ -152,6 +151,46 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
       {(firstJobImage) && (
         <Card className={`relative flex flex-col items-center justify-center w-full aspect-square bg-null ${className}`}>
           <RenderImage src={firstJobImage.value} id={firstJobImage.id} />
+        </Card>
+      )}
+      {(!firstJobImage && src_variant == "job" && (job?.status == "running" || job?.status == "pending")) && (
+        <Card className={`relative flex flex-col items-center justify-center w-full aspect-square bg-null ${className}`}>
+          <div className="flex flex-col items-center">
+          <CircularProgress
+            color="success"
+            label={job?.status}
+            size="lg"
+            showValueLabel
+            value={(job?.progress || 0) * 100}
+          />
+        </div>
+        </Card>
+      )}
+            {(!firstJobImage && src_variant == "job" && (job?.status == "failed" || job?.status == "canceled")) && (
+        <Card className={`relative flex flex-col items-center justify-center w-full aspect-square bg-null ${className}`}>
+          <div className="absolute inset-0 z-0">
+            <Image
+              alt="Blurred Background"
+              src={fallbackImage}
+              className="w-full h-full object-cover rounded-none"
+              classNames={{ wrapper: "w-full h-full aspect-square" }}
+            />
+            <div className="absolute flex flex-row justify-center inset-1 z-10">
+            <p className="uppercase">{job.status}</p>
+            </div>
+          </div>
+        </Card>
+      )}
+      {(!image && src_variant == "datasetImage") && (
+        <Card className={`relative flex flex-col items-center justify-center w-full aspect-square bg-null ${className}`}>
+          <div className="absolute inset-0 z-0">
+            <Image
+              alt="Blurred Background"
+              src={fallbackImage}
+              className="w-full h-full object-cover rounded-none"
+              classNames={{ wrapper: "w-full h-full aspect-square" }}
+            />
+          </div>
         </Card>
       )}
 

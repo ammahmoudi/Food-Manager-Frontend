@@ -12,7 +12,6 @@ const NewLoraPage = () => {
 	const datasetId = searchParams.get('datasetId')
 
 	const [validDatasetId, setValidDatasetId] = useState<number | null>(null);
-	
 
 	// Check if the datasetId is valid on page load
 	useEffect(() => {
@@ -49,7 +48,7 @@ const NewLoraPage = () => {
 
 			{/* Back Button */}
 			<div className="mt-4">
-				<Button as={Link} 
+				<Button as={Link}
 				href={`/ai/datasets/${datasetId}/`}>
 					Back
 				</Button>
