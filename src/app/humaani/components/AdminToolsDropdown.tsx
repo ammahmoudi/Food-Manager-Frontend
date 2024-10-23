@@ -19,7 +19,6 @@ const AdminToolsDropdown = () => {
         <Dropdown placement="bottom-end" shouldCloseOnBlur>
             <DropdownTrigger>
                 <Button
-                    
                     as={Link}
                     variant="light"
                     startContent={<WrenchScrewdriverIconOutline className="text-grey size-6" />}
@@ -31,7 +30,7 @@ const AdminToolsDropdown = () => {
                 <DropdownItem
                     textValue="New Workflow"
                     key="newWorkflow"
-                    href="/ai/workflows/new/"
+                    href="/humaani/workflows/new/"
                     startContent={<DocumentPlusIcon className="text-grey size-5" />}
                 >
                     New Workflow
@@ -40,7 +39,7 @@ const AdminToolsDropdown = () => {
                 <DropdownItem
                     textValue="Run Workflow"
                     key="runWorkflow"
-                    href="/ai/workflows/run/"
+                    href="/humaani/workflows/run/"
                     startContent={<PlayIcon className="text-grey size-5" />}
                 >
                     Run Workflow

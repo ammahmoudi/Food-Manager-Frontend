@@ -24,7 +24,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
 	useEffect(() => {
 		// Automatically switch theme based on the current path
-		const themeFromPath = pathName.startsWith('/ai') ? 'ai' : 'berchi';
+		const themeFromPath = pathName.startsWith('/humaani') ? 'ai' : 'berchi';
 		switchTheme(themeFromPath as 'ai' | 'berchi');
 	}, [pathName]); // Update theme on path change
 

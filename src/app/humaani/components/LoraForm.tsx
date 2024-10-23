@@ -106,7 +106,7 @@ const LoraForm: FC<LoraFormProps> = ({ datasetId, onSave }) => {
 			{/* Save Button */}
 			<div className="flex justify-left gap-2">
 				<Button as={Link}
-					href="/ai/lora/requests"
+					href="/humaani/lora/requests"
 					color="primary"
 					isDisabled={!name || !selectedLoraType || !triggerWord || !selectedCharacter}
 					onPress={handleSave}

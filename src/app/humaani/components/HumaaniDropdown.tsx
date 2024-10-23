@@ -37,7 +37,7 @@ const HumaaniDropdown = () => {
                 <DropdownItem
                     textValue="Characters"
                     key="Characters"
-                    href="/ai/characters/"
+                    href="/humaani/characters/"
                     startContent={<UserIcon className="text-grey size-5" />}
                     description="View all created characters and manage their details."
                 >
@@ -46,7 +46,7 @@ const HumaaniDropdown = () => {
                 <DropdownItem
                     textValue="New Character"
                     key="NewCharacter"
-                    href="/ai/generatePicture/new/"
+                    href="/humaani/characters/new/"
                     startContent={<PlusIcon className="text-grey size-5" />}
                     description="Create a new character from scratch."
                 >
@@ -55,7 +55,7 @@ const HumaaniDropdown = () => {
                 <DropdownItem
                     textValue="Generate Image from Character"
                     key="generatePictureFromCharacter"
-                    href="/ai/generatePicture/fromCharacter/"
+                    href="/humaani/characters/fromCharacter/"
                     startContent={<PhotoIcon className="text-grey size-5" />}
                     description="Generate images based on an existing character."
                 >
@@ -64,7 +64,7 @@ const HumaaniDropdown = () => {
                 <DropdownItem
                     textValue="LoRA Requests"
                     key="loraRequests"
-                    href="/ai/lora/requests"
+                    href="/humaani/lora/requests"
                     startContent={<DocumentIcon className="text-grey size-5" />}
                     description="Manage and view LoRA training requests."
                 >

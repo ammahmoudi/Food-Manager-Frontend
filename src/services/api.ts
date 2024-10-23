@@ -263,4 +263,14 @@ export const sendNotification = async (
   }
 };
 
+// Feedback API
+export const sendBugReport = async (reportData: { report: string }) => {
+  try {
+    const response = await api.post('/bug-report/', reportData);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default api;

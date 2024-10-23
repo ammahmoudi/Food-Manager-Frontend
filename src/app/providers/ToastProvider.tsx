@@ -23,8 +23,6 @@ export default function ToastProvider({ children }: ToastProviderProps) {
 			closeButton
 				toastOptions={{
 					unstyled: false,
-					
-					// classNames: contextClass,
 				}}
 			/>
 			{children}

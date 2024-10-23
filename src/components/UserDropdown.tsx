@@ -28,7 +28,7 @@ const UserDropdown = () => {
 		</DropdownItem>,
 
 		<DropdownSection key="apps" title="Apps">
-			<DropdownItem textValue="Maani" key="Maani" href="/ai/">
+			<DropdownItem textValue="Maani" key="Maani" href="/humaani/">
 				Maani
 			</DropdownItem>
 			<DropdownItem textValue="Berchi" key="Berchi" href="/berchi/">

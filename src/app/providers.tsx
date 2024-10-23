@@ -1,7 +1,7 @@
 "use client";
 import { NextUIProvider } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import ToastProvider from "./ToastProvider";
+import ToastProvider from "./providers/ToastProvider";
 import { UserProvider } from "@/context/UserContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 

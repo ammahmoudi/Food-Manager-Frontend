@@ -126,7 +126,7 @@ const PromptPage = () => {
 
 				if (response.dataset_id) {
 					toast.success("Final submission successful!");
-					router.push(`/ai/datasets/${response.dataset_id}`);
+					router.push(`/humaani/datasets/${response.dataset_id}`);
 				} else {
 					toast.error("Failed to retrieve dataset.");
 				}

@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-page-custom-font */
 "use client";
 
-import OrbAnimation from "./animated/OrbAnimation";
+import OrbAnimation from "./components/animation/OrbAnimation";
 
 const MainPage: React.FC = () => {
   return (
