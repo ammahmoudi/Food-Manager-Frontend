@@ -150,6 +150,7 @@ export default function SignupForm() {
       />
       <Input
         isRequired
+        type="password"
         label="Password"
         placeholder="Enter your password"
         // type={isVisible ? "text" : "password"}
@@ -161,6 +162,7 @@ export default function SignupForm() {
       />
       <Input
         isRequired
+        type="password"
         label="Confirm Password"
         placeholder="Confirm your password"
         // type={isVisible ? "text" : "password"}
