@@ -10,10 +10,10 @@ import {
 import { format, startOfToday } from "date-fns-jalali";
 import { useUser } from "@/context/UserContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import CommentSection from "../berchi/components/CommentSection";
-import MealCard from "../berchi/components/MealCard";
-import TopRatedFoodsChart from "../berchi/components/TopRatedFoodsChart";
-import { Meal } from "../berchi/interfaces/Meal";
+import CommentSection from "../components/CommentSection";
+import MealCard from "../components/MealCard";
+import TopRatedFoodsChart from "../components/TopRatedFoodsChart";
+import { Meal } from "../interfaces/Meal";
 import { toast } from "sonner";
 
 const HomePage = () => {
