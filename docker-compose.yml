@@ -6,19 +6,19 @@ services:
       args:
         - NODE_ENV=${NODE_ENV}  # Use the NODE_ENV from the .env file
     ports:
-      - "3000:3000"  # Expose the Next.js app on port 3000
+      - "3001:3000"  # Expose the Next.js app on port 3000
     env_file:
       - .env  # Load variables from your .env file
     volumes:
       - .:/app  # Mount project directory to container
       - /app/node_modules  # Ensure node_modules is not overwritten
-      # - maani-next-build:/app/.next  # Separate volume for .next build files
+      - maani-next-build:/app/.next  # Separate volume for .next build files
     networks:
-      - app-network
+      - prod_network
 
 volumes:
   maani-next-build:  # Volume to store .next directory
 
 networks:
-  app-network:
-    driver: bridge
+  prod_network:
+    external: true
