@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Link, Spinner } from "@nextui-org/react";
-import DatasetAlbum from "../components/DatasetAlbum"; // This is the ImageDisplayComponent
-import { getUserDatasets } from "../services/aiApi"; // API function to fetch datasets
+import { Spinner } from "@nextui-org/react";
+import DatasetAlbum from "../components/DatasetAlbum";
+import { getUserDatasets } from "../services/aiApi";
 import Dataset from "../interfaces/Dataset";
 import { toast } from "sonner";
 
@@ -30,28 +30,20 @@ const UserDatasetsPage = () => {
   }, []);
 
   return (
-<div className="container xl:w-1/2 mx-auto p-2 items-center">
-
-      <h2 className="text-2xl font-semibold mb-4">Your Datasets</h2>
-
+    <div className="container xl:w-1/2 mx-auto p-2 items-center gap-4">
+      <div className="py-4">
+        <h2 className="text-2xl font-semibold mb">
+          Your Datasets
+        </h2>
+      </div>
       {loading ? (
         <div className="flex justify-center items-center">
           <Spinner color="primary" size="lg" />
         </div>
       ) : datasets.length > 0 ? (
         datasets.map((dataset) => (
-          <div key={dataset.id} className="mb-6"> <Link href={`/humaani/datasets/${dataset.id}`}>
-          <a className="text-lg font-bold mb-2 hover:underline"><h3 className="text-xl font-semibold mb-2">            {dataset.name} (ID: {dataset.id})
-          </h3>
-          </a>
-        </Link>
-          <Link> </Link>
-            <p className="text-sm mb-4">
-              Created At: {new Date(dataset.created_at).toLocaleString()}
-            </p>
-
-            {/* DatasetAlbum Component to display images for this dataset */}
-            <DatasetAlbum dataset={dataset} />
+          <div key={dataset.id} className="mb-6 gap-y-4">
+              <DatasetAlbum dataset={dataset} />
           </div>
         ))
       ) : (

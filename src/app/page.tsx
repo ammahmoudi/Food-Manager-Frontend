@@ -2,10 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { Button, link } from "@nextui-org/react";
-import { FaLinkedin, FaInstagram, FaTelegram } from 'react-icons/fa';
-import { RiMailSendLine } from "react-icons/ri";
-import { FaGithub } from "react-icons/fa6";
+import { Button } from "@nextui-org/react";
+
 
 const RootPage: React.FC = () => {
   return (
@@ -29,22 +27,6 @@ const RootPage: React.FC = () => {
           Go to BERCHI
         </Button>
 
-        <div className="flex flex-row w-full h- full">
-        <p className="text-lg mb-4">Created and designed by Soheil and AmirHossein</p>
-
-
-              <FaTelegram/>
-
-              <FaLinkedin/>
-
-              <FaInstagram/>
-
-              <RiMailSendLine/>
-
-              <FaGithub/>
-
-
-        </div>
       </div>
     </div>
   );
