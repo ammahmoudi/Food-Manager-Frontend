@@ -29,45 +29,21 @@ const RootPage: React.FC = () => {
           Go to BERCHI
         </Button>
 
-        <div className="flex flex-col w-full h- full">
+        <div className="flex flex-row w-full h- full">
         <p className="text-lg mb-4">Created and designed by Soheil and AmirHossein</p>
 
-<div className="flex justify-center space-x-4 mb-4">
-    <Button as={link}
-      isIconOnly
-      href=""
-    >
-      <FaTelegram/>
-    </Button>
 
-    <Button as={link}
-      isIconOnly
-      href=""
-    >
-      <FaLinkedin/>
-    </Button>
+              <FaTelegram/>
 
-    <Button as={link}
-      isIconOnly
-      href=""
-    >
-      <FaInstagram/>
-    </Button>
+              <FaLinkedin/>
 
-    <Button as={link}
-      isIconOnly
-      href=""
-    >
-      <RiMailSendLine/>
-    </Button>
+              <FaInstagram/>
 
-    <Button as={link}
-      isIconOnly
-      href=""
-    >
-      <FaGithub/>
-    </Button>
-</div>
+              <RiMailSendLine/>
+
+              <FaGithub/>
+
+
         </div>
       </div>
     </div>
