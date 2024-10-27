@@ -58,19 +58,23 @@ const PromptPage = () => {
 						const generatedImage = await getImageById(imageId); // Assuming getImageById returns DatasetImage
 						setReferenceImage(generatedImage);
 						toast.success("Job completed and image is ready!");
+						setIsSubmittingPrompt(false); // Re-enable the button
 					} else {
 						toast.error("No image returned from the backend.");
+						setIsSubmittingPrompt(false); // Re-enable the button
 					}
 				} else if (jobData.status === "failed") {
 					setPolling(false);
 					clearInterval(intervalId);
 					toast.error("Job failed to complete.");
+					setIsSubmittingPrompt(false); // Re-enable the button
 				}
 			} catch (error) {
 				console.error("Error fetching job status:", error);
 				setPolling(false);
 				clearInterval(intervalId);
 				toast.error("Error fetching job status.");
+				setIsSubmittingPrompt(false); // Re-enable the button
 			}
 		};
 
@@ -89,6 +93,7 @@ const PromptPage = () => {
 		}
 
 		setIsSubmittingPrompt(true);
+		setReferenceImage(null); // Clear the current image before new prompt submission
 
 		try {
 			setJob(null); // Clear previous job on new prompt
@@ -104,12 +109,12 @@ const PromptPage = () => {
 				pollJobStatus(response.job_id);
 			} else {
 				toast.error("Failed to retrieve job ID.");
+				setIsSubmittingPrompt(false); // Re-enable the button
 			}
 		} catch (error) {
 			toast.error("Error submitting the prompt.");
 			console.error("Error submitting prompt:", error);
-		} finally {
-			setIsSubmittingPrompt(false);
+			setIsSubmittingPrompt(false); // Re-enable the button
 		}
 	};
 
@@ -145,6 +150,31 @@ const PromptPage = () => {
 	const handleImageIdReceived = (image: DatasetImage | null) => {
 		if (image) {
 			setReferenceImage(image); // Updated to store the DatasetImage object
+		}
+	};
+
+	// Handle crop complete and set the cropped image
+	const handleCropComplete = (croppedImage: File) => {
+		if (job) {
+			console.log("croppedImage", croppedImage);
+		}
+		setCropModalOpen(false);
+	};
+
+	const handleSelectionChange = (LoraType: string) => {
+		setSelectedLoraType(LoraType);
+	};
+
+	// Handle image upload and open crop modal
+	const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (file && job?.status !== "completed") {
+			toast.error("Please wait for the current job to complete.");
+			return;
+		}
+		if (file) {
+			// Handle image change logic here if needed
+			console.log("file", file);
 		}
 	};
 
@@ -210,7 +240,7 @@ const PromptPage = () => {
 									isLoading={isSubmittingPrompt}
 									isDisabled={isSubmittingPrompt}
 								>
-									Submit Prompt
+									{isSubmittingPrompt ? "Submitting prompt..." : "Submit Prompt"}
 								</Button>
 							</div>
 						</div>

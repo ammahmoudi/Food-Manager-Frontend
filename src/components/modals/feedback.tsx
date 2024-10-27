@@ -11,7 +11,6 @@ import {
 import { toast } from 'sonner';
 import { sendBugReport } from '@/services/api';
 
-
 interface BugReportModalProps {
     visible: boolean;
     onClose: () => void;
@@ -21,35 +20,41 @@ const BugReportModal: React.FC<BugReportModalProps> = ({ visible, onClose }) => 
     const [report, setReport] = useState<string>('');
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+    // Capture the current page URL
+    const pageUrl = typeof window !== 'undefined' ? window.location.href : '';
 
     const handleSubmit = async () => {
         if (!report.trim()) {
             toast.error('Please write the issue before submitting!');
-        return;
+            return;
         }
 
         setIsSubmitting(true);
-            try {
-                const response = await sendBugReport({ report });
-                    if (response.status === 200) {
-                        toast.success('Feedback submitted successfully!');
-                        setReport('');
-                        onClose();
-                    } else {
-                        toast.error('Failed to submit the feedback.');
-                    }
-            } catch (error) {
-                console.error('Error submitting Feedback:', error);
-                toast.error('An error occurred while submitting the feedback.');
-            } finally {
-                setIsSubmitting(false);
+
+        try {
+            const response = await sendBugReport({
+                description:report,
+                reported_url:pageUrl,
+            });
+
+            if (response.status === 201) {
+                toast.success('Feedback submitted successfully!');
+                setReport('');
+                onClose();
+            } else {
+                toast.error('Failed to submit the feedback.');
             }
+        } catch (error) {
+            console.error('Error submitting Feedback:', error);
+            toast.error('An error occurred while submitting the feedback.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
         <Modal isOpen={visible} onClose={onClose}>
             <ModalContent>
-
                 <ModalHeader>
                     Submit Bug Report
                 </ModalHeader>
@@ -65,7 +70,6 @@ const BugReportModal: React.FC<BugReportModalProps> = ({ visible, onClose }) => 
                 </ModalBody>
 
                 <ModalFooter>
-
                     <Button
                         color="primary"
                         onPress={handleSubmit}
@@ -78,7 +82,6 @@ const BugReportModal: React.FC<BugReportModalProps> = ({ visible, onClose }) => 
                     <Button color="secondary" onPress={onClose} isDisabled={isSubmitting}>
                         Cancel
                     </Button>
-
                 </ModalFooter>
             </ModalContent>
         </Modal>
