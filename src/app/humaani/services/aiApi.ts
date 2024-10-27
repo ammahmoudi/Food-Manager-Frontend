@@ -150,7 +150,26 @@ export const getUserDatasets = async (): Promise<Dataset[]> => {
   }
 };
 
+export const deleteDatasetById = async (datasetId: number | undefined) => {
+  try {
+    const response = await api.delete(`/cui/datasets/${datasetId}/`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching image with ID ${datasetId}:`, error);
+    throw new Error('Failed to fetch image.');
+  }
+};
 
+export const renameDatasetByID = async (datasetId: number,name: string) => {
+  try {
+    const response = await api.patch(`/cui/datasets/${datasetId}/`, {name});
+    console.log(response.data)
+    return response.data;
+  } catch (error) {
+    console.error(`Error canceling Lora request with ID ${datasetId}:`, error);
+    throw error;
+  }
+};
 // Image Apis
 
 export const getImageById = async (imageId: number | undefined) => {

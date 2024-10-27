@@ -36,6 +36,8 @@ const ResultPage = () => {
     fetchDataset();
   }, [datasetId]);
 
+
+
   return (
 <div className="container xl:w-1/2 mx-auto p-2 items-center">
       <h2 className="text-2xl font-semibold mb-4">Dataset Images</h2>
@@ -44,12 +46,12 @@ const ResultPage = () => {
       ) : dataset ? (
         <>
           {/* Use the DatasetAlbum component to display images from the dataset */}
-          <DatasetAlbum dataset={dataset} />
+          <DatasetAlbum initialDataset={dataset} onUpdate={fetchDataset}  />
 
           {/* Request for Lora Button */}
           <div className="mt-6">
             <Button as={Link}
-              href={`/ai/lora/new?datasetId=${datasetId}`}
+              href={`/humaani/lora/new?datasetId=${datasetId}`}
               color="primary"
               className="w-full"
             >

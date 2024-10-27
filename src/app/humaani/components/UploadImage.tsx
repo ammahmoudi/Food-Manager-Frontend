@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useEffect } from "react";
 import { Button, Image, Spinner, Card, CardFooter } from "@nextui-org/react";
 import { toast } from "sonner";
 import { TrashIcon, InformationCircleIcon } from "@heroicons/react/24/solid";
@@ -7,13 +7,14 @@ import DatasetImage from "../interfaces/DatasetImage";
 import DatasetImageInfoModal from "./modals/DatasetImageInfoModal";
 
 interface ImageUploadProps {
-  onImageIdReceived: (image: DatasetImage | null) => void; // Callback prop to pass imageId to the parent componenta
+  onImageIdReceived: (image: DatasetImage | null) => void;
+  image?: DatasetImage | null; // Add a prop for the image from the parent
 }
 
-const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived }) => {
+const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived, image: parentImage }) => {
   const [image, setImage] = useState<DatasetImage | null>(null); // To store image preview URL
-  const [loading, setLoading] = useState<boolean>(false); // To show spinner during image upload
-  const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false); // Modal state for info modal
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
 
   // Handle image change (upload)
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -25,14 +26,20 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
     }
   };
 
+  // Update the image state when a new image is passed from the parent component
+  useEffect(() => {
+    if (parentImage) {
+      setImage(parentImage);
+    }
+  }, [parentImage]);
+
   // Handle the image upload to the backend and get the image ID
   const handleUploadToBackend = async (file: File) => {
     setLoading(true);
     try {
-      const uploadedImage: DatasetImage = await uploadTempImage(file); // Make API call
-
-      onImageIdReceived(uploadedImage); // Pass the received imageId to the parent component
-      setImage(uploadedImage); // Show image preview
+      const uploadedImage: DatasetImage = await uploadTempImage(file);
+      onImageIdReceived(uploadedImage);
+      setImage(uploadedImage);
       toast.success("Image uploaded successfully!");
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -44,21 +51,19 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
 
   // Handle image deletion
   const handleDeleteImage = () => {
-    setImage(null); // Clear the image preview
-    onImageIdReceived(null); // Pass the received imageId to the parent component
+    setImage(null);
+    onImageIdReceived(null);
     toast.success("Image deleted successfully.");
   };
 
   return (
     <div className="relative w-full h-full">
-      {/* Only show the spinner if loading is true */}
       {loading ? (
         <Card className="flex flex-grow justify-center items-center w-full h-full bg-gray-100 aspect-square">
           <Spinner color="primary" size="lg" />
         </Card>
       ) : (
         <>
-          {/* Blurred Image in the background */}
           {image && (
             <div className="absolute inset-0 z-0">
               <Image
@@ -70,7 +75,6 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
             </div>
           )}
 
-          {/* Unblurred Image in the foreground */}
           <div className="relative z-10">
             <Card
               isPressable
@@ -130,7 +134,6 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived })
         </>
       )}
 
-      {/* Dataset Image Info Modal */}
       {image && (
         <DatasetImageInfoModal
           visible={isInfoModalOpen}

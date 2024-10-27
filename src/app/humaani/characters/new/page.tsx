@@ -8,13 +8,13 @@ import {
 	Textarea,
 } from "@nextui-org/react";
 import ImageCropModal from "@/components/ImageCropModal";
-import { useRouter, useSearchParams } from "next/navigation"; // For navigation and search params
+import { useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 import {
 	getJob,
 	sendPromptToBackend,
 	submitFinalData,
-	getImageById, // Assuming you have this API call for fetching image by ID
+	getImageById,
 } from "../../services/aiApi";
 import { Job } from "../../interfaces/Job";
 import { toast } from "sonner";
@@ -25,15 +25,15 @@ import DatasetImage from "../../interfaces/DatasetImage";
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
-	const [job, setJob] = useState<Job | null>(null); // Store the entire job object
+	const [job, setJob] = useState<Job | null>(null);
 	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false);
 	const [isSubmittingFinal, setIsSubmittingFinal] = useState<boolean>(false);
 	const [polling, setPolling] = useState<boolean>(false);
-	const [referenceImage, setReferenceImage] = useState<number | null>(null);
+	const [referenceImage, setReferenceImage] = useState<DatasetImage | null>(null); // Updated to store DatasetImage
 	const [isCropModalOpen, setCropModalOpen] = useState(false);
 	const [selectedLoraType, setSelectedLoraType] = useState<string | null>(null);
 	const router = useRouter();
-	const searchParams = useSearchParams(); // Hook for accessing search params
+	const searchParams = useSearchParams();
 	const [seed, setSeed] = useState<number>(
 		Math.floor(Math.random() * Math.pow(2, 16))
 	);
@@ -45,38 +45,40 @@ const PromptPage = () => {
 		const fetchJobStatus = async () => {
 			try {
 				const jobData = await getJob(jobId);
-				setJob(jobData); // Store the full job object
-				setReferenceImage(jobData.images[0]);
+				setJob(jobData);
 
+				// If the job completes, fetch the generated image
 				if (jobData.status === "completed") {
 					setPolling(false);
-					clearInterval(intervalId); // Stop polling when job is completed
+					clearInterval(intervalId);
 
-					if (jobData.result_data) {
-						toast.success("Job completed and result is ready!");
+					// Fetch the generated image details and pass it to the ImageUploadComponent
+					if (jobData.images && jobData.images.length > 0) {
+						const imageId = jobData.images[0];
+						const generatedImage = await getImageById(imageId); // Assuming getImageById returns DatasetImage
+						setReferenceImage(generatedImage);
+						toast.success("Job completed and image is ready!");
 					} else {
-						toast.error("No results returned from the backend.");
+						toast.error("No image returned from the backend.");
 					}
 				} else if (jobData.status === "failed") {
 					setPolling(false);
-					clearInterval(intervalId); // Stop polling when job has failed
+					clearInterval(intervalId);
 					toast.error("Job failed to complete.");
 				}
 			} catch (error) {
 				console.error("Error fetching job status:", error);
 				setPolling(false);
-				clearInterval(intervalId); // Stop polling in case of error
+				clearInterval(intervalId);
 				toast.error("Error fetching job status.");
 			}
 		};
 
-		// Call the function immediately for the first time
 		await fetchJobStatus();
 
-		// Set up the interval for subsequent polling
 		const intervalId = setInterval(async () => {
 			await fetchJobStatus();
-		}, 1000); // Poll every 5 seconds
+		}, 5000);
 	};
 
 	// Handle prompt submission to backend
@@ -122,7 +124,7 @@ const PromptPage = () => {
 			setIsSubmittingFinal(true);
 
 			if (referenceImage) {
-				const response = await submitFinalData(referenceImage, selectedLoraType); // Send job.id
+				const response = await submitFinalData(referenceImage.id, selectedLoraType);
 
 				if (response.dataset_id) {
 					toast.success("Final submission successful!");
@@ -142,44 +144,17 @@ const PromptPage = () => {
 	// Handle image ID received from the image upload component
 	const handleImageIdReceived = (image: DatasetImage | null) => {
 		if (image) {
-			setReferenceImage(image.id);
+			setReferenceImage(image); // Updated to store the DatasetImage object
 		}
-	};
-
-	// Handle image upload and open crop modal
-	const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (file && job?.status !== "completed") {
-			toast.error("Please wait for the current job to complete.");
-			return;
-		}
-		if (file) {
-			// Handle image change logic here if needed
-			console.log("file", file);
-		}
-	};
-
-	// Handle crop complete and set the cropped image
-	const handleCropComplete = (croppedImage: File) => {
-		if (job) {
-			console.log("croppedImage", croppedImage);
-		}
-		setCropModalOpen(false);
-	};
-
-	const handleSelectionChange = (LoraType: string) => {
-		console.log(LoraType)
-		setSelectedLoraType(LoraType);
 	};
 
 	// Use searchParams to get the image ID from the URL
 	useEffect(() => {
 		const imageId = searchParams.get("id");
 		if (imageId) {
-			// Fetch the image from the backend using the imageId
 			const loadImageById = async (id: string) => {
 				try {
-					const image = await getImageById(parseInt(id)); // Assuming getImageById fetches the image details
+					const image = await getImageById(parseInt(id));
 					setReferenceImage(image);
 				} catch (error) {
 					toast.error("Error loading image.");
@@ -187,9 +162,9 @@ const PromptPage = () => {
 				}
 			};
 
-			loadImageById(imageId); // Call the loadImageById function with the imageId
+			loadImageById(imageId);
 		}
-	}, [searchParams]); // This will run whenever the searchParams change
+	}, [searchParams]);
 
 	return (
 		<div className="container xl:w-1/2 mx-auto p-2 items-center">
@@ -197,7 +172,7 @@ const PromptPage = () => {
 				<Card className="w-[700px] h-auto gap-1">
 					<CardBody className="flex flex-col md:flex md:flex-row gap-2">
 						{/* Image Section */}
-						<ImageUploadComponent onImageIdReceived={handleImageIdReceived} />
+						<ImageUploadComponent onImageIdReceived={handleImageIdReceived} image={referenceImage} />
 
 						<input
 							placeholder="image"

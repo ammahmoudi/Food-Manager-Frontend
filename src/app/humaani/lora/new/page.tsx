@@ -49,7 +49,7 @@ const NewLoraPage = () => {
 			{/* Back Button */}
 			<div className="mt-4">
 				<Button as={Link}
-				href={`/ai/datasets/${datasetId}/`}>
+				href={`/humaani/datasets/${datasetId}/`}>
 					Back
 				</Button>
 			</div>

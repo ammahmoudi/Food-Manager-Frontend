@@ -43,7 +43,7 @@ const UserDatasetsPage = () => {
       ) : datasets.length > 0 ? (
         datasets.map((dataset) => (
           <div key={dataset.id} className="mb-6 gap-y-4">
-              <DatasetAlbum dataset={dataset} />
+              <DatasetAlbum initialDataset={dataset} onUpdate={fetchDatasets} />
           </div>
         ))
       ) : (
