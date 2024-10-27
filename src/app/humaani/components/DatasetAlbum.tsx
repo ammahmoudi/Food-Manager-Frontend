@@ -129,14 +129,14 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {dataset.images && dataset.images.length > 0 ? (
               dataset.images.map((imageId) => (
-                <div key={imageId} className="w-40 h-40">
+                <div key={imageId} className="">
                   <ImageComponent src_id={imageId} src_variant="datasetImage" />
                 </div>
               ))
             ) : dataset.jobs && dataset.jobs.length > 0 ? (
               dataset.jobs.map((jobId) => (
                 <ImageComponent
-                  className="w-40 h-40"
+                  className=""
                   key={jobId}
                   src_id={jobId}
                   src_variant="job"

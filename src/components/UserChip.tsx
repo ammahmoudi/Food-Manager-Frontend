@@ -13,21 +13,23 @@ import { User } from "@/interfaces/User";
 
 interface UserChipProps {
 	user: User | null;
+	size:"sm" | "md" | "lg" | undefined
+
 }
 
-const UserChip: React.FC<UserChipProps> = ({ user }) => {
+const UserChip: React.FC<UserChipProps> = ({ user,size }) => {
 	return (
 		user && (
 			<Popover showArrow placement="bottom">
 				<PopoverTrigger>
 					<Chip
-						variant="flat"
+						variant="bordered"
 						avatar={
 							<Avatar name={user.full_name} src={user.user_image as string} />
 						}
 						as="button"
 						className="self-center "
-						size="sm"
+						size={size}
 					>
 						{user.full_name}
 					</Chip>

@@ -41,15 +41,15 @@ const LoraRequestsPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-4">
+    <div className="container mx-auto py-4 flex flex-col items-center">
       <h1 className="text-2xl font-bold mb-4">LoRA Requests</h1>
 
       {loading ? (
-        <div className="flex justify-center items-center w-full">
+        <div className="flex flex-auto items-center w-full">
           <Spinner color="primary" size="lg" />
         </div>
       ) : loraRequests.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"> {/* 2 columns in small screens and above */}
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-col-3 gap-3 items-center"> {/* 2 columns in small screens and above */}
           {loraRequests.map((request) => (
             <LoraRequestCard
               key={request.id}
