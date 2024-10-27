@@ -6,6 +6,7 @@ import { Button } from "@nextui-org/react";
 
 
 const RootPage: React.FC = () => {
+  console.log(process.env.NEXT_PUBLIC_BACKEND_URL)
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <h1 className="text-4xl font-bold mb-6">Welcome to the Main Apps</h1>

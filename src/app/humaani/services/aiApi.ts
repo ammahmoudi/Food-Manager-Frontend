@@ -81,9 +81,10 @@ export const submitFinalData = async (imageId: number,loraType: string | null) =
       `/cui/workflow-runners/characters/generate-character-samples/`,
       {
         dataset_image_id: imageId,
-        lora_type: loraType
+        lora_type_id: loraType
       }
     );
+    console.log('lora_type_id',loraType)
     console.log(response.data);
     return response.data;
   } catch (error) {
