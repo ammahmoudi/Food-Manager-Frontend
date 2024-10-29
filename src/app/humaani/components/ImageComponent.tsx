@@ -78,7 +78,6 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
 
 
   const getFirstJobImage = () => {
-    console.log()
     if (job && job.result_data) {
       for (const nodeId of Object.keys(job.result_data)) {
         for (const inputName of Object.keys(job.result_data[nodeId])) {

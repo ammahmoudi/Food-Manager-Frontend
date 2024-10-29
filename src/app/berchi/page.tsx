@@ -23,7 +23,6 @@ const HomePage = () => {
 	const { isAdmin } = useUser();
 
 	const fetchCurrentDayMeal = useCallback(async () => {
-		console.log("fetching current day meal");
 		setLoadingMeal(true);
 		const fetchMealPromise = getCurrentDayMeal();
 		try {

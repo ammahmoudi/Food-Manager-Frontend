@@ -40,7 +40,6 @@ export const fetchNodesFromJson = async (jsonData: string) => {
 export const submitWorkflowInputs = async (inputs: unknown) => {
   try {
     const response = await api.post(`/cui/workflows/`, inputs);
-    console.log(inputs);
     return response.data;
   } catch (error) {
     console.error("Submit failed:", error);
@@ -84,8 +83,6 @@ export const submitFinalData = async (imageId: number,loraType: string | null) =
         lora_type_id: loraType
       }
     );
-    console.log('lora_type_id',loraType)
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Error submitting final data:", error);
@@ -133,7 +130,6 @@ export const getDatasets = async () => {
 export const getDataset = async (datasetId: number) => {
   try {
     const response = await api.get(`/cui/datasets/${datasetId}/`);
-    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error(`Error fetching dataset ${datasetId}:`, error);
@@ -164,13 +160,14 @@ export const deleteDatasetById = async (datasetId: number | undefined) => {
 export const renameDatasetByID = async (datasetId: number,name: string) => {
   try {
     const response = await api.patch(`/cui/datasets/${datasetId}/`, {name});
-    console.log(response.data)
     return response.data;
   } catch (error) {
     console.error(`Error canceling Lora request with ID ${datasetId}:`, error);
     throw error;
   }
 };
+
+
 // Image Apis
 
 export const getImageById = async (imageId: number | undefined) => {
@@ -235,7 +232,7 @@ export const requestPromptsForImage = async (data: { dataset_image_id: number | 
 
 
 
-//Character Form Apis
+//Character Apis
 
 export const getCharacters = async () => {
   try {
@@ -266,15 +263,29 @@ export const updateCharacter = async (id: number, character: CharacterFormData) 
 	return response.data;
 };
 
-export const deleteCharacter = async (id: number) => {
-	const response = await api.delete(`/cui/lora-requests/${id}/`);
-	return response.data;
-};
-
-
 export const getCharacter = async (id: number) => {
 	const response = await api.get(`/cui/characters/${id}/`);
 	return response.data;
+};
+
+export const deleteCharacter = async (characterId: number) => {
+  try {
+    const response = await api.delete(`/cui/characters/${characterId}/`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deletting the character with Id " ${characterId}:`, error);
+    throw new Error('Failed to fetch image.');
+  }
+};
+
+export const renameCharacter = async (characterId: number,name: string) => {
+  try {
+    const response = await api.patch(`/cui/datasets/${characterId}/`, {name});
+    return response.data;
+  } catch (error) {
+    console.error(`Error renaming the character with Id " ${characterId}:`, error);
+    throw error;
+  }
 };
 
 

@@ -200,7 +200,6 @@ export const subscribeUser = async (token: string) => {
 
   try {
     const response = await api.post("/users/subscribe-push/", { token });
-    console.log("Subscription successful", response);
     return response.data;
   } catch (error) {
     console.error("Subscription failed:", error);

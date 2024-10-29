@@ -23,8 +23,8 @@ import {
 import { MdDriveFileRenameOutline } from "react-icons/md";
 import { HiDotsVertical } from "react-icons/hi";
 import { FaRegTrashAlt } from "react-icons/fa";
-import { toast } from "sonner"; // Assuming toast notifications are handled with sonner
-import { renameDatasetByID, deleteDatasetById } from "../services/aiApi"; // Assuming you have these API methods implemented
+import { toast } from "sonner";
+import { renameDatasetByID, deleteDatasetById } from "../services/aiApi";
 
 interface DatasetAlbumProps {
   initialDataset: Dataset | null;
@@ -38,16 +38,16 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
   const [isRenaming, setIsRenaming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Handle renaming the dataset
+
   const handleRenameDataset = async () => {
     setIsRenaming(true);
     try {
-      const response = await renameDatasetByID(dataset!.id, dataset!.name); // Use non-null assertion (dataset!) after the check
+      const response = await renameDatasetByID(dataset!.id, dataset!.name);
       if (response) {
         setDataset(response);
         toast.success("Dataset renamed successfully!");
       }
-      onOpenChangeRename(); // Close modal
+      onOpenChangeRename();
     } catch {
       toast.error("Failed to rename dataset.");
     } finally {
@@ -55,7 +55,6 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
     }
   };
 
-  // Handle deleting the dataset
   const handleDeleteDataset = async () => {
     setIsDeleting(true);
     try {

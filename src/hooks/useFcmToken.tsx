@@ -28,8 +28,6 @@ async function getNotificationPermissionAndToken() {
 			return await fetchToken();
 		}
 	}
-
-	console.log("Notification permission not granted.");
 	return null;
 }
 
@@ -98,26 +96,20 @@ const useFcmToken = () => {
 			// Send the FCM token to your backend to subscribe the user
 			try {
 				await subscribeUser(token);
-				console.log("Subscription done");
 			} catch (error) {
 				console.error("Subscription failed:", error);
 			}
-
-			console.log(`onMessage registered with token ${token}`);
 			const m = await messaging();
 			if (!m) return;
 
 			// Step 9: Register a listener for incoming FCM messages.
 			const unsubscribe = onMessage(m, (payload) => {
 	if (Notification.permission !== "granted") return;
-
-	console.log("Foreground push notification received:", payload);
 	const link = payload.fcmOptions?.link || payload.data?.link;
 	const imageUrl = payload.notification?.image; // Get the image URL from the notification payload
 
 	toast(
 		<div className="flex flex-row gap-2 w-full" >
-			
 				{imageUrl && (
 				<Image
 					src={imageUrl}
@@ -156,31 +148,6 @@ const useFcmToken = () => {
 		</div>
 	);
 });
-
-
-				// --------------------------------------------
-				// Disable this if you only want toast notifications.
-				// const n = new Notification(
-				// 	payload.notification?.title || "New message",
-				// 	{
-				// 		body: payload.notification?.body || "This is a new message",
-				// 		data: link ? { url: link } : undefined,
-				// 	}
-				// );
-
-				// // Step 10: Handle notification click event to navigate to a link if present.
-				// n.onclick = (event) => {
-				// 	event.preventDefault();
-				// 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				// 	const link = (event.target as any)?.data?.url;
-				// 	if (link) {
-				// 		router.push(link);
-				// 	} else {
-				// 		console.log("No link found in the notification payload");
-				// 	}
-				// };
-				// --------------------------------------------
-			// });
 
 			return unsubscribe;
 		};

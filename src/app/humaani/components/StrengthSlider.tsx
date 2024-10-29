@@ -51,23 +51,3 @@ const LoraUsageSlider: React.FC<LoraUsageSliderProps> = ({
 
 export default LoraUsageSlider;
 
-
-
-
-//  ---------------------- Usage ON OTHER PAGES ---------------------- //
-
-
-
-
-// .     const handleValueChange = (value: number) => {console.log("Lora usage value:", value);};
-
-
-{/*
-<div>
-  <LoraUsageSlider 
-    label=""
-      onValueChange={handleValueChange} 
-  />
-</div> 
-*/}
-

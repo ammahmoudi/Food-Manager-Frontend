@@ -154,10 +154,7 @@ const PromptPage = () => {
 	};
 
 	// Handle crop complete and set the cropped image
-	const handleCropComplete = (croppedImage: File) => {
-		if (job) {
-			console.log("croppedImage", croppedImage);
-		}
+	const handleCropComplete = () => {
 		setCropModalOpen(false);
 	};
 
@@ -171,10 +168,6 @@ const PromptPage = () => {
 		if (file && job?.status !== "completed") {
 			toast.error("Please wait for the current job to complete.");
 			return;
-		}
-		if (file) {
-			// Handle image change logic here if needed
-			console.log("file", file);
 		}
 	};
 

@@ -52,35 +52,3 @@ const AspectRatioDropDown: React.FC<AspectRatioDropDownProps> = ({ onSelect }) =
 };
 
 export default AspectRatioDropDown;
-
-
-
-
-
-
-//  Usage  //
-
-
-{/*
-
-
-
-const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>("");
-
-
-
-const handleAspectRatioSelect = (aspectRatio: string) => {
-  setSelectedAspectRatio(aspectRatio);
-  console.log("Selected aspect ratio:", aspectRatio);
-
-
-<div className="p-4">
-  <AspectRatioDropDown onSelect={handleAspectRatioSelect} />
-  {selectedAspectRatio && (
-    <p className="mt-4">Chosen Aspect Ratio: {selectedAspectRatio}</p>
-  )}
-</div>
-
-
-
-*/}

@@ -1,13 +1,10 @@
 'use client';
 
 import { useTheme } from '@/context/ThemeContext';
-import useFcmToken from '@/hooks/useFcmToken';
 import { useEffect } from 'react';
 
 const AILayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { switchTheme } = useTheme();
-  const { notificationPermissionStatus } = useFcmToken();
-  console.log('notification status:', notificationPermissionStatus);
 
   useEffect(() => {
     switchTheme('ai'); // Switch to the AI theme when this layout is used

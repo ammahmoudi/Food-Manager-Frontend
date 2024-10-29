@@ -30,10 +30,8 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
   // Function to handle crop completion
   const handleCrop = async () => {
     if (cropperRef.current) {
-      console.log("cropping");
       const croppedImageBlob = await getCroppedImageBlob(cropperRef.current);
       if (croppedImageBlob) {
-        console.log("sending blob");
         const compressedFile = await compressImage(croppedImageBlob);
         onCropComplete(compressedFile || croppedImageBlob); // Pass cropped image blob to the parent component
       }

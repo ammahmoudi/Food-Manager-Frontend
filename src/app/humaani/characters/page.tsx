@@ -12,6 +12,18 @@ const CharacterListPage = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const fetchCharacters = async () => {
+    try {
+      const fetchedCharacters = await getCharacters();
+      setCharacters(fetchedCharacters);
+    } catch (error) {
+      console.error("Failed to fetch characters:", error);
+      toast.error("Failed to fetch characters.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchCharacters = async () => {
       try {
@@ -39,7 +51,7 @@ const CharacterListPage = () => {
         <div className="flex flex-wrap gap-4">
           {characters.map((character) => (
             <div key={character.id}>
-              <CharacterCard id ={character.id}/>
+              <CharacterCard initialCharacter ={character} onUpdate={fetchCharacters}/>
             </div>
           ))}
         </div>

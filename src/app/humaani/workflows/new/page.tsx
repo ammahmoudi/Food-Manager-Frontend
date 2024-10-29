@@ -294,11 +294,6 @@ const WorkflowPage = () => {
         outputs: constructedOutputs,
       };
 
-      console.log(
-        "Submitting the following request body:",
-        JSON.stringify(requestBody, null, 2)
-      );
-
       // Send the formatted inputs and outputs to the backend
       await submitWorkflowInputs(requestBody);
       toast.success("Workflow submitted successfully!");
