@@ -123,7 +123,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
 
 					<ModalBody>
 						<div className="flex items-center gap-1 text-sm">
-							<UserChip user={comment?.user || user} /> on
+							<UserChip user={comment?.user || user} size='sm' /> on
 							<MealChip meal={comment?.meal || meal} />
 							{isAdmin &&
 								comment &&

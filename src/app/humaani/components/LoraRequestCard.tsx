@@ -15,6 +15,9 @@ import { useUser } from "@/context/UserContext";
 import { toast } from "sonner";
 
 import { getLoraRequest, updateLoraRequestStatus } from "../services/aiApi";
+import UserChip from "@/components/UserChip";
+import moment from "moment";
+import { FaCalendarAlt, FaUser } from "react-icons/fa";
 
 interface LoraRequestCardProps {
 	loraRequestId: number;
@@ -109,18 +112,18 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 	};
 
 	return (
-		<div className="lora-request-card h-full w-full p-0.5">
+		<div className="lora-request-card w-fit p-2">
 			{loraRequest ? (
 				<Card
 					className="border-none dark:bg-grey-100/50 h-full w-full"
 					shadow="sm"
+					isBlurred
 				>
-					<CardBody>
+					<CardBody  className="flex flex-col md:flex-row  gap-4 items-center w-full">
 						{/* Flex container to align all four parts in a row */}
-						<div className="flex flex-row  gap-4 items-center">
 							{/* First part - Character image with blur */}
 							<div className="flex flex-grow-0 flex-col gap-2 items-center">
-								<Card isFooterBlurred radius="lg" className="border-none">
+								<Card isFooterBlurred radius="lg" className="border-none w-full">
 									<CardHeader className="absolute z-10 top-1 flex-col !items-start">
 										<h4 className="text-white font-medium text-large">
 											{loraRequest.character.name}
@@ -128,8 +131,7 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 									</CardHeader>
 									<Image
 										alt={loraRequest.character.name}
-										width={400}
-										className="z-0 w-32 h-32 object-cover"
+										className="z-0 w-auto h-64 object-cover"
 										src={
 											loraRequest.character.image ??
 											"/images/character-placeholder.jpg"
@@ -143,19 +145,20 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 							</div>
 
 							{/* Third part - LoRARequest details */}
-							<div className="flex flex-col flex-grow justify-between w-1/4">
-								<p>
-									Created at:{" "}
-									{new Date(loraRequest.created_at).toLocaleString()}
-								</p>
-								<p>Created by: {loraRequest.user.full_name}</p>
+							<div className="flex flex-col md:h-64 gap-2">
+							<div className=" flex flex-col flex-grow-1 space-y-4 h-full"><div className="flex items-center gap-1 text-md">
+							<FaCalendarAlt />
+							{moment(new Date(loraRequest.created_at).toLocaleString()).fromNow()}
+								</div>
+								<div className="flex items-center gap-1 text-md"><FaUser />
+								<UserChip user={loraRequest.user} size="md" /></div>
 								<p>LoRA Type: {loraRequest.lora_type.name}</p>
-								<p>Trigger Word: {loraRequest.trigger_word}</p>
-							</div>
+								<p>Trigger Word: {loraRequest.trigger_word}</p></div>
+								
 
-							{/* Fourth part - Action buttons */}
+								{/* Fourth part - Action buttons */}
 							{loraRequest.status !== "completed" && (
-								<div className="flex flex-col justify-between w-1/4">
+								<div className="flex flex-col flex-grow-0 ">
 									{/* Users can cancel requests if they are waiting (not admin) or running */}
 									{!isAdmin &&
 										(loraRequest.status === "waiting" ||
@@ -201,7 +204,9 @@ const LoraRequestCard: React.FC<LoraRequestCardProps> = ({
 									)}
 								</div>
 							)}
-						</div>
+							</div>
+
+							
 					</CardBody>
 				</Card>
 			) : (
