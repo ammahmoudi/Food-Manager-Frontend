@@ -263,6 +263,16 @@ export const updateCharacter = async (id: number, character: CharacterFormData) 
 	return response.data;
 };
 
+export const updateCharacterInfo = async (id: number, name: string, description: string) => {
+	const data = {
+    name,
+    description,
+  }
+  const response = await api.put(`/cui/characters/${id}/`, data);
+  console.log(data)
+	return response.data;
+};
+
 export const getCharacter = async (id: number) => {
 	const response = await api.get(`/cui/characters/${id}/`);
 	return response.data;
