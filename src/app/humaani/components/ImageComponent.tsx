@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useRef, useState } from "react";
 import { Image, Card, CircularProgress, Button, CardFooter } from "@nextui-org/react";
 import { toast } from "sonner";
