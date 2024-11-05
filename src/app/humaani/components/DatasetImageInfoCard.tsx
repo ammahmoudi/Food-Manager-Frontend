@@ -25,6 +25,8 @@ import {
   updatePromptsForImage,
 } from "@/app/humaani/services/aiApi";
 import { toast } from "sonner";
+import EditFaceComponent from "./editFace";
+import EditFaceModal from "./modals/livePortraitModal";
 
 const fallbackImage =
   process.env.NEXT_PUBLIC_MAANI_SQUARE_FALLBACK_IMAGE_URL ||
@@ -48,11 +50,8 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
   const [tagPrompt, setTagPrompt] = useState<string>("");
   const [negativePrompt, setNegativePrompt] = useState<string>("");
 
-  const {
-    isOpen: isDeleteModalOpen,
-    onOpen: openDeleteModal,
-    onClose: closeDeleteModal,
-  } = useDisclosure();
+  const {isOpen: isDeleteModalOpen,onOpen: openDeleteModal,onClose: closeDeleteModal,} = useDisclosure();
+  const {isOpen: isEditFaceModalOpen,onOpen: openEditFaceModal,onClose: closeEditFaceModal,} = useDisclosure();
 
   const handleDelete = async () => {
     try {
@@ -281,11 +280,22 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
         </CardBody>
 
         <CardFooter className="flex justify-end gap-4">
+
+        <Button
+            color="primary"
+            onClick={openEditFaceModal}
+            disabled={isUpdatingPrompts || isFetchingPrompts || polling}
+            isLoading={isUpdatingPrompts || isFetchingPrompts}
+            className="bg-lime-500 hover:bg-blue-600"
+          >
+            Edit Face
+          </Button>
+
           <Button
             color="primary"
             onClick={handleGetPrompts}
-            disabled={isFetchingPrompts || polling}
-            isLoading={isFetchingPrompts}
+            disabled={isUpdatingPrompts || isFetchingPrompts || polling}
+            isLoading={isUpdatingPrompts || isFetchingPrompts}
             className="bg-blue-500 hover:bg-blue-600"
           >
             {isFetchingPrompts ? "Fetching Prompts..." : "Get Prompts"}
@@ -293,14 +303,16 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
           <Button
             color="secondary"
             onClick={handleUpdatePrompts}
-            disabled={isUpdatingPrompts}
-            isLoading={isUpdatingPrompts}
+            disabled={isUpdatingPrompts || isFetchingPrompts || polling}
+            isLoading={isUpdatingPrompts || isFetchingPrompts}
           >
             {isUpdatingPrompts ? "Updating Prompts..." : "Update Prompts"}
           </Button>
           <Button
             color="danger"
             onClick={openDeleteModal}
+            disabled={isUpdatingPrompts || isFetchingPrompts || polling}
+            isLoading={isUpdatingPrompts || isFetchingPrompts}
             className="bg-red-500 hover:bg-red-600"
           >
             Delete Image
@@ -333,6 +345,9 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+
+      <EditFaceModal image_id={imageId} isOpen={isEditFaceModalOpen} onClose={closeEditFaceModal} onDeleteSuccess={closeEditFaceModal}></EditFaceModal>
     </>
   );
 };

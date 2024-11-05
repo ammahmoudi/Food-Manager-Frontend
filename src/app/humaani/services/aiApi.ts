@@ -48,7 +48,7 @@ export const submitWorkflowInputs = async (inputs: unknown) => {
 };
 
 // Poll the job by job ID
-export const getJob = async (jobId: number) => {
+export const getJob = async (jobId: number ) => {
   try {
     const response = await api.get(`/cui/jobs/${jobId}`);
     return response.data;
@@ -357,6 +357,35 @@ export const newLoraRequest = async (data: {
       data
     );
     return response.data;
+  } catch (error) {
+    console.error("Failed to submit prompt:", error);
+    throw error;
+  }
+};
+
+
+// Live Portrait API
+
+export const editFaceById = async (data: {
+            image_id: number,
+            rotate_pitch: string,
+            rotate_yaw: string,
+            rotate_roll: string,
+            blink: string,
+            eyebrow: string,
+            wink: string,
+            pupil_x: string,
+            pupil_y: string,
+            aaa: string,
+            eee: string,
+            woo: string,
+            smile: string,
+}) => {
+  try {
+    const response = await api.post("/cui/workflow-runners/characters/edit-face/",
+      data
+    );
+    return response.data.job_id;
   } catch (error) {
     console.error("Failed to submit prompt:", error);
     throw error;
