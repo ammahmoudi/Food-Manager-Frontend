@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import DatasetAlbum from "../../components/DatasetAlbum"; // Import the DatasetAlbum component
 import Dataset from "../../interfaces/Dataset";
 import { useParams } from "next/navigation";
-import EditFaceComponent from "../../components/editFace";
 
 
 

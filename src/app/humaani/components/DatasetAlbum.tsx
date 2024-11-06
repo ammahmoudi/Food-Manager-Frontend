@@ -27,7 +27,6 @@ import { toast } from "sonner";
 import { renameDatasetByID, deleteDatasetById } from "../services/aiApi";
 import { BiSolidImageAdd } from "react-icons/bi";
 import UploadImage from "./UploadImage";
-import DatasetImage from "../interfaces/DatasetImage";
 
 interface DatasetAlbumProps {
   initialDataset: Dataset | null;
@@ -41,7 +40,6 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
   const [dataset, setDataset] = useState<Dataset | null>(initialDataset);
   const [isRenaming, setIsRenaming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isUploaded, setIsUploaded] = useState(false);
 
 
   const handleRenameDataset = async () => {
@@ -61,8 +59,7 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
   };
 
   const handleAddImage =  () => {
-    setIsUploaded(false)
-    onOpenAdd
+    onOpenChangeAdd()
 
 
   };
@@ -116,8 +113,7 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
             <DropdownMenu>
               <DropdownItem
                 onClick={() => {
-                  setIsUploaded(false)
-                  
+                  onOpenAdd()
                 }}
                 key="Add"
                 startContent={<BiSolidImageAdd />}
@@ -244,16 +240,15 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
                 Add Image to the dataset
               </ModalHeader>
               <ModalBody>
-                <UploadImage onImageIdReceived={function (image: DatasetImage | null): void {setIsUploaded(true)} }></UploadImage>
+                <UploadImage onImageIdReceived={()=>setIsUploaded(true)} ></UploadImage>
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onOpenChangeDelete}>
                   Close
                 </Button>
                 <Button
-                  isDisabled={false}
-                  isLoading={isUploaded}
-                  onPress={onOpenChangeAdd}
+
+                  onPress={handleAddImage}
                 >
                   OK
                 </Button>
