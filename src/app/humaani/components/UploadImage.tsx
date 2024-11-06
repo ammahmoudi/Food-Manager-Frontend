@@ -8,7 +8,7 @@ import DatasetImageInfoModal from "./modals/DatasetImageInfoModal";
 
 interface ImageUploadProps {
   onImageIdReceived: (image: DatasetImage | null) => void;
-  image?: DatasetImage | null; // Add a prop for the image from the parent
+  image?: DatasetImage | null;
 }
 
 const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived, image: parentImage }) => {

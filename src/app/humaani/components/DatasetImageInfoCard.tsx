@@ -25,7 +25,6 @@ import {
   updatePromptsForImage,
 } from "@/app/humaani/services/aiApi";
 import { toast } from "sonner";
-import EditFaceComponent from "./editFace";
 import EditFaceModal from "./modals/livePortraitModal";
 
 const fallbackImage =
@@ -35,11 +34,13 @@ const fallbackImage =
 interface DatasetImageInfoCardProps {
   imageId: number;
   onDeleteSuccess: () => void;
+  onClose: () => void;
 }
 
 const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
   imageId,
   onDeleteSuccess,
+  onClose
 }) => {
   const [imageData, setImageData] = useState<DatasetImage | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,6 +63,13 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
     } finally {
       closeDeleteModal();
     }
+  };
+
+
+  const handleCloseEditFaceModal = () => {
+    closeEditFaceModal()
+    onClose()
+
   };
 
   const handleGetPrompts = async () => {
@@ -347,7 +355,7 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
       </Modal>
 
 
-      <EditFaceModal image_id={imageId} isOpen={isEditFaceModalOpen} onClose={closeEditFaceModal} onDeleteSuccess={closeEditFaceModal}></EditFaceModal>
+      <EditFaceModal image_id={imageId} isOpen={isEditFaceModalOpen} onClose={handleCloseEditFaceModal} onDeleteSuccess={closeEditFaceModal}></EditFaceModal>
     </>
   );
 };

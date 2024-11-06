@@ -25,6 +25,9 @@ import { HiDotsVertical } from "react-icons/hi";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { toast } from "sonner";
 import { renameDatasetByID, deleteDatasetById } from "../services/aiApi";
+import { BiSolidImageAdd } from "react-icons/bi";
+import UploadImage from "./UploadImage";
+import DatasetImage from "../interfaces/DatasetImage";
 
 interface DatasetAlbumProps {
   initialDataset: Dataset | null;
@@ -34,9 +37,11 @@ interface DatasetAlbumProps {
 const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }) => {
   const { isOpen: isOpenDelete, onOpen: onOpenDelete, onOpenChange: onOpenChangeDelete } = useDisclosure();
   const { isOpen: isOpenRename, onOpen: onOpenRename, onOpenChange: onOpenChangeRename } = useDisclosure();
+  const { isOpen: isOpenAdd, onOpen: onOpenAdd, onOpenChange: onOpenChangeAdd } = useDisclosure();
   const [dataset, setDataset] = useState<Dataset | null>(initialDataset);
   const [isRenaming, setIsRenaming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isUploaded, setIsUploaded] = useState(false);
 
 
   const handleRenameDataset = async () => {
@@ -53,6 +58,13 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
     } finally {
       setIsRenaming(false);
     }
+  };
+
+  const handleAddImage =  () => {
+    setIsUploaded(false)
+    onOpenAdd
+
+
   };
 
   const handleDeleteDataset = async () => {
@@ -103,6 +115,16 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
             </DropdownTrigger>
             <DropdownMenu>
               <DropdownItem
+                onClick={() => {
+                  setIsUploaded(false)
+                  
+                }}
+                key="Add"
+                startContent={<BiSolidImageAdd />}
+              >
+                Add Image
+              </DropdownItem>
+              <DropdownItem
                 onClick={onOpenRename}
                 key="rename"
                 className="text-success"
@@ -141,9 +163,11 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
                   src_variant="job"
                 />
               ))
+
             ) : (
               <p>No images or jobs available in this dataset.</p>
-            )}
+            )
+            }
           </div>
         </CardBody>
       </Card>
@@ -203,6 +227,35 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
                   isLoading={isDeleting}
                 >
                   Delete
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+
+      {/* Add Image Modal */}
+      <Modal isOpen={isOpenAdd} onOpenChange={onOpenChangeAdd} backdrop="blur">
+        <ModalContent>
+          {() => (
+            <>
+              <ModalHeader>
+                Add Image to the dataset
+              </ModalHeader>
+              <ModalBody>
+                <UploadImage onImageIdReceived={function (image: DatasetImage | null): void {setIsUploaded(true)} }></UploadImage>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onOpenChangeDelete}>
+                  Close
+                </Button>
+                <Button
+                  isDisabled={false}
+                  isLoading={isUploaded}
+                  onPress={onOpenChangeAdd}
+                >
+                  OK
                 </Button>
               </ModalFooter>
             </>

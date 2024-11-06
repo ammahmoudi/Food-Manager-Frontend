@@ -2,14 +2,10 @@ import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
 } from "@nextui-org/react";
 import { toast } from "sonner";
 import DatasetImage from "../../interfaces/DatasetImage";
-import { deleteImageById, getImageById } from "../../services/aiApi";
+import { getImageById } from "../../services/aiApi";
 import EditFaceComponent from "../editFace";
 
 interface EditFaceModalProps {

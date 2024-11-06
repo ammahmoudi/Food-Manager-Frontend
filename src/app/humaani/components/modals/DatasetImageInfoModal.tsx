@@ -32,10 +32,13 @@ const DatasetImageInfoModal: FC<DatasetImageInfoModalProps> = ({
 					<DatasetImageInfoCard
 						imageId={imageId}
 						onDeleteSuccess={() => {
-							onDeleteSuccess(); // Notify parent about successful deletion
-							onClose(); // Close modal after delete
-						}}
-					/>
+							onDeleteSuccess();
+							onClose();
+						} }
+						onClose={() => {
+							onClose();
+						} }
+						/>
 				</ModalBody>
 			</ModalContent>
 		</Modal>
