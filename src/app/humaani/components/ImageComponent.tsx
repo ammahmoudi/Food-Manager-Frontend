@@ -1,27 +1,25 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useRef, useState } from "react";
-import { Image, Card, CircularProgress, Button, CardFooter } from "@nextui-org/react";
+import React, { useEffect,  useState } from "react";
+import { Image, Card, CircularProgress, useDisclosure } from "@nextui-org/react";
 import { toast } from "sonner";
 import DatasetImage from "../interfaces/DatasetImage";
-import DatasetImageInfoModal from "./modals/DatasetImageInfoModal";
 import { getJob, getImageById } from "../services/aiApi";
 import { Job } from "../interfaces/Job";
-import { SlSizeFullscreen } from "react-icons/sl";
-import { FaDownload } from "react-icons/fa";
+import FullScreenModal from "./modals/FullScreenModal";
 
 interface ImageProps {
   src_id: number;
   src_variant: "job" | "datasetImage";
   className?: string;
+  isClickable?: boolean
+  onChange?:() => void
 }
 
-const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }) => {
+const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className , isClickable=true , onChange}) => {
   const [image, setImage] = useState<DatasetImage | null>(null);
   const [job, setJob] = useState<Job | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [isInfoModalOpen, setIsInfoModalOpen] = useState<boolean>(false);
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
-  const imageRef = useRef(null);
+  const { isOpen: isFullScreenModalOpen, onOpen: openFullScreenModal, onClose: closeFullScreenModal } = useDisclosure();
 
   const fallbackImage = "/images/ai/manani_fallback_square.png";
 
@@ -66,66 +64,20 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
     };
   }, [src_id, src_variant]);
 
-  const handleDeleteImage = () => {
-    setImage(null);
-    setJob(null);
-    toast.success("Image deleted successfully.");
-  };
 
-  const handleOpenInfoModal = (id: number) => {
+  const handleOpenFullScreenModal = (id: number) => {
     setSelectedImage(id);
-    setIsInfoModalOpen(true);
+    openFullScreenModal();
   };
 
   const getFirstJobImage = () => {
-    if (job && job.result_data) {
-      for (const nodeId of Object.keys(job.result_data)) {
-        for (const inputName of Object.keys(job.result_data[nodeId])) {
-          const output = job.result_data[nodeId][inputName];
-          if (output.type === "image") {
-            return output;
-          }
-        }
-      }
+    if (job && job.image_outputs && job.image_outputs.length > 0) {
+      return job.image_outputs[0];
     }
     return null;
   };
 
   const firstJobImage = src_variant === "job" ? getFirstJobImage() : null;
-
-  const openFullscreen = () => {
-    if (imageRef.current) {
-      const imgElement = imageRef.current as any;
-      if (imgElement.requestFullscreen) {
-        imgElement.requestFullscreen();
-      } else if (imgElement.webkitRequestFullscreen) {
-        imgElement.webkitRequestFullscreen();
-      } else if (imgElement.msRequestFullscreen) {
-        imgElement.msRequestFullscreen();
-      }
-      setIsInfoModalOpen(false);
-    }
-  };
-
-  const downloadImage = async () => {
-    const imageUrl = image ? image.image : firstJobImage?.value || fallbackImage;
-
-    try {
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = "downloaded_image.jpg";
-      link.click();
-
-      URL.revokeObjectURL(blobUrl);
-    } catch (error) {
-      console.error("Error downloading image:", error);
-      toast.error("Failed to download image.");
-    }
-  };
 
   const RenderImage = (props: { src: string | null; id: number | null }) => {
     if (src_variant === "job" && job && (job.status === "running" || job.status === "pending")) {
@@ -141,54 +93,27 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
         </div>
       );
     }
-
     if (props.src && !loading) {
       return (
-        <>
-          <Card
-            className={`w-full aspect-square bg-gray-200 relative items-center justify-center ${
-              image ? "bg-transparent" : ""
-            }`}
-          >
-            <div className="absolute inset-0 z-0">
-              <Image
-                alt="Blurred Background"
-                src={props.src || fallbackImage}
-                className="w-full h-full object-cover rounded-none filter blur-sm"
-                classNames={{ wrapper: "w-full h-full aspect-square" }}
-              />
-            </div>
+        <Card
+          className={`w-full aspect-square bg-gray-200 relative items-center justify-center ${image ? "bg-transparent" : ""}`}
+        >
+          <div className="absolute inset-0 z-0">
             <Image
-              ref={imageRef}
+              alt="Blurred Background"
               src={props.src || fallbackImage}
-              alt="Rendered Image"
-              className="w-full h-full object-cover filter rounded-none"
-              classNames={{ wrapper: "w-full h-full aspect-square" }}
-              onClick={() => handleOpenInfoModal(props.id as number)}
-              style={{ objectFit: "contain" }}
+              className="w-full h-full object-cover rounded-none filter blur-sm"
             />
+          </div>
+          <Image
 
-            <CardFooter className="absolute bottom-0 z-10 flex justify-between w-full p-2">
-              <Button
-                radius="full"
-                size="sm"
-                className="bg-blue-500 text-white shadow-lg"
-                onPress={openFullscreen}
-              >
-                <SlSizeFullscreen />
-              </Button>
-
-              <Button
-                radius="full"
-                size="sm"
-                className="bg-lime-300 text-white shadow-lg"
-                onPress={downloadImage}
-              >
-                <FaDownload />
-              </Button>
-            </CardFooter>
-          </Card>
-        </>
+            src={props.src || fallbackImage}
+            alt="Rendered Image"
+            className="w-full h-full object-cover filter rounded-none"
+            onClick={() => isClickable && handleOpenFullScreenModal(props.id as number)}
+            style={{ objectFit: "contain" }}
+          />
+        </Card>
       );
     }
 
@@ -208,7 +133,7 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
       )}
       {firstJobImage && (
         <Card className={`relative flex flex-col items-center justify-center w-full aspect-square bg-null ${className}`}>
-          <RenderImage src={firstJobImage.value} id={firstJobImage.id} />
+          <RenderImage src={firstJobImage.url} id={firstJobImage.dataset_image_id} />
         </Card>
       )}
       {!firstJobImage && src_variant === "job" && (job?.status === "running" || job?.status === "pending") && (
@@ -231,7 +156,6 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
               alt="Blurred Background"
               src={fallbackImage}
               className="w-full h-full object-cover rounded-none"
-              classNames={{ wrapper: "w-full h-full aspect-square" }}
             />
             <div className="absolute flex flex-row justify-center inset-1 z-10">
               <p className="uppercase">{job.status}</p>
@@ -246,20 +170,13 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className }
               alt="Blurred Background"
               src={fallbackImage}
               className="w-full h-full object-cover rounded-none"
-              classNames={{ wrapper: "w-full h-full aspect-square" }}
             />
           </div>
         </Card>
       )}
 
-      {/* Dataset Image Info Modal */}
       {selectedImage && (
-        <DatasetImageInfoModal
-          visible={isInfoModalOpen}
-          onClose={() => setIsInfoModalOpen(false)}
-          imageId={selectedImage as number}
-          onDeleteSuccess={handleDeleteImage}
-        />
+        <FullScreenModal initialImageId={selectedImage} isOpen={isFullScreenModalOpen} onClose={closeFullScreenModal} onUpdate={()=> onChange}/>
       )}
     </>
   );

@@ -3,44 +3,29 @@ import {
   Card,
   CardBody,
   CardFooter,
-  Image,
   Button,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Textarea,
   Spinner,
   Skeleton,
   CardHeader,
+  Textarea,
 } from "@nextui-org/react";
-import { useDisclosure } from "@nextui-org/react";
 import DatasetImage from "@/app/humaani/interfaces/DatasetImage";
 import {
   getImageById,
-  deleteImageById,
   getJob,
   requestPromptsForImage,
   updatePromptsForImage,
 } from "@/app/humaani/services/aiApi";
 import { toast } from "sonner";
-import EditFaceModal from "./modals/livePortraitModal";
-
-const fallbackImage =
-  process.env.NEXT_PUBLIC_MAANI_SQUARE_FALLBACK_IMAGE_URL ||
-  "/images/ai/manani_fallback_square.png";
+import ImageComponent from "./ImageComponent";
 
 interface DatasetImageInfoCardProps {
   imageId: number;
   onDeleteSuccess: () => void;
-  onClose: () => void;
 }
 
 const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
   imageId,
-  onDeleteSuccess,
-  onClose
 }) => {
   const [imageData, setImageData] = useState<DatasetImage | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,27 +35,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
   const [complexPrompt, setComplexPrompt] = useState<string>("");
   const [tagPrompt, setTagPrompt] = useState<string>("");
   const [negativePrompt, setNegativePrompt] = useState<string>("");
-
-  const {isOpen: isDeleteModalOpen,onOpen: openDeleteModal,onClose: closeDeleteModal,} = useDisclosure();
-  const {isOpen: isEditFaceModalOpen,onOpen: openEditFaceModal,onClose: closeEditFaceModal,} = useDisclosure();
-
-  const handleDelete = async () => {
-    try {
-      await deleteImageById(imageId);
-      onDeleteSuccess();
-    } catch (error) {
-      console.error(`Error deleting image with ID ${imageId}:`, error);
-    } finally {
-      closeDeleteModal();
-    }
-  };
-
-
-  const handleCloseEditFaceModal = () => {
-    closeEditFaceModal()
-    onClose()
-
-  };
 
   const handleGetPrompts = async () => {
     try {
@@ -169,25 +133,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
     return () => clearInterval(intervalId);
   };
 
-  // Unified Image Component for both modes with fallback handling
-  const RenderImage = (props: { src: string | null; alt: string }) => {
-    const [imageSrc, setImageSrc] = useState<string | null>(props.src);
-
-    const handleImageError = () => {
-      setImageSrc(fallbackImage);
-    };
-
-    return (
-      <Image
-        src={imageSrc || fallbackImage}
-        alt={props.alt}
-        className="z-10 h-full w-full aspect-square rounded-md object-contain min-h-0"
-        classNames={{ wrapper: "w-full h-full aspect-square min-h-0" }}
-        onError={handleImageError}
-      />
-    );
-  };
-
   useEffect(() => {
     const fetchImageData = async () => {
       setLoading(true);
@@ -203,7 +148,7 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
     };
 
     fetchImageData();
-  }, []);
+  }, [imageId]);
 
   return (
     <>
@@ -216,18 +161,9 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
               </div>
             ) : (
               <Card>
-                <div className="absolute inset-0 z-0 w-full">
-                  <Image
-                    alt="Blurred Background"
-                    src={imageData?.image || fallbackImage}
-                    className="w-full h-full object-cover blur-md"
-                    classNames={{ wrapper: "w-full h-full aspect-square" }}
-                  />
-                </div>
-                <RenderImage
-                  src={imageData?.image ?? null}
-                  alt={imageData?.name ?? "Image"}
-                />
+                {imageData &&
+                  <ImageComponent src_id={imageId} src_variant={"datasetImage"} isClickable={false}></ImageComponent>
+                }
               </Card>
             )}
           </div>
@@ -288,17 +224,6 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
         </CardBody>
 
         <CardFooter className="flex justify-end gap-4">
-
-        <Button
-            color="primary"
-            onClick={openEditFaceModal}
-            disabled={isUpdatingPrompts || isFetchingPrompts || polling}
-            isLoading={isUpdatingPrompts || isFetchingPrompts}
-            className="bg-lime-500 hover:bg-blue-600"
-          >
-            Edit Face
-          </Button>
-
           <Button
             color="primary"
             onClick={handleGetPrompts}
@@ -308,6 +233,7 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
           >
             {isFetchingPrompts ? "Fetching Prompts..." : "Get Prompts"}
           </Button>
+
           <Button
             color="secondary"
             onClick={handleUpdatePrompts}
@@ -316,46 +242,9 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
           >
             {isUpdatingPrompts ? "Updating Prompts..." : "Update Prompts"}
           </Button>
-          <Button
-            color="danger"
-            onClick={openDeleteModal}
-            disabled={isUpdatingPrompts || isFetchingPrompts || polling}
-            isLoading={isUpdatingPrompts || isFetchingPrompts}
-            className="bg-red-500 hover:bg-red-600"
-          >
-            Delete Image
-          </Button>
+
         </CardFooter>
       </Card>
-
-      {/* Delete Confirmation Modal */}
-      <Modal isOpen={isDeleteModalOpen} onOpenChange={closeDeleteModal}>
-        <ModalContent>
-          <ModalHeader>Confirm Deletion</ModalHeader>
-          <ModalBody>
-            <p>Are you sure you want to delete this image?</p>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              color="primary"
-              onClick={closeDeleteModal}
-              className="bg-gray-500 hover:bg-gray-600"
-            >
-              Cancel
-            </Button>
-            <Button
-              color="danger"
-              onClick={handleDelete}
-              className="bg-red-500 hover:bg-red-600"
-            >
-              Yes, Delete
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-
-      <EditFaceModal image_id={imageId} isOpen={isEditFaceModalOpen} onClose={handleCloseEditFaceModal} onDeleteSuccess={closeEditFaceModal}></EditFaceModal>
     </>
   );
 };

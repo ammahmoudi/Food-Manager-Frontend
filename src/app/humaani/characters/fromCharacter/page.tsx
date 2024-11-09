@@ -188,6 +188,7 @@ const PromptPage = () => {
 			return;
 		}
 		try {
+			
 			setIsSubmittingPrompt(true);
 			setJob(null);
 			setResultImages([]);
@@ -228,6 +229,7 @@ const PromptPage = () => {
 		const fetchJobStatus = async () => {
 			try {
 				const jobData = await getJob(jobId);
+				console.log(jobData)
 				setJob(jobData);
 
 				if (jobData.status === "completed") {

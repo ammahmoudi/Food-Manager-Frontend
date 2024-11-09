@@ -18,6 +18,7 @@ const ResultPage = () => {
 
   // Fetch dataset and start polling jobs
   const fetchDataset = async () => {
+    console.log("fetching")
     if (!datasetId) return;
 
 

@@ -60,8 +60,6 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
 
   const handleAddImage =  () => {
     onOpenChangeAdd()
-
-
   };
 
   const handleDeleteDataset = async () => {
@@ -147,7 +145,7 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
             {dataset.images && dataset.images.length > 0 ? (
               dataset.images.map((imageId) => (
                 <div key={imageId} className="">
-                  <ImageComponent src_id={imageId} src_variant="datasetImage" />
+                  <ImageComponent src_id={imageId} src_variant="datasetImage"/>
                 </div>
               ))
             ) : dataset.jobs && dataset.jobs.length > 0 ? (
@@ -157,6 +155,7 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
                   key={jobId}
                   src_id={jobId}
                   src_variant="job"
+                  onChange={()=>onUpdate()}
                 />
               ))
 
