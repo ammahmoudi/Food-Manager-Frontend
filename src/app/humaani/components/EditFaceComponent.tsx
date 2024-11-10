@@ -92,6 +92,7 @@ const EditFaceComponent: React.FC<EditFaceComponentProps> = ({ initialImage, onC
     ) => (
         <div className="flex flex-col gap-2 w-full h-full max-w-md items-start justify-center">
             <Slider
+                fillOffset={0}
                 size="sm"
                 aria-label={label}
                 value={value}
