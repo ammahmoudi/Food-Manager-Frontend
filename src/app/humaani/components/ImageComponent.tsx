@@ -96,20 +96,23 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className ,
     if (props.src && !loading) {
       return (
         <Card
-          className={`w-full aspect-square bg-gray-200 relative items-center justify-center ${image ? "bg-transparent" : ""}`}
-        >
+            className={`w-full aspect-square bg-gray-200 relative items-center justify-center ${
+              image ? "bg-transparent" : ""
+            }`}
+          >
           <div className="absolute inset-0 z-0">
             <Image
               alt="Blurred Background"
               src={props.src || fallbackImage}
               className="w-full h-full object-cover rounded-none filter blur-sm"
+              classNames={{ wrapper: "w-full h-full aspect-square" }}
             />
           </div>
           <Image
-
             src={props.src || fallbackImage}
             alt="Rendered Image"
             className="w-full h-full object-cover filter rounded-none"
+            classNames={{ wrapper: "w-full h-full aspect-square" }}
             onClick={() => isClickable && handleOpenFullScreenModal(props.id as number)}
             style={{ objectFit: "contain" }}
           />
