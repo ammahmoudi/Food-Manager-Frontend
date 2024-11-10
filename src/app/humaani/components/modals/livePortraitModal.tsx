@@ -6,7 +6,7 @@ import {
   ModalHeader,
 } from "@nextui-org/react";
 import DatasetImage from "../../interfaces/DatasetImage";
-import EditFaceComponent from "../editFace";
+import EditFaceComponent from "../EditFaceComponent";
 
 interface EditFaceModalProps {
   image: DatasetImage;

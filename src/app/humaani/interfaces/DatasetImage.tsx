@@ -9,4 +9,5 @@ export default interface DatasetImage {
     crated_at: string;
     character : number | null;
     image : string
+    variants: number[];
 }

@@ -18,6 +18,9 @@ import { GiDoubleFaceMask } from "react-icons/gi";
 import EditFaceModal from "./livePortraitModal";
 import { PiTextAlignLeftLight } from "react-icons/pi";
 import DatasetImageInfoModal from "./DatasetImageInfoModal";
+import ImageComponent from "../ImageComponent";
+import CarouselComponent from '../CarousalComponent';
+import CarousalComponent from "../CarousalComponent";
 
 
 interface FullScreenModalProps {
@@ -57,7 +60,7 @@ const FullScreenModal: FC<FullScreenModalProps> = ({initialImageId,isOpen,onClos
     try {
       if(image){
         await deleteImageById(image?.id);
-        onUpdate
+        onUpdate()
       }
     } catch (error) {
       console.error(`Error deleting image:`, error);
@@ -93,7 +96,7 @@ const FullScreenModal: FC<FullScreenModalProps> = ({initialImageId,isOpen,onClos
     <Modal
 
       backdrop="blur"
-      className="bg-transparent"
+      className="bg-transparent h-screen"
       isOpen={isOpen}
       onClose={onClose}
       onClick={(e) => {
@@ -102,20 +105,37 @@ const FullScreenModal: FC<FullScreenModalProps> = ({initialImageId,isOpen,onClos
           onClose();
         }
       }}
+      classNames={{
+        body: "flex flex-col justify-center items-center h-screen",
+      }}
       size="full"
     >
       <ModalContent>
-        <ModalBody className="mx-auto flex justify-center">
+        <ModalBody className="flex flex-col items-center justify-center w-full h-[75%]">
           {!loading ?(
-            <Image src={image?.image} alt="alt" />
+            <Image src={image?.image} alt="alt" className="max-h-full max-w-full object-contain"
+            />
           ):(
             <Spinner></Spinner>
           )}
         </ModalBody>
 
-        <ModalFooter>
-          {!loading && (
-            <>
+        <ModalFooter className="flex flex-col w-full">
+            {/* Carousel Centered */}
+            <div className="">
+              {image?.variants && image.variants.length > 0 && (
+                <CarousalComponent
+                  jobs={image.variants}
+                  onImageClick={(id: number) => {
+                    console.log(`Image clicked with ID: ${id}`);
+                  }}
+                />
+              )}
+            </div>
+            
+
+            {/* Action Buttons */}
+            <div className="">
               <Button
                 isIconOnly
                 size="lg"
@@ -151,10 +171,8 @@ const FullScreenModal: FC<FullScreenModalProps> = ({initialImageId,isOpen,onClos
               >
                 <HiOutlineTrash />
               </Button>
-            </>
-          )}
-
-        </ModalFooter>
+              </div>
+          </ModalFooter>
       </ModalContent>
     </Modal>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, Button, Slider, CardFooter, CircularProgress } from "@nextui-org/react";
 import { toast } from "sonner";
 import DatasetImage from "../interfaces/DatasetImage";
@@ -11,7 +11,6 @@ interface EditFaceComponentProps {
 }
 
 const EditFaceComponent: React.FC<EditFaceComponentProps> = ({ initialImage, onClose }) => {
-    const [image, setImage] = useState<DatasetImage | null>(initialImage); // Track the original image
     const [rotatePitch, setRotatePitch] = useState(0);
     const [rotateYaw, setRotateYaw] = useState(0);
     const [rotateRoll, setRotateRoll] = useState(0);
@@ -28,7 +27,7 @@ const EditFaceComponent: React.FC<EditFaceComponentProps> = ({ initialImage, onC
     const [jobId, setJobId] = useState<number | null>(null);
 
     const handleUpdate = async () => {
-        if (!image) return;
+        if (!initialImage) return;
 
         setUpdating(true);
         setJobId(null)
@@ -36,7 +35,7 @@ const EditFaceComponent: React.FC<EditFaceComponentProps> = ({ initialImage, onC
         try {
             // Send the original image along with the current slider values to the API
             const response = await editFaceById({
-                image_id: image?.id,
+                image_id: initialImage?.id,
                 rotate_pitch: String(rotatePitch),
                 rotate_yaw: String(rotateYaw),
                 rotate_roll: String(rotateRoll),
@@ -131,9 +130,9 @@ const EditFaceComponent: React.FC<EditFaceComponentProps> = ({ initialImage, onC
                             className="w-full h-full"
                             isClickable={true}
                         />
-                    ) : image ? (  // Show the original image before submitting the job
+                    ) : initialImage ? (  // Show the original image before submitting the job
                         <ImageComponent
-                            src_id={image.id}
+                            src_id={initialImage.id}
                             src_variant="datasetImage"
                             className="w-full h-full"
                             isClickable={true}

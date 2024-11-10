@@ -1,24 +1,27 @@
 export interface Job {
     id: number;
     workflow: number;
-    status: 'pending' | 'completed' | 'failed' | 'running' | 'canceled';
+    status: string;
     runtime: string;
-    image_outputs: {
-        url: string;
-        dataset_image_id: number;
-    }[];
-    video_outputs: string[];
+    image_outputs: ImageOutput[];
+    video_outputs: VideoOutput[];
     text_outputs: string[];
-    input_data: Record<string, Record<string, string>>;
     logs: string;
     user: number;
-    user_details: {
-        id: number;
-        full_name: string;
-        user_image: string;
-        role: string;
-    };
     dataset: number;
     progress: number;
-    variants: number[];
+}
+
+interface ImageOutput {
+    url: string;
+    dataset_image_id: number;
+}
+
+interface VideoOutput {
+    url: string;
+    dataset_video_id: number;
+    name: string;
+    file_size: number;
+    video_url: string;
+    cover_image_url: string | null;
 }
