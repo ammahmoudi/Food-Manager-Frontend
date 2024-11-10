@@ -231,6 +231,29 @@ export const requestPromptsForImage = async (data: { dataset_image_id: number | 
 };
 
 
+// Video Apis
+
+export const getVideoById = async (videoId: number | undefined) => {
+  try {
+    const response = await api.get(`/cui/dataset-videos/${videoId}/`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching video with ID ${videoId}:`, error);
+    throw new Error('Failed to fetch video.');
+  }
+};
+
+export const deleteVideoById = async (videoId: number) => {
+  try {
+    const response = await api.delete(`/cui/dataset-videos/${videoId}/`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting video with ID ${videoId}:`, error);
+    throw new Error('Failed to delete video.');
+  }
+};
+
+
 
 //Character Apis
 

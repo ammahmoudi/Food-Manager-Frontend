@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Button,Image } from "@nextui-org/react";
+import { Button } from "@nextui-org/react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import ImageComponent from "./ImageComponent";
 
@@ -69,9 +69,8 @@ const CarouselComponent: React.FC<CarouselComponentProps> = ({ jobs, onImageClic
                         <div
                             key={job}
                             onClick={() => handleImageClick(job)}
-                            className=""
                         >
-                            <Image className="h-[10]" src="https://sitechecker.pro/wp-content/uploads/2017/12/what-does-url-stand-for.png"></Image>
+                            <ImageComponent src_id={job} src_variant="job" className=""/>
                         </div>
                     ))}
                 </div>`

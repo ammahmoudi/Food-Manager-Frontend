@@ -18,8 +18,6 @@ import { GiDoubleFaceMask } from "react-icons/gi";
 import EditFaceModal from "./livePortraitModal";
 import { PiTextAlignLeftLight } from "react-icons/pi";
 import DatasetImageInfoModal from "./DatasetImageInfoModal";
-import ImageComponent from "../ImageComponent";
-import CarouselComponent from '../CarousalComponent';
 import CarousalComponent from "../CarousalComponent";
 
 
@@ -132,7 +130,6 @@ const FullScreenModal: FC<FullScreenModalProps> = ({initialImageId,isOpen,onClos
                 />
               )}
             </div>
-            
 
             {/* Action Buttons */}
             <div className="">
@@ -185,12 +182,12 @@ const FullScreenModal: FC<FullScreenModalProps> = ({initialImageId,isOpen,onClos
       />
     }
 
-      <DatasetImageInfoModal
-        visible={isImageInfoModalOpen}
-        onClose={closeImageInfoModal}
-        imageId={initialImageId}
-        onDeleteSuccess={closeImageInfoModal}
-      />
+    <DatasetImageInfoModal
+      visible={isImageInfoModalOpen}
+      onClose={closeImageInfoModal}
+      imageId={initialImageId}
+      onDeleteSuccess={closeImageInfoModal}
+    />
 
     <Modal isOpen={isDeleteModalOpen} onOpenChange={closeDeleteModal}>
       <ModalContent>
