@@ -111,7 +111,7 @@ const ImageComponent: React.FC<ImageProps> = ({ src_id, src_variant, className ,
           <Image
             src={props.src || fallbackImage}
             alt="Rendered Image"
-            className="w-full h-full object-cover filter rounded-none"
+            className="object-cover w-full h-full rounded-none"
             classNames={{ wrapper: "w-full h-full aspect-square" }}
             onClick={() => isClickable && handleOpenFullScreenModal(props.id as number)}
             style={{ objectFit: "contain" }}
