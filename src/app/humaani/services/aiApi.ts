@@ -91,7 +91,16 @@ export const submitFinalData = async (imageId: number,loraType: string | null) =
 };
 
 
-
+// Function to submit the video generation request
+export const submitVideoRequest = async (videoData: { dataset_image_id: number; prompt: string }) => {
+  try {
+    const response = await api.post("/cui/workflow-runners/generate-video/", videoData);
+    return response.data;
+  } catch (error) {
+    console.error("Error generating video:", error);
+    throw error;
+  }
+};
 
 // Send prompt with selected character and lora to the backend
 export const sendPromptForCharacter = async (data: {
