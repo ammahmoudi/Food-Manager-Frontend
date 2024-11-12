@@ -5,11 +5,10 @@ import { ArrowPathRoundedSquareIcon } from '@heroicons/react/24/outline';
 
 interface SeedInputProps {
   seed: number;
-  setSeed: (seed: number) => void; // Function passed from parent to set seed
+  setSeed: (seed: number) => void;
 }
 
 const SeedInput: React.FC<SeedInputProps> = ({ seed, setSeed }) => {
-  // Function to generate a new random number
   const generateRandomNumber = () => {
     const randomNumber = Math.floor(Math.random() * Math.pow(2, 16));
     setSeed(randomNumber);
@@ -19,7 +18,6 @@ const SeedInput: React.FC<SeedInputProps> = ({ seed, setSeed }) => {
     <div>
       <Input
         radius="sm"
-        
         color="default"
         variant="bordered"
         type="number"
@@ -33,6 +31,7 @@ const SeedInput: React.FC<SeedInputProps> = ({ seed, setSeed }) => {
             radius="full"
             variant="ghost"
             size="sm"
+            className="border-none"
             onPress={generateRandomNumber}
           >
             <ArrowPathRoundedSquareIcon/>

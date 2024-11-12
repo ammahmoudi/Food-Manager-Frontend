@@ -22,14 +22,16 @@ import SeedInput from "../../components/SeedGenerator";
 import LoraTypeComponent from "../../components/LoraTypeComponent";
 import ImageUploadComponent from "../../components/UploadImage";
 import DatasetImage from "../../interfaces/DatasetImage";
+import ImageComponent from "../../components/ImageComponent";
 
 const PromptPage = () => {
 	const [prompt, setPrompt] = useState<string>("");
 	const [job, setJob] = useState<Job | null>(null);
+	const [jobId, setJobId] = useState<number | null>(null);
 	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false);
 	const [isSubmittingFinal, setIsSubmittingFinal] = useState<boolean>(false);
 	const [polling, setPolling] = useState<boolean>(false);
-	const [referenceImage, setReferenceImage] = useState<DatasetImage | null>(null); // Updated to store DatasetImage
+	const [referenceImage, setReferenceImage] = useState<DatasetImage | null>(null);
 	const [isCropModalOpen, setCropModalOpen] = useState(false);
 	const [selectedLoraType, setSelectedLoraType] = useState<string | null>(null);
 	const router = useRouter();
@@ -38,66 +40,17 @@ const PromptPage = () => {
 		Math.floor(Math.random() * Math.pow(2, 16))
 	);
 
-	// Poll the job statuses
-	const pollJobStatus = async (jobId: number) => {
-		setPolling(true);
 
-		const fetchJobStatus = async () => {
-			try {
-				const jobData = await getJob(jobId);
-				setJob(jobData);
 
-				// If the job completes, fetch the generated image
-				if (jobData.status === "completed") {
-					setPolling(false);
-					clearInterval(intervalId);
-
-					// Fetch the generated image details and pass it to the ImageUploadComponent
-					if (jobData.images && jobData.images.length > 0) {
-						const imageId = jobData.images[0];
-						const generatedImage = await getImageById(imageId); // Assuming getImageById returns DatasetImage
-						setReferenceImage(generatedImage);
-						toast.success("Job completed and image is ready!");
-						setIsSubmittingPrompt(false); // Re-enable the button
-					} else {
-						toast.error("No image returned from the backend.");
-						setIsSubmittingPrompt(false); // Re-enable the button
-					}
-				} else if (jobData.status === "failed") {
-					setPolling(false);
-					clearInterval(intervalId);
-					toast.error("Job failed to complete.");
-					setIsSubmittingPrompt(false); // Re-enable the button
-				}
-			} catch (error) {
-				console.error("Error fetching job status:", error);
-				setPolling(false);
-				clearInterval(intervalId);
-				toast.error("Error fetching job status.");
-				setIsSubmittingPrompt(false); // Re-enable the button
-			}
-		};
-
-		await fetchJobStatus();
-
-		const intervalId = setInterval(async () => {
-			await fetchJobStatus();
-		}, 5000);
-	};
-
-	// Handle prompt submission to backend
 	const handleSubmitPrompt = async () => {
 		if (!prompt.trim()) {
 			toast.error("Prompt cannot be empty!");
 			return;
 		}
-
 		setIsSubmittingPrompt(true);
-		setReferenceImage(null); // Clear the current image before new prompt submission
-
+		setReferenceImage(null);
 		try {
-			setJob(null); // Clear previous job on new prompt
-
+			setJob(null);
 			const response = await sendPromptToBackend({
 				prompt: prompt,
 				seed: String(seed),
@@ -105,20 +58,19 @@ const PromptPage = () => {
 			toast.success("Prompt submitted successfully!");
 
 			if (response.job_id) {
-				setPolling(true);
-				pollJobStatus(response.job_id);
+				setJobId(response.job_id)
+				setIsSubmittingPrompt(false)
 			} else {
 				toast.error("Failed to retrieve job ID.");
-				setIsSubmittingPrompt(false); // Re-enable the button
+				setIsSubmittingPrompt(false);
 			}
 		} catch (error) {
 			toast.error("Error submitting the prompt.");
 			console.error("Error submitting prompt:", error);
-			setIsSubmittingPrompt(false); // Re-enable the button
+			setIsSubmittingPrompt(false);
 		}
 	};
 
-	// Handle final submission of data
 	const handleFinalSubmit = async () => {
 		if (!referenceImage) {
 			toast.error("No image available to submit.");
@@ -146,14 +98,12 @@ const PromptPage = () => {
 		}
 	};
 
-	// Handle image ID received from the image upload component
 	const handleImageIdReceived = (image: DatasetImage | null) => {
 		if (image) {
-			setReferenceImage(image); // Updated to store the DatasetImage object
+			setReferenceImage(image);
 		}
 	};
 
-	// Handle crop complete and set the cropped image
 	const handleCropComplete = () => {
 		setCropModalOpen(false);
 	};
@@ -162,7 +112,6 @@ const PromptPage = () => {
 		setSelectedLoraType(LoraType);
 	};
 
-	// Handle image upload and open crop modal
 	const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (file && job?.status !== "completed") {
@@ -171,7 +120,6 @@ const PromptPage = () => {
 		}
 	};
 
-	// Use searchParams to get the image ID from the URL
 	useEffect(() => {
 		const imageId = searchParams.get("id");
 		if (imageId) {
@@ -195,7 +143,12 @@ const PromptPage = () => {
 				<Card className="w-[700px] h-auto gap-1">
 					<CardBody className="flex flex-col md:flex md:flex-row gap-2">
 						{/* Image Section */}
-						<ImageUploadComponent onImageIdReceived={handleImageIdReceived} image={referenceImage} />
+						{/* <ImageUploadComponent onImageIdReceived={handleImageIdReceived} image={referenceImage} /> */}
+						{jobId ? (
+							<ImageComponent src_id={jobId} src_variant={"job"}></ImageComponent>
+						):(
+							<ImageUploadComponent onImageIdReceived={handleImageIdReceived}></ImageUploadComponent>
+						)}
 
 						<input
 							placeholder="image"

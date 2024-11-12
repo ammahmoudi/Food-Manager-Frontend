@@ -75,7 +75,7 @@ const CustomCharacterAutocomplete: FC<CustomCharacterAutocompleteProps> = ({
 
 	const handleCloseModal = () => {
 		setModalVisible(false);
-		fetchCharacters(); // Refresh the character list after closing the modal
+		fetchCharacters();
 	};
 
 	const handleSave = async (character: Character) => {
