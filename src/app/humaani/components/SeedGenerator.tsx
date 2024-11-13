@@ -1,7 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { useState } from "react";
 import { Input, Button } from "@nextui-org/react";
-import { ArrowPathRoundedSquareIcon } from '@heroicons/react/24/outline';
+import { IoDiceOutline } from "react-icons/io5";
 
 interface SeedInputProps {
   seed: number;
@@ -30,11 +28,10 @@ const SeedInput: React.FC<SeedInputProps> = ({ seed, setSeed }) => {
             isIconOnly
             radius="full"
             variant="ghost"
-            size="sm"
             className="border-none"
             onPress={generateRandomNumber}
           >
-            <ArrowPathRoundedSquareIcon/>
+            <IoDiceOutline />
           </Button>
         }
       />

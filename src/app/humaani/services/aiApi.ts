@@ -229,9 +229,10 @@ export const updatePromptsForImage = async (dataset_image_id: number, complex_pr
 };
 
 
-export const requestPromptsForImage = async (data: { dataset_image_id: number | undefined }) => {
+export const requestPromptsForImage = async (dataset_image_id: number ) => {
   try {
-    const response = await api.post("/cui/workflow-runners/prompts/get-prompt/", data);
+    console.log(dataset_image_id)
+    const response = await api.post("/cui/workflow-runners/prompts/get-prompt/", {dataset_image_id});
     return response.data;
   } catch (error) {
     console.error("Failed to request prompts for image:", error);
@@ -262,6 +263,18 @@ export const deleteVideoById = async (videoId: number) => {
   }
 };
 
+export const uploadTempVideo = async (file: File) => {
+  const formData = new FormData();
+  formData.append("video_file", file);
+
+  const response = await api.post("/cui/datasets/add-temp-videos/", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
+};
 
 
 //Character Apis
@@ -329,8 +342,6 @@ export const renameCharacter = async (characterId: number,name: string) => {
     throw error;
   }
 };
-
-
 
 
 // Lora Api

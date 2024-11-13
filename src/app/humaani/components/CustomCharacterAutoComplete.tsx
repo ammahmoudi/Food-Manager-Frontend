@@ -36,7 +36,6 @@ const CustomCharacterAutocomplete: FC<CustomCharacterAutocompleteProps> = ({
 	onUpdateComplete,
 }) => {
 	const [characters, setCharacters] = useState<Character[]>([]);
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [inputValue, setInputValue] = useState("");
 	const [modalVisible, setModalVisible] = useState(false);
 

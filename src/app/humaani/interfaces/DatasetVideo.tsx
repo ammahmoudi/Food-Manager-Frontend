@@ -2,7 +2,7 @@ export interface DatasetVideo {
     id: number;
     name: string;
     video_file_url: string;
-    cover_image_url: string | null;
+    cover_image: string | null;
     file_size: number | null;
     video_url: string | null;
     job_id: number | null;

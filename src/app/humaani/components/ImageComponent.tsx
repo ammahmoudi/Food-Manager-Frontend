@@ -13,6 +13,7 @@ interface ImageProps {
   className?: string;
   isClickable?: boolean;
   onChange?: () => void;
+  onImageRecieved?: (id: number) => void;
 }
 
 const ImageComponent: React.FC<ImageProps> = ({
@@ -21,6 +22,8 @@ const ImageComponent: React.FC<ImageProps> = ({
   className,
   isClickable = true,
   onChange,
+  onImageRecieved
+
 }) => {
   const [image, setImage] = useState<DatasetImage | null>(null);
   const [job, setJob] = useState<Job | null>(null);
@@ -40,29 +43,24 @@ const ImageComponent: React.FC<ImageProps> = ({
         if (src_variant === "job") {
           const fetchedJob = await getJob(src_id);
           setJob(fetchedJob);
-
-          // Set cover image to video cover if available, otherwise first image output
           if (fetchedJob.video_outputs && fetchedJob.video_outputs.length > 0) {
             setCoverImage(fetchedJob.video_outputs[0].cover_image_url || fallbackImage);
-          } else if (fetchedJob.image_outputs && fetchedJob.image_outputs.length > 0) {
+          } else if (fetchedJob.image_outputs && fetchedJob.image_outputs.length > 0 && onImageRecieved) {
             setCoverImage(fetchedJob.image_outputs[0].url);
+            onImageRecieved(fetchedJob.image_outputs[0].id)
           }
-
-          // Poll if the job is running or pending
           if (!["completed", "failed", "canceled"].includes(fetchedJob.status)) {
             intervalId = setInterval(async () => {
               const updatedJob = await getJob(src_id);
               setJob(updatedJob);
-              // Set cover image to video cover if available, otherwise first image output
-          if (fetchedJob.video_outputs && fetchedJob.video_outputs.length > 0) {
-            setCoverImage(fetchedJob.video_outputs[0].cover_image_url || fallbackImage);
+              if (fetchedJob.video_outputs && fetchedJob.video_outputs.length > 0) {
+                setCoverImage(fetchedJob.video_outputs[0].cover_image_url || fallbackImage);
           } else if (fetchedJob.image_outputs && fetchedJob.image_outputs.length > 0) {
             setCoverImage(fetchedJob.image_outputs[0].url);
           }
-
-              if (["completed", "failed", "canceled"].includes(updatedJob.status)) {
-                clearInterval(intervalId as NodeJS.Timeout);
-              }
+            if (["completed", "failed", "canceled"].includes(updatedJob.status)) {
+              clearInterval(intervalId as NodeJS.Timeout);
+            }
             }, 1000);
           }
         } else if (src_variant === "datasetImage") {

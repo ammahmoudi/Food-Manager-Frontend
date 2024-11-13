@@ -24,6 +24,8 @@ import EditFaceModal from "./livePortraitModal";
 import VideoComponent from "../VideoComponent";
 import { MdOutlineVideoCall } from "react-icons/md";
 import GenerateVideoModal from "./GenerateVideoModal";
+import VideoUploadModal from "./VideoModal";
+import { LuScanFace } from "react-icons/lu";
 
 interface FullScreenModalProps {
 	initialImageId: number;
@@ -38,36 +40,20 @@ const FullScreenModal: FC<FullScreenModalProps> = ({
 	onClose,
 	onUpdate,
 }) => {
-	const {
-		isOpen: isDeleteModalOpen,
-		onOpen: openDeleteModal,
-		onClose: closeDeleteModal,
-	} = useDisclosure();
-	const {
-		isOpen: isEditFaceModalOpen,
-		onOpen: openEditFaceModal,
-		onClose: closeEditFaceModal,
-	} = useDisclosure();
-	const {
-		isOpen: isImageInfoModalOpen,
-		onOpen: openImageInfoeModal,
-		onClose: closeImageInfoModal,
-	} = useDisclosure();
-	const {
-		isOpen: isGenerateVideoModalOpen,
-		onOpen: openGenerateVideoModal,
-		onClose: closeGenerateVideoModal,
-	} = useDisclosure(); // Video modal state
+	const {isOpen: isVideoModalOpen,onOpen: openVideoModal,onClose: closeVideoModal,} = useDisclosure();
+	const {isOpen: isDeleteModalOpen,onOpen: openDeleteModal,onClose: closeDeleteModal,} = useDisclosure();
+	const {isOpen: isEditFaceModalOpen,onOpen: openEditFaceModal,onClose: closeEditFaceModal,} = useDisclosure();
+	const {isOpen: isImageInfoModalOpen,onOpen: openImageInfoeModal,onClose: closeImageInfoModal,} = useDisclosure();
+	const {isOpen: isGenerateVideoModalOpen,onOpen: openGenerateVideoModal,onClose: closeGenerateVideoModal,} = useDisclosure();
 
 	const [image, setImage] = useState<DatasetImage>();
 	const [loading, setLoading] = useState<boolean>(false);
 	const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
 	const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
-	// Effect to reset state when modal opens
+
 	useEffect(() => {
 		if (isOpen) {
-			// Reset variant selection and job when modal opens
 			setSelectedVariant(null);
 			setSelectedJob(null);
 			fetchImage();
@@ -124,7 +110,6 @@ const FullScreenModal: FC<FullScreenModalProps> = ({
 		setSelectedJob(null);
 	};
 
-	// Fetch function to reload the image
 	const fetchImage = async () => {
 		setLoading(true);
 		try {
@@ -138,9 +123,8 @@ const FullScreenModal: FC<FullScreenModalProps> = ({
 		}
 	};
 
-	// Custom close function for the main modal
 	const handleClose = () => {
-		handleVariantClose(); // Reset variant when closing
+		handleVariantClose();
 		onUpdate();
 		onClose();
 	};
@@ -198,7 +182,6 @@ const FullScreenModal: FC<FullScreenModalProps> = ({
 										<IoCloseCircle size={30} />
 									</Button>
 								)}
-								
 								{/* Video or Image Variant with Aspect Ratio */}
 								{selectedVariant?.endsWith(".mp4") ? (
 									<div className="flex justify-center items-center w-full h-full rounded-lg overflow-hidden">
@@ -234,6 +217,14 @@ const FullScreenModal: FC<FullScreenModalProps> = ({
 
 						{/* Action Buttons */}
 						<div className="flex justify-center space-x-4">
+						<Button
+								size="lg"
+								isIconOnly
+								className="text-white hover:text-red-600 bg-transparent shadow-none text-4xl"
+								onPress={openVideoModal}
+							>
+								<LuScanFace />
+							</Button>
 							<Button
 								isIconOnly
 								size="lg"
@@ -274,6 +265,7 @@ const FullScreenModal: FC<FullScreenModalProps> = ({
 							>
 								<HiOutlineTrash />
 							</Button>
+
 						</div>
 					</ModalFooter>
 				</ModalContent>
@@ -294,6 +286,8 @@ const FullScreenModal: FC<FullScreenModalProps> = ({
 					}}
 				/>
 			)}
+
+			<VideoUploadModal isOpen={isVideoModalOpen} onClose={closeVideoModal} />
 
 			{/* Dataset Image Info Modal */}
 			<DatasetImageInfoModal
@@ -345,6 +339,7 @@ const FullScreenModal: FC<FullScreenModalProps> = ({
 					</ModalFooter>
 				</ModalContent>
 			</Modal>
+
 		</>
 	);
 };

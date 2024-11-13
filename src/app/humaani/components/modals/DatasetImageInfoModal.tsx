@@ -35,10 +35,7 @@ const DatasetImageInfoModal: FC<DatasetImageInfoModalProps> = ({
 							onDeleteSuccess();
 							onClose();
 						} }
-						onClose={() => {
-							onClose();
-						} }
-						/>
+					/>
 				</ModalBody>
 			</ModalContent>
 		</Modal>

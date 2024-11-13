@@ -39,9 +39,7 @@ const DatasetImageInfoCard: React.FC<DatasetImageInfoCardProps> = ({
   const handleGetPrompts = async () => {
     try {
       setIsFetchingPrompts(true);
-      const response = await requestPromptsForImage({
-        dataset_image_id: imageId,
-      });
+      const response = await requestPromptsForImage(imageId);
 
       if (response.job_id) {
         toast.success("Prompt submitted successfully!");

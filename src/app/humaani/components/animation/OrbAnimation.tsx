@@ -3,21 +3,18 @@ import lottie from "lottie-web";
 import orbData from "./orb.json";
 
 export default function OrbAnimation() {
-    // Explicitly define the ref type as HTMLDivElement | null
     const animationContainer = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if (animationContainer.current) {
-            // Load the animation
+
             const animation = lottie.loadAnimation({
-                container: animationContainer.current, // DOM element to contain the animation
+                container: animationContainer.current,
                 renderer: "svg",
                 loop: true,
                 autoplay: true,
-                animationData: orbData, // Your JSON data
+                animationData: orbData,
             });
-
-            // Cleanup the animation when component unmounts
             return () => animation.destroy();
         }
     }, []);
@@ -26,17 +23,16 @@ export default function OrbAnimation() {
         <div
             ref={animationContainer}
             style={{
-                position: "fixed", // Ensure it is fixed to the viewport
+                position: "fixed",
                 top: 0,
                 left: 0,
-                width: "100vw", // Full viewport width
-                height: "100vh", // Full viewport height
-                display: "flex", // Flex to center if needed
+                width: "100vw",
+                height: "100vh",
+                display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                zIndex: 0, // Keep it in the background, increase if needed
-
-                overflow: "hidden", // Hide overflow content
+                zIndex: 0,
+                overflow: "hidden",
             }}
         />
     );

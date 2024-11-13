@@ -23,7 +23,6 @@ import SeedInput from "../../components/SeedGenerator";
 import AspectRatioDropDown from "../../components/AspectRatioDropDown";
 import LoraUsageSlider from "../../components/StrengthSlider";
 import ImageUploadComponent from "../../components/UploadImage";
-import DatasetImage from "../../interfaces/DatasetImage";
 import ImageComponent from "../../components/ImageComponent";
 
 
@@ -38,7 +37,7 @@ const PromptPage = () => {
 	const [selectedAspectRatio, setSelectedAspectRatio] = useState<string>("1:1");
 	const [sliderValue, setSliderValue] = useState<number>(0.8);
 	const [referenceSliderValue, setReferenceSliderValue] = useState<number>(0.5);
-	const [referenceImage, setReferenceImage] = useState<DatasetImage | null>(null);
+	const [referenceImageId, setReferenceImageId] = useState<number | null>(null);
 	const [isFetchingPrompts, setIsFetchingPrompts] = useState(false);
 	const [pollingPrompt, setPollingPrompt] = useState(false);
 	const [jobId, setJobId] = useState<number | null>(null);
@@ -61,23 +60,25 @@ const PromptPage = () => {
 	const handleGetPrompts = async () => {
 		try {
 			setIsFetchingPrompts(true);
-			const response = await requestPromptsForImage({dataset_image_id: referenceImage?.id});
+				if(referenceImageId){
+				const response = await requestPromptsForImage(referenceImageId);
 
-		if (response.job_id) {
-			toast.success("Prompt submitted successfully!");
-			await pollJobStatusForPrompt(response.job_id);
+				if (response.job_id) {
+					toast.success("Prompt submitted successfully!");
+					await pollJobStatusForPrompt(response.job_id);
 
-		} else {
-			toast.error("Failed to retrieve job ID.");
-		}
+				} else {
+					toast.error("Failed to retrieve job ID.");
+				}
+			}
 		} catch (error) {
-			console.error(`Error requesting prompts for image with ID ${referenceImage?.id}:`, error);
+			console.error(`Error requesting prompts for image:`, error);
 			setIsFetchingPrompts(false);
 		}
 	};
 
-	const handleImageIdReceived = (image: DatasetImage|null) => {
-		setReferenceImage(image);
+	const handleImageIdReceived = (UploadedImage: number|null) => {
+		setReferenceImageId(UploadedImage);
 	};
 
 	const handleAspectRatioSelect = (aspectRatio: string) => {
@@ -149,11 +150,13 @@ const PromptPage = () => {
 
 	const fetchImageData = async () => {
 		try {
-			const data:DatasetImage = await getImageById(referenceImage?.id);
-			setPrompt(prompt+", "+data.complex_prompt)
-			setReferenceImage(data);
+			if(referenceImageId){
+				const data = await getImageById(referenceImageId);
+				setPrompt(prompt+", "+data.complex_prompt)
+				setReferenceImageId(data.id);
+			}
 		} catch (error) {
-			console.error(`Error fetching image with ID ${referenceImage?.id}:`, error);
+			console.error(`Error fetching image`, error);
 		}
 	};
 
@@ -179,8 +182,8 @@ const PromptPage = () => {
 				seed: String(seed),
 				lora_strength: String(sliderValue),
 				aspect_ratio: selectedAspectRatio,
-				reference_strength: referenceImage?String(referenceSliderValue):undefined,
-				reference_image: referenceImage?.id
+				reference_strength: referenceImageId ?String(referenceSliderValue):undefined,
+				reference_image: referenceImageId ? referenceImageId : undefined
 			});
 			toast.success("Prompt submitted successfully!");
 			if (response.job_id) {
@@ -210,7 +213,7 @@ const PromptPage = () => {
 										<ImageUploadComponent
 											onImageIdReceived={handleImageIdReceived}
 										/>
-										{ referenceImage &&  <>
+										{ referenceImageId &&  <>
 											<Button
 												color="primary"
 												onClick={handleGetPrompts}

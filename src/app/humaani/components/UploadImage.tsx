@@ -7,7 +7,7 @@ import DatasetImage from "../interfaces/DatasetImage";
 import DatasetImageInfoModal from "./modals/DatasetImageInfoModal";
 
 interface ImageUploadProps {
-  onImageIdReceived: (image: DatasetImage | null) => void;
+  onImageIdReceived: (image: number | null) => void;
   image?: DatasetImage | null;
 }
 
@@ -38,7 +38,7 @@ const ImageUploadComponent: React.FC<ImageUploadProps> = ({ onImageIdReceived, i
     setLoading(true);
     try {
       const uploadedImage: DatasetImage = await uploadTempImage(file);
-      onImageIdReceived(uploadedImage);
+      onImageIdReceived(uploadedImage.id);
       setImage(uploadedImage);
       toast.success("Image uploaded successfully!");
     } catch (error) {
