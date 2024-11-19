@@ -13,7 +13,6 @@ import ImageComponent from "../../components/ImageComponent";
 const NewCharacter = () => {
 	const [prompt, setPrompt] = useState<string>("");
 	const [jobId, setJobId] = useState<number | null>(null);
-	const [imageId, setImageId] = useState<number | null>(null);
 	const [isSubmittingPrompt, setIsSubmittingPrompt] = useState<boolean>(false);
 	const [isSubmittingFinal, setIsSubmittingFinal] = useState<boolean>(false);
 	const [referenceImageId, setReferenceImageId] = useState<number | null>(null);
@@ -22,7 +21,8 @@ const NewCharacter = () => {
 	const [seed, setSeed] = useState<number>(Math.floor(Math.random() * Math.pow(2, 16)));
 
 	const handleImageReceived = (id: number) => {
-		setImageId(id);
+		console.log('Image Received', id)
+		setReferenceImageId(id);
 		setIsSubmittingPrompt(false)
 	};
 
@@ -85,8 +85,8 @@ const NewCharacter = () => {
 				} else {
 					toast.error("Failed to retrieve dataset.");
 				}
-			}else if (imageId){
-				const response = await submitFinalData(imageId, selectedLoraType);
+			}else if (referenceImageId){
+				const response = await submitFinalData(referenceImageId, selectedLoraType);
 
 				if (response.dataset_id) {
 					toast.success("Final submission successful!");

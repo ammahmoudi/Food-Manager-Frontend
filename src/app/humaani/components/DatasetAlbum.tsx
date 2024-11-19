@@ -239,7 +239,7 @@ const DatasetAlbum: React.FC<DatasetAlbumProps> = ({ initialDataset, onUpdate  }
                 Add Image to the dataset
               </ModalHeader>
               <ModalBody>
-                <UploadImage onImageIdReceived={()=>setIsUploaded(true)} ></UploadImage>
+                {/* <UploadImage onImageIdReceived={()=>setIsUploaded(true)} ></UploadImage> */}
               </ModalBody>
               <ModalFooter>
                 <Button color="danger" variant="light" onPress={onOpenChangeDelete}>

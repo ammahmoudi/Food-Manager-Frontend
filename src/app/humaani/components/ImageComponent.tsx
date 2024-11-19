@@ -45,10 +45,14 @@ const ImageComponent: React.FC<ImageProps> = ({
           setJob(fetchedJob);
           if (fetchedJob.video_outputs && fetchedJob.video_outputs.length > 0) {
             setCoverImage(fetchedJob.video_outputs[0].cover_image_url || fallbackImage);
-          } else if (fetchedJob.image_outputs && fetchedJob.image_outputs.length > 0 && onImageRecieved) {
+           
+          } else if (fetchedJob.image_outputs && fetchedJob.image_outputs.length > 0) {
             setCoverImage(fetchedJob.image_outputs[0].url);
-            onImageRecieved(fetchedJob.image_outputs[0].id)
-          }
+            if(onImageRecieved){
+              console.log(fetchedJob)
+              onImageRecieved(fetchedJob.image_outputs[0].id)
+            }
+                    }
           if (!["completed", "failed", "canceled"].includes(fetchedJob.status)) {
             intervalId = setInterval(async () => {
               const updatedJob = await getJob(src_id);
