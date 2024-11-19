@@ -45,26 +45,25 @@ const ImageComponent: React.FC<ImageProps> = ({
           setJob(fetchedJob);
           if (fetchedJob.video_outputs && fetchedJob.video_outputs.length > 0) {
             setCoverImage(fetchedJob.video_outputs[0].cover_image_url || fallbackImage);
-           
           } else if (fetchedJob.image_outputs && fetchedJob.image_outputs.length > 0) {
             setCoverImage(fetchedJob.image_outputs[0].url);
-            if(onImageRecieved){
-              console.log(fetchedJob)
-              onImageRecieved(fetchedJob.image_outputs[0].id)
-            }
-                    }
+          }
           if (!["completed", "failed", "canceled"].includes(fetchedJob.status)) {
             intervalId = setInterval(async () => {
               const updatedJob = await getJob(src_id);
               setJob(updatedJob);
               if (fetchedJob.video_outputs && fetchedJob.video_outputs.length > 0) {
                 setCoverImage(fetchedJob.video_outputs[0].cover_image_url || fallbackImage);
-          } else if (fetchedJob.image_outputs && fetchedJob.image_outputs.length > 0) {
-            setCoverImage(fetchedJob.image_outputs[0].url);
-          }
-            if (["completed", "failed", "canceled"].includes(updatedJob.status)) {
-              clearInterval(intervalId as NodeJS.Timeout);
-            }
+              } else if (fetchedJob.image_outputs && fetchedJob.image_outputs.length > 0) {
+                setCoverImage(fetchedJob.image_outputs[0].url);
+              } 
+              if (["completed", "failed", "canceled"].includes(updatedJob.status)) {
+                if(onImageRecieved){
+                  console.log(updatedJob)
+                  onImageRecieved(updatedJob.image_outputs[0].dataset_image_id)
+                }
+                clearInterval(intervalId as NodeJS.Timeout);
+              }
             }, 1000);
           }
         } else if (src_variant === "datasetImage") {
