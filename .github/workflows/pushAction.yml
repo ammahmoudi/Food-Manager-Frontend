@@ -1,0 +1,25 @@
+name: CI/CD pipline
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: CI/CD pipline
+      run: |
+        ssh -o StrictHostKeyChecking=no root@149.202.159.14 << 'EOF'
+          bash /home/humaanic/project/frontend/Food-Manager-Frontend/pipline.sh
+        EOF
